@@ -1,6 +1,8 @@
 # Git Branch
 
-#### Lưu ý: Check  out branch nào thì push branch đó, không merge vào các branch chung như main, develop (việc này dùng pull request)
+#### Lưu ý: 
+- Check  out branch nào thì push branch đó, không merge vào các branch chung như main, develop (việc này dùng pull request).
+- Luôn dùng ```git status``` kiểm tra xem đã đúng branch chưa trước khi push.
 
 
 ## I. Cấu trúc nhánh
