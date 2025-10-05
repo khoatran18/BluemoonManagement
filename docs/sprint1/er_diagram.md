@@ -1,0 +1,85 @@
+```plantuml
+@startuml
+!theme plain
+
+entity "Apartments" as Apartments {
+  + ApartmentID : INT <<PK>>
+  --
+  Building : NVARCHAR(30)
+  RoomNumber : CHAR(6)
+  HeadResidentID : INT <<FK>>
+  CreatedAt : DATETIME
+  UpdatedAt : DATETIME
+}
+
+entity "Residents" as Residents {
+  + ResidentID : INT <<PK>>
+  --
+  ApartmentID : INT <<FK>>
+  FullName : NVARCHAR(30)
+  PhoneNumber : CHAR(10)
+  Email : VARCHAR(40)
+  IsHead : BIT
+  CreatedAt : DATETIME
+  UpdatedAt : DATETIME
+}
+
+entity "FeeType" as FeeType {
+  + FeeTypeID : INT <<PK>>
+  --
+  FeeTypeName : CHAR(10)
+  --
+  <<CHECK>> FeeTypeName IN ('Obligatory', 'Voluntary', 'Impromptu')
+}
+
+entity "FeeCategory" as FeeCategory {
+  + FeeCategoryID : INT <<PK>>
+  --
+  FeeTypeID : INT <<FK>>
+  FeeCategoryName : NVARCHAR(30)
+}
+
+entity "Fees" as Fees {
+  + FeeID : INT <<PK>>
+  --
+  FeeTypeID : INT <<FK>>
+  FeeCategoryID : INT <<FK>>
+  FeeName : NVARCHAR(100)
+  FeeAmount : DECIMAL(12,2)
+  ApplicableMonth : CHAR(4)
+  EffectiveDate : DATE
+  ExpiryDate : DATE
+  Status : CHAR(8)
+  CreatedAt : DATETIME
+  UpdatedAt : DATETIME
+  --
+   <<CHECK>> Status IN ('Draft', 'Active', 'Closed', 'Archived')
+
+}
+
+entity "Payments" as Payments {
+  + PaymentID : INT <<PK>>
+  --
+  ApartmentID : INT <<FK>>
+  FeeID : INT <<FK>>
+  AmountPaid : DECIMAL(12,2)
+  PaymentDate : DATE
+  PaymentMethod : NVARCHAR(30)
+  Note : NVARCHAR(100)
+  CreatedAt : DATETIME
+}
+
+'--------------------------
+' Relationships
+'--------------------------
+
+Apartments ||--o{ Residents : "has occupants >"
+Residents }o--|| Apartments : "belongs to >"
+Apartments ||--o{ Payments : "makes >"
+Fees ||--o{ Payments : "is paid for >"
+FeeType ||--|{ Fees : "categorizes >"
+FeeType ||--o{ FeeCategory : "groups >"
+FeeCategory ||--o{ Fees : "sub-categorizes >"
+Apartments ||--o| Residents : "head resident >"
+@enduml
+```
