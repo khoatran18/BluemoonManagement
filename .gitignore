@@ -1,12 +1,23 @@
-# IntelliJ
+# Build artifacts
+/target/
+/build/
+/out/
+*.jar
+*.war
+*.ear
+
+# IntelliJ IDEA files
 .idea/
 *.iml
-out/
+*.iws
 
-# Build
-/build/
-*.class
+# Log files
+*.log
 
-# OS
+# Temporary files
+*.tmp
+/temp/
+
+# Operating System files
 .DS_Store
 Thumbs.db
