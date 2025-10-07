@@ -1,7 +1,7 @@
 @startuml name "db"
 !theme plain
 
-entity "Apartments" as Apartments {
+entity "Apartment" as Apartment {
   + ApartmentID : INT <<PK>>
   --
   Building : NVARCHAR(30)
@@ -11,9 +11,10 @@ entity "Apartments" as Apartments {
   UpdatedAt : DATETIME
 }
 
-entity "Residents" as Residents {
+entity "Resident" as Resident {
   + ResidentID : INT <<PK>>
   --
+  OwnerResidentID: INT <<FK>>
   ApartmentID : INT <<FK>>
   FullName : NVARCHAR(30)
   PhoneNumber : CHAR(10)
@@ -36,9 +37,10 @@ entity "FeeCategory" as FeeCategory {
   --
   FeeTypeID : INT <<FK>>
   FeeCategoryName : NVARCHAR(30)
+  FeeCategoryDescription: NVARCHAR(100)
 }
 
-entity "Fees" as Fees {
+entity "Fee" as Fee {
   + FeeID : INT <<PK>>
   --
   FeeTypeID : INT <<FK>>
@@ -54,10 +56,10 @@ entity "Fees" as Fees {
   UpdatedAt : DATETIME
   --
    <<CHECK>> Status IN ('Draft', 'Active', 'Closed', 'Archived')
-
 }
 
-entity "Payments" as Payments {
+
+entity "Payment" as Payment {
   + PaymentID : INT <<PK>>
   --
   ApartmentID : INT <<FK>>
@@ -69,16 +71,54 @@ entity "Payments" as Payments {
   CreatedAt : DATETIME
 }
 
+entity "ApartmentFeeStatus" as ApartmentFeeStatus{
+  + AparmentID: INT <<PK, FK>>
+  --
+  FeesList: SET<Fee>
+  AdjustmentsList: NULL SET<Adjustment>
+  ExtraAdjustmentsList: NULL SET<Adjustment>
+  Status: VARCHAR(10)
+  UpdatedAt: DATE
+  --
+  <<CHECK>> Status IN ('Debt', 'Paid')
+}
+
+entity "Adjustment" as Adjustment{
+  + AdjustmentID: INT <<PK>>
+  --
+  FeeID: NULL INT <<FK>>
+  AdjustmentAmount: DECIMAL(12, 2)
+  AdjustmentType: CHAR(10)
+  Reason: NVARCHAR(300)
+  EffectiveDate: DATETIME
+  ExpiryDate: DATETIME 
+  --
+  <<CHECK>> AdjustmentType IN ('increase', 'decrease')
+}
+
+entity "ApartmentSpecificAdjustment" as ApartmentSpecificAdjustment{
+  + AparmentID: INT <<PK, FK>>
+  --
+  AdjustmentID: INT <<FK>>
+}
+
 '--------------------------
 ' Relationships
 '--------------------------
 
-Apartments ||--o{ Residents : "has occupants >"
-Residents }o--|| Apartments : "belongs to >"
-Apartments ||--o{ Payments : "makes >"
-Fees ||--o{ Payments : "is paid for >"
-FeeType ||--|{ Fees : "categorizes >"
+Apartment ||--o{ Resident : "has occupants >"
+Resident }o--|| Apartment : "belongs to >"
+Resident ||--o| Resident: "owner-tenant"
+Apartment ||--o{ Payment : "makes >"
+Fee ||--o{ Payment : "is paid for >"
+FeeType ||--|{ Fee : "categorizes >"
 FeeType ||--o{ FeeCategory : "groups >"
-FeeCategory ||--o{ Fees : "sub-categorizes >"
-Apartments ||--o| Residents : "head resident >"
+FeeCategory ||--o{ Fee : "sub-categorizes >"
+Apartment ||--o| Resident : "head resident >"
+Apartment ||--o{ ApartmentFeeStatus : "has fee status >"
+Fee ||--o{ ApartmentFeeStatus : "status for >"
+Fee ||--o{ Adjustment : "has adjustments >"
+Apartment ||--o{ ApartmentSpecificAdjustment
+Adjustment ||--o{ ApartmentSpecificAdjustment
+
 @enduml
