@@ -1,5 +1,4 @@
-```plantuml
-@startuml
+@startuml name "db"
 !theme plain
 
 entity "Apartments" as Apartments {
@@ -82,4 +81,3 @@ FeeType ||--o{ FeeCategory : "groups >"
 FeeCategory ||--o{ Fees : "sub-categorizes >"
 Apartments ||--o| Residents : "head resident >"
 @enduml
-```
