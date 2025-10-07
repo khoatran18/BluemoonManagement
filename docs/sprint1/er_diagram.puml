@@ -1,0 +1,111 @@
+ @startuml name "db"
+!theme plain
+
+entity "Apartment" as Apartment {
+  + ApartmentID : INT <<PK>>
+  --
+  Building : NVARCHAR(30)
+  RoomNumber : CHAR(6)
+  HeadResidentID : INT <<FK>>
+  CreatedAt : DATETIME
+  UpdatedAt : DATETIME
+}
+
+entity "Resident" as Resident {
+  + ResidentID : INT <<PK>>
+  --
+  OwnerResidentID: INT <<FK>>
+  ApartmentID : INT <<FK>>
+  FullName : NVARCHAR(30)
+  PhoneNumber : CHAR(10)
+  Email : VARCHAR(40)
+  IsHead : BIT
+  CreatedAt : DATETIME
+  UpdatedAt : DATETIME
+}
+
+entity "FeeType" as FeeType {
+  + FeeTypeID : INT <<PK>>
+  --
+  FeeTypeName : CHAR(10)
+  --
+  <<CHECK>> FeeTypeName IN ('Obligatory', 'Voluntary', 'Impromptu')
+}
+
+entity "FeeCategory" as FeeCategory {
+  + FeeCategoryID : INT <<PK>>
+  --
+  FeeTypeID : INT <<FK>>
+  FeeCategoryName : NVARCHAR(30)
+  FeeCategoryDescription: NVARCHAR(100)
+}
+
+entity "Fee" as Fee {
+  + FeeID : INT <<PK>>
+  --
+  FeeTypeID : INT <<FK>>
+  FeeCategoryID : INT <<FK>>
+  FeeName : NVARCHAR(100)
+  FeeDescription: NVARCHAR(300)
+  FeeAmount : DECIMAL(12,2)
+  ApplicableMonth : CHAR(4)
+  EffectiveDate : DATE
+  ExpiryDate : DATE
+  Status : CHAR(8)
+  CreatedAt : DATETIME
+  UpdatedAt : DATETIME
+  --
+   <<CHECK>> Status IN ('Draft', 'Active', 'Closed', 'Archived')
+}
+
+
+entity "ApartmentFeeStatus" as ApartmentFeeStatus{
+  + AparmentID: INT <<PK, FK>>
+  --
+  FeesList: SET<Fee>
+  AdjustmentsList: NULL SET<Adjustment>
+  ExtraAdjustmentsList: NULL SET<Adjustment>
+  TotalFee: DECIMAL(12, 2)
+  TotalPaid: DECIMAL(12, 2)
+  Balance: DECIMAL(12,2)
+  UpdatedAt: DATE
+  --
+}
+
+entity "Adjustment" as Adjustment{
+  + AdjustmentID: INT <<PK>>
+  --
+  FeeID: NULL INT <<FK>>
+  AdjustmentAmount: DECIMAL(12, 2)
+  AdjustmentType: CHAR(10)
+  Reason: NVARCHAR(300)
+  EffectiveDate: DATETIME
+  ExpiryDate: DATETIME 
+  --
+  <<CHECK>> AdjustmentType IN ('increase', 'decrease')
+}
+
+entity "ApartmentSpecificAdjustment" as ApartmentSpecificAdjustment{
+  + AparmentID: INT <<PK, FK>>
+  --
+  AdjustmentID: INT <<FK>>
+}
+
+'--------------------------
+' Relationships
+'--------------------------
+
+Apartment ||--o{ Resident : "has occupants >"
+Resident }o--|| Apartment : "belongs to >"
+Resident ||--o| Resident: "owner-tenant"
+FeeType ||--|{ Fee : "categorizes >"
+FeeType ||--o{ FeeCategory : "groups >"
+FeeCategory ||--o{ Fee : "sub-categorizes >"
+Apartment ||--o| Resident : "head resident >"
+Apartment ||--o{ ApartmentFeeStatus : "has fee status >"
+Fee ||--o{ ApartmentFeeStatus : "status for >"
+Fee ||--o{ Adjustment : "has adjustments >"
+Apartment ||--o{ ApartmentSpecificAdjustment
+Adjustment ||--o{ ApartmentSpecificAdjustment
+
+@enduml
