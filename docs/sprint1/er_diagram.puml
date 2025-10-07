@@ -1,4 +1,4 @@
-@startuml name "db"
+ @startuml name "db"
 !theme plain
 
 entity "Apartment" as Apartment {
@@ -59,28 +59,17 @@ entity "Fee" as Fee {
 }
 
 
-entity "Payment" as Payment {
-  + PaymentID : INT <<PK>>
-  --
-  ApartmentID : INT <<FK>>
-  FeeID : INT <<FK>>
-  AmountPaid : DECIMAL(12,2)
-  PaymentDate : DATE
-  PaymentMethod : NVARCHAR(30)
-  Note : NVARCHAR(100)
-  CreatedAt : DATETIME
-}
-
 entity "ApartmentFeeStatus" as ApartmentFeeStatus{
   + AparmentID: INT <<PK, FK>>
   --
   FeesList: SET<Fee>
   AdjustmentsList: NULL SET<Adjustment>
   ExtraAdjustmentsList: NULL SET<Adjustment>
-  Status: VARCHAR(10)
+  TotalFee: DECIMAL(12, 2)
+  TotalPaid: DECIMAL(12, 2)
+  Balance: DECIMAL(12,2)
   UpdatedAt: DATE
   --
-  <<CHECK>> Status IN ('Debt', 'Paid')
 }
 
 entity "Adjustment" as Adjustment{
@@ -109,8 +98,6 @@ entity "ApartmentSpecificAdjustment" as ApartmentSpecificAdjustment{
 Apartment ||--o{ Resident : "has occupants >"
 Resident }o--|| Apartment : "belongs to >"
 Resident ||--o| Resident: "owner-tenant"
-Apartment ||--o{ Payment : "makes >"
-Fee ||--o{ Payment : "is paid for >"
 FeeType ||--|{ Fee : "categorizes >"
 FeeType ||--o{ FeeCategory : "groups >"
 FeeCategory ||--o{ Fee : "sub-categorizes >"
