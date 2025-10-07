@@ -44,6 +44,7 @@ entity "Fees" as Fees {
   FeeTypeID : INT <<FK>>
   FeeCategoryID : INT <<FK>>
   FeeName : NVARCHAR(100)
+  FeeDescription: NVARCHAR(300)
   FeeAmount : DECIMAL(12,2)
   ApplicableMonth : CHAR(4)
   EffectiveDate : DATE
