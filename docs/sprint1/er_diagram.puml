@@ -62,7 +62,8 @@ entity "Fee" as Fee {
 entity "ApartmentFeeStatus" as ApartmentFeeStatus{
   + AparmentID: INT <<PK, FK>>
   --
-  FeesList: SET<Fee>
+  UnpaidFeesList: SET<Fee>
+  PaidFeesList: SET<Fee>
   AdjustmentsList: NULL SET<Adjustment>
   ExtraAdjustmentsList: NULL SET<Adjustment>
   TotalFee: DECIMAL(12, 2)
