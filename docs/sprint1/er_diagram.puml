@@ -1,4 +1,4 @@
- @startuml name "db"
+@startuml name "db"
 !theme plain
 
 entity "Apartment" as Apartment {

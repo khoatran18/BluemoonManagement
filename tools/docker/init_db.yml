@@ -1,0 +1,17 @@
+services:
+
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    networks:
+      - test-network
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+
+
+networks:
+  test-network:
+    driver: bridge
