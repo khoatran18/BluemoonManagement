@@ -1,6 +1,7 @@
-package org.acme;
+package com.project;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
+import com.project.GreetingResourceTest;
 
 @QuarkusIntegrationTest
 class GreetingResourceIT extends GreetingResourceTest {
