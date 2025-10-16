@@ -34,18 +34,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- Hibernate ORM specific dependencies -->
-            <dependency>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-hibernate-orm</artifactId>
-            </dependency>
-
-            <!-- JDBC driver dependencies -->
-            <dependency>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-jdbc-postgresql</artifactId>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 
