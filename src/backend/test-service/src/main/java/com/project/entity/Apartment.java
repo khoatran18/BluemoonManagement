@@ -1,10 +1,14 @@
 package com.project.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "apartments")
 public class Apartment {
 
@@ -27,51 +31,51 @@ public class Apartment {
 
     // Getter and Setter
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getBuilding() {
-        return building;
-    }
-
-    public void setBuilding(String building) {
-        this.building = building;
-    }
-
-    public String getRoomNumber() {
-        return roomNumber;
-    }
-
-    public void setRoomNumber(String roomNumber) {
-        this.roomNumber = roomNumber;
-    }
-
-    public ApartmentFeeStatus getFeeStatus() {
-        return feeStatus;
-    }
-
-    public void setFeeStatus(ApartmentFeeStatus feeStatus) {
-        this.feeStatus = feeStatus;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+//    public long getId() {
+//        return id;
+//    }
+//
+//    public void setId(long id) {
+//        this.id = id;
+//    }
+//
+//    public String getBuilding() {
+//        return building;
+//    }
+//
+//    public void setBuilding(String building) {
+//        this.building = building;
+//    }
+//
+//    public String getRoomNumber() {
+//        return roomNumber;
+//    }
+//
+//    public void setRoomNumber(String roomNumber) {
+//        this.roomNumber = roomNumber;
+//    }
+//
+//    public ApartmentFeeStatus getFeeStatus() {
+//        return feeStatus;
+//    }
+//
+//    public void setFeeStatus(ApartmentFeeStatus feeStatus) {
+//        this.feeStatus = feeStatus;
+//    }
+//
+//    public LocalDateTime getCreatedAt() {
+//        return createdAt;
+//    }
+//
+//    public void setCreatedAt(LocalDateTime createdAt) {
+//        this.createdAt = createdAt;
+//    }
+//
+//    public LocalDateTime getUpdatedAt() {
+//        return updatedAt;
+//    }
+//
+//    public void setUpdatedAt(LocalDateTime updatedAt) {
+//        this.updatedAt = updatedAt;
+//    }
 }
