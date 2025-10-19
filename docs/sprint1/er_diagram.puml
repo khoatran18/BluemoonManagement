@@ -93,20 +93,22 @@ entity "ApartmentSpecificAdjustment" as ApartmentSpecificAdjustment{
 }
 
 '--------------------------
-' Relationships
+' Relationships + Constraints
 '--------------------------
 
-Apartment ||--o{ Resident : "has occupants >"
+Apartment ||--o{ Resident : "has occupants >\nON DELETE CASCADE"
 Resident }o--|| Apartment : "belongs to >"
-Resident ||--o| Resident: "owner-tenant"
-FeeType ||--|{ Fee : "categorizes >"
-FeeType ||--o{ FeeCategory : "groups >"
-FeeCategory ||--o{ Fee : "sub-categorizes >"
-Apartment ||--o| Resident : "head resident >"
-Apartment ||--o{ ApartmentFeeStatus : "has fee status >"
-Fee ||--o{ ApartmentFeeStatus : "status for >"
-Fee ||--o{ Adjustment : "has adjustments >"
-Apartment ||--o{ ApartmentSpecificAdjustment
-Adjustment ||--o{ ApartmentSpecificAdjustment
+Resident ||--o| Resident: "owner-tenant\nON DELETE SET NULL"
+Apartment ||--o| Resident : "head resident >\nON DELETE SET NULL"
+
+FeeType ||--|{ Fee : "categorizes >\nON DELETE CASCADE"
+FeeType ||--o{ FeeCategory : "groups >\nON DELETE CASCADE"
+FeeCategory ||--o{ Fee : "sub-categorizes >\nON DELETE CASCADE"
+
+Apartment ||--o{ ApartmentFeeStatus : "has fee status >\nON DELETE CASCADE"
+Fee ||--o{ ApartmentFeeStatus : "status for >\nON DELETE RESTRICT"
+Fee ||--o{ Adjustment : "has adjustments >\nON DELETE CASCADE"
+Apartment ||--o{ ApartmentSpecificAdjustment : "ON DELETE CASCADE >"
+Adjustment ||--o{ ApartmentSpecificAdjustment : "ON DELETE CASCADE >"
 
 @enduml
