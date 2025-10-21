@@ -10,6 +10,7 @@
         <module>common</module>
         <module>api-gateway</module>
         <module>test-service</module>
+        <module>resident_fee-service</module>
     </modules>
 
     <properties>
