@@ -1,4 +1,4 @@
-package com.project.service;
+package test.java.com.project.service;
 
 import com.project.entity.Fee;
 import com.project.exception.NotFoundException;

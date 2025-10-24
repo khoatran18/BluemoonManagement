@@ -1,4 +1,4 @@
-package com.project.resource;
+package test.java.com.project.resource;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
