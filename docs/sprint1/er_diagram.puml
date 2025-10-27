@@ -89,7 +89,7 @@ entity "Adjustment" as Adjustment{
 entity "ApartmentSpecificAdjustment" as ApartmentSpecificAdjustment{
   + AparmentID: INT <<PK, FK>>
   --
-  AdjustmentID: INT <<FK>>
+  AdjustmentID: SET<Adjustment>
 }
 
 '--------------------------
