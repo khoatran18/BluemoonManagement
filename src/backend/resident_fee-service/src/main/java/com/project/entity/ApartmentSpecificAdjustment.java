@@ -39,7 +39,7 @@ public class ApartmentSpecificAdjustment {
      * ON DELETE CASCADE: if Adjustment deleted → related links removed.
      */
     @MapsId("adjustmentId")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(
             name = "AdjustmentID",
             nullable = false,

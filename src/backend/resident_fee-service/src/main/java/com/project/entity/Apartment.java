@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "Apartment")
@@ -56,11 +58,10 @@ public class Apartment {
     private ApartmentFeeStatus apartmentFeeStatus;
 
     /**
-     * Apartment-specific adjustments (owned by ApartmentSpecificAdjustment).
-     * Those entities will define ON DELETE CASCADE on their ApartmentID FK.
+     * 1 Apartment can have many ApartmentSpecificAdjustments.
      */
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ApartmentSpecificAdjustment> apartmentSpecificAdjustments;
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ApartmentSpecificAdjustment> apartmentSpecificAdjustments = new HashSet<>();
 
     @Column(name = "CreatedAt")
     private LocalDateTime createdAt;

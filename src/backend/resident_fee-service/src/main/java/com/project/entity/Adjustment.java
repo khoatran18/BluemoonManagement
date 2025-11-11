@@ -5,7 +5,8 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "Adjustment")
@@ -24,7 +25,7 @@ public class Adjustment {
      * Each Adjustment belongs to one Fee.
      * ON DELETE CASCADE (delete adjustments if Fee is removed)
      */
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(
             name = "FeeID",
             nullable = false,
@@ -56,9 +57,9 @@ public class Adjustment {
     private LocalDateTime expiryDate;
 
     /**
-     * Each Adjustment can have many Apartment-specific Adjustments.
-     * ON DELETE CASCADE for these is implemented on the ApartmentSpecificAdjustment side.
+     * One Adjustment can apply to many ApartmentSpecificAdjustments.
      */
-    @OneToMany(mappedBy = "adjustment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ApartmentSpecificAdjustment> apartmentSpecificAdjustments;
+    @OneToMany(mappedBy = "adjustment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<ApartmentSpecificAdjustment> apartmentSpecificAdjustments = new HashSet<>();
 }
+
