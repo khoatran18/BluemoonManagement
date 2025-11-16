@@ -3,50 +3,51 @@ package com.project.resource;
 import com.project.dto.*;
 import com.project.exception.BadRequestException;
 import com.project.exception.BusinessException;
+import com.project.service.ResidentService;
 import main.java.com.project.exception.ApiResponse;
-import com.project.service.ApartmentService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import jakarta.enterprise.context.RequestScoped;
 
-@Path("/api/v1/apartments")
+@Path("/api/v1/residents")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RequestScoped
-public class ApartmentResource {
+public class ResidentResource {
 
     @Inject
-    ApartmentService apartmentService;
+    ResidentService residentService;
 
     // GET list
     @GET
-    public Response listApartments(
-            @QueryParam("building") String building,
-            @QueryParam("room_number") String roomNumber,
-            @QueryParam("head_resident_id") Long headResidentId,
+    public Response listResidents(
+            @QueryParam("apartment_id") Long apartmentId,
+            @QueryParam("full_name") String fullName,
+            @QueryParam("phone_number") String phoneNumber,
+            @QueryParam("email") String email,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("limit") @DefaultValue("10") int limit
     ) {
         try {
-            ApartmentListResponseDTO dto =
-                    apartmentService.list(building, roomNumber, headResidentId, page, limit);
+            ResidentListResponseDTO dto =
+                    residentService.list(apartmentId, fullName, phoneNumber, email, page, limit);
 
             return Response.ok(ApiResponse.ok(dto)).build();
 
         } catch (Exception e) {
             return Response.status(500)
-                    .entity(ApiResponse.error(500, "Failed to list apartments"))
+                    .entity(ApiResponse.error(500, "Failed to list residents"))
                     .build();
         }
     }
 
     // GET detail
     @GET
-    @Path("{apartmentId}")
-    public Response getApartment(@PathParam("apartmentId") Long apartmentId) {
+    @Path("{residentId}")
+    public Response getResident(@PathParam("residentId") Long residentId) {
         try {
-            ApartmentDetailsDTO dto = apartmentService.getDetails(apartmentId);
+            ResidentDetailsDTO dto = residentService.getDetails(residentId);
             return Response.ok(ApiResponse.ok(dto)).build();
 
         } catch (BadRequestException e) {
@@ -63,9 +64,12 @@ public class ApartmentResource {
 
     // POST create
     @POST
-    public Response createApartment(ApartmentCreateDTO req) {
+    public Response createResident(
+            @QueryParam("apartment_id") Long apartmentId,
+            ResidentCreateDTO req
+    ) {
         try {
-            ApartmentDetailsDTO dto = apartmentService.create(req);
+            ResidentDetailsDTO dto = residentService.create(req, apartmentId);
             return Response.status(201).entity(ApiResponse.created(dto)).build();
 
         } catch (BadRequestException e) {
@@ -82,13 +86,14 @@ public class ApartmentResource {
 
     // PUT update
     @PUT
-    @Path("{apartmentId}")
-    public Response updateApartment(
-            @PathParam("apartmentId") Long apartmentId,
-            ApartmentUpdateDTO req
+    @Path("{residentId}")
+    public Response updateResident(
+            @PathParam("residentId") Long residentId,
+            @QueryParam("apartment_id") Long apartmentId,
+            ResidentUpdateDTO req
     ) {
         try {
-            ApartmentDetailsDTO dto = apartmentService.update(apartmentId, req);
+            ResidentDetailsDTO dto = residentService.update(residentId, req, apartmentId);
             return Response.ok(ApiResponse.ok(dto)).build();
 
         } catch (BadRequestException e) {
@@ -105,10 +110,10 @@ public class ApartmentResource {
 
     // DELETE
     @DELETE
-    @Path("{apartmentId}")
-    public Response deleteApartment(@PathParam("apartmentId") Long apartmentId) {
+    @Path("{residentId}")
+    public Response deleteResident(@PathParam("residentId") Long residentId) {
         try {
-            apartmentService.delete(apartmentId);
+            residentService.delete(residentId);
             return Response.status(204)
                     .entity(ApiResponse.noContent("Deleted success"))
                     .build();
