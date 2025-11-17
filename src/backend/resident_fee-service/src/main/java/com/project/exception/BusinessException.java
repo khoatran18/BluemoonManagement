@@ -1,4 +1,4 @@
-package main.java.com.project.exception;
+package com.project.exception;
 
 public class BusinessException extends BaseException {
     public BusinessException(String message) {

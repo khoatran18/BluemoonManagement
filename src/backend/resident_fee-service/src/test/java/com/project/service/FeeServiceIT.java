@@ -1,4 +1,4 @@
-package test.java.com.project.service;
+package com.project.service;
 
 import com.project.service.FeeServiceTest;
 

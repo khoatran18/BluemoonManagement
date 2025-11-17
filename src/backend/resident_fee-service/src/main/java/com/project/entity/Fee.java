@@ -19,7 +19,7 @@ public class Fee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "FeeID")
-    private int feeId;
+    private Long feeId;
 
     /**
      * FeeType relationship.

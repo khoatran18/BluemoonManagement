@@ -1,4 +1,4 @@
-package test.java.com.project.resource;
+package com.project.resource;
 
 import com.project.resource.FeeResourceTest;
 

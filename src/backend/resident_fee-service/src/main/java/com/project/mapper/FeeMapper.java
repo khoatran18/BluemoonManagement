@@ -1,29 +1,165 @@
-package main.java.com.project.mapper;
+package com.project.mapper;
 
+import com.project.dto.FeeCategoryDTO;
 import com.project.dto.FeeDTO;
 import com.project.entity.Fee;
+import com.project.entity.FeeCategory;
+import com.project.entity.FeeType;
+import com.project.repository.FeeCategoryRepository;
+import com.project.repository.FeeRepository;
+import com.project.repository.FeeTypeRepository;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FeeMapper {
-    public static Fee toEntity(FeeDTO dto) {
+
+    private final FeeTypeRepository feeTypeRepository =  new FeeTypeRepository();
+    private final FeeCategoryRepository feeCategoryRepository =  new FeeCategoryRepository();
+
+    ///////////////////////////// For Get method /////////////////////////////
+
+    /**
+     * Convert a list of Fee entity to list of GetFeesResponseItemDTO.
+     * Used when returning a list of Fee records to client.
+     */
+    public List<FeeDTO.GetFeesResponseItemDTO> GetFeesResponseItemsEntityToDTO(List<Fee> entityList) {
+
+        // Init result
+        List<FeeDTO.GetFeesResponseItemDTO> dtoList = new ArrayList<FeeDTO.GetFeesResponseItemDTO>();
+
+        // Create result
+        for (Fee entity : entityList) {
+            FeeDTO.GetFeesResponseItemDTO dto = GetFeesResponseItemEntityToDTO(entity);
+            dtoList.add(dto);
+        }
+
+        // Return result
+        return dtoList;
+    }
+
+    /**
+     * Convert a Fee record to a GetFeesResponseItemDTO.
+     * Used when returning a list of Fee records to client, called in GetFeesResponseItemsEntityToDTO.
+     */
+    public FeeDTO.GetFeesResponseItemDTO GetFeesResponseItemEntityToDTO(Fee entity) {
+
+        // Init result
+        FeeDTO.GetFeesResponseItemDTO dto = new FeeDTO.GetFeesResponseItemDTO();
+
+        // Prepare result
+        String effectiveDate = LocalDateMapper.LocalDateToString(entity.getStartDate());
+        String expiryDate = LocalDateMapper.LocalDateToString(entity.getEndDate());
+
+        // Create result
+        dto.FeeId = entity.getFeeId();
+        dto.FeeTypeId = entity.getFeeType().getFeeTypeId();
+        dto.FeeCategoryId = entity.getFeeCategory().getFeeCategoryId();
+        dto.FeeName = entity.getFeeName();
+        dto.FeeDescription = entity.getFeeDescription();
+        dto.FeeAmount = entity.getAmount();
+        dto.ApplicableMonth = entity.getApplicableMonth();
+        dto.Status = entity.getStatus();
+        dto.EffectiveDate = effectiveDate;
+        dto.ExpiryDate = expiryDate;
+
+        // Return result
+        return dto;
+    }
+
+    /**
+     * Convert Fee entity to GetFeeResponseDTO.
+     * Used when returning a Fee record to client.
+     */
+    public FeeDTO.GetFeeResponseDTO GetFeeResponseEntityToDTO(Fee entity) {
+
+        // Init result
+        FeeDTO.GetFeeResponseDTO dto = new FeeDTO.GetFeeResponseDTO();
+
+        // Prepare result
+        String effectiveDate = LocalDateMapper.LocalDateToString(entity.getStartDate());
+        String expiryDate = LocalDateMapper.LocalDateToString(entity.getEndDate());
+
+        // Create result
+        dto.FeeId = entity.getFeeId();
+        dto.FeeTypeId = entity.getFeeType().getFeeTypeId();
+        dto.FeeCategoryId = entity.getFeeCategory().getFeeCategoryId();
+        dto.FeeName = entity.getFeeName();
+        dto.FeeDescription = entity.getFeeDescription();
+        dto.FeeAmount = entity.getAmount();
+        dto.ApplicableMonth = entity.getApplicableMonth();
+        dto.Status = entity.getStatus();
+        dto.EffectiveDate = effectiveDate;
+        dto.ExpiryDate = expiryDate;
+
+        // Return result
+        return dto;
+    }
+
+    ///////////////////////////// For Post method /////////////////////////////
+
+    /**
+     * Convert PostFeeRequestDTO to Fee entity.
+     * Used when creating a new Fee record.
+     */
+    public Fee PostFeeRequestDTOToEntity(FeeDTO.PostFeeRequestDTO dto){
+
+        // Init result
         Fee entity = new Fee();
-        entity.setFeeName(dto.feeName);
-        entity.setFeeAmount(dto.feeAmount);
-        entity.setApplicableMonth(dto.applicableMonth);
-        entity.setEffectiveDate(dto.effectiveDate);
-        entity.setExpiryDate(dto.expiryDate);
-        entity.setStatus(dto.status);
+
+        // Prepare for result
+        FeeType feeType = feeTypeRepository.findById(dto.FeeTypeId);
+        FeeCategory feeCategory = feeCategoryRepository.findById(dto.FeeCategoryId);
+        LocalDate startDate = LocalDateMapper.StringToLocalDate(dto.EffectiveDate);
+        LocalDate endDate = LocalDateMapper.StringToLocalDate(dto.ExpiryDate);
+
+        // Create result
+        entity.setFeeType(feeType);
+        entity.setFeeCategory(feeCategory);
+        entity.setFeeName(dto.FeeName);
+        entity.setFeeDescription(dto.FeeDescription);
+        entity.setAmount(dto.FeeAmount);
+        entity.setApplicableMonth(dto.ApplicableMonth);
+        entity.setStatus(dto.Status);
+        entity.setStartDate(startDate);
+        entity.setEndDate(endDate);
+
+        // Return result
         return entity;
     }
 
-    public static FeeDTO toDTO(Fee entity) {
-        FeeDTO dto = new FeeDTO();
-        dto.id = entity.getId();
-        dto.feeName = entity.getFeeName();
-        dto.feeAmount = entity.getFeeAmount();
-        dto.applicableMonth = entity.getApplicableMonth();
-        dto.effectiveDate = entity.getEffectiveDate();
-        dto.expiryDate = entity.getExpiryDate();
-        dto.status = entity.getStatus();
-        return dto;
+    ///////////////////////////// For Put method /////////////////////////////
+
+    /**
+     * Convert PutFeeRequestDTO to Fee entity.
+     * Used when updating an existed Fee record.
+     */
+    public Fee PutFeeRequestDTOToEntity(FeeDTO.PutFeeRequestDTO dto) {
+
+        // Init result
+        Fee entity = new Fee();
+
+        // Prepare result
+        FeeType feeType = feeTypeRepository.findById(dto.FeeTypeId);
+        FeeCategory feeCategory = feeCategoryRepository.findById(dto.FeeCategoryId);
+        LocalDate startDate = LocalDateMapper.StringToLocalDate(dto.EffectiveDate);
+        LocalDate endDate = LocalDateMapper.StringToLocalDate(dto.ExpiryDate);
+
+        // Create result
+        entity.setFeeId(dto.FeeId);
+        entity.setFeeType(feeType);
+        entity.setFeeCategory(feeCategory);
+        entity.setFeeName(dto.FeeName);
+        entity.setFeeDescription(dto.FeeDescription);
+        entity.setAmount(dto.FeeAmount);
+        entity.setApplicableMonth(dto.ApplicableMonth);
+        entity.setStatus(dto.Status);
+        entity.setStartDate(startDate);
+        entity.setEndDate(endDate);
+
+        // Return result
+        return entity;
     }
+
 }

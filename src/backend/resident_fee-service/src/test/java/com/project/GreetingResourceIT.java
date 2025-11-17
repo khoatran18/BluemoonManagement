@@ -1,4 +1,4 @@
-package test.java.com.project;
+package com.project;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import com.project.GreetingResourceTest;

@@ -1,4 +1,4 @@
-package main.java.com.project.exception;
+package com.project.exception;
 
 public class ConflictException extends BaseException {
     public ConflictException(String message) {
