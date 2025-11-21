@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,10 +25,10 @@ public class Adjustment {
      * Each Adjustment belongs to one Fee.
      * ON DELETE CASCADE (delete adjustments if Fee is removed)
      */
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(
             name = "FeeID",
-            nullable = false,
+            nullable = true,
             foreignKey = @ForeignKey(
                     name = "fk_adjustment_fee",
                     foreignKeyDefinition = "FOREIGN KEY (FeeID) REFERENCES Fee(FeeID) ON DELETE CASCADE"
@@ -51,10 +51,10 @@ public class Adjustment {
     private String reason;
 
     @Column(name = "EffectiveDate", nullable = false)
-    private LocalDateTime effectiveDate;
+    private LocalDate startDate;
 
     @Column(name = "ExpiryDate", nullable = false)
-    private LocalDateTime expiryDate;
+    private LocalDate endDate;
 
     /**
      * One Adjustment can apply to many ApartmentSpecificAdjustments.
