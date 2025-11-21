@@ -46,18 +46,37 @@ public class ApartmentFeeStatus {
             )
     )
     private Fee fee;
-
-    @Column(name = "UnpaidFeesList")
+    @ManyToMany
+    @JoinTable(
+            name = "ApartmentFeeStatus_UnpaidFees",
+            joinColumns = @JoinColumn(name = "ApartmentID"),
+            inverseJoinColumns = @JoinColumn(name = "FeeID")
+    )
     private Set<Fee> unpaidFeeList;
 
-    @Column(name = "PaidFeesList")
-    private Set<Fee> PaidFeesList;
+    @ManyToMany
+    @JoinTable(
+            name = "ApartmentFeeStatus_PaidFees",
+            joinColumns = @JoinColumn(name = "ApartmentID"),
+            inverseJoinColumns = @JoinColumn(name = "FeeID")
+    )
+    private Set<Fee> paidFeeList;
 
-    @Column(name = "AdjustmentList")
-    private Set<Adjustment> AdjustmentList;
+    @ManyToMany
+    @JoinTable(
+            name = "ApartmentFeeStatus_Adjustments",
+            joinColumns = @JoinColumn(name = "ApartmentID"),
+            inverseJoinColumns = @JoinColumn(name = "AdjustmentID")
+    )
+    private Set<Adjustment> adjustmentList;
 
-    @Column(name = "ExtraAdjustmentsList")
-    private Set<Adjustment> ExtraAdjustmentsList;
+    @ManyToMany
+    @JoinTable(
+            name = "ApartmentFeeStatus_ExtraAdjustments",
+            joinColumns = @JoinColumn(name = "ApartmentID"),
+            inverseJoinColumns = @JoinColumn(name = "AdjustmentID")
+    )
+    private Set<Adjustment> extraAdjustmentList;
 
     @Column(name = "AmountDue", precision = 12, scale = 2)
     private BigDecimal amountDue;
