@@ -1,6 +1,6 @@
 package com.project.mapper;
 
-import com.project.dto.ApartmentDetailsDTO;
+import com.project.dto.ApartmentDTO.*;
 import com.project.entity.Apartment;
 import com.project.entity.Resident;
 

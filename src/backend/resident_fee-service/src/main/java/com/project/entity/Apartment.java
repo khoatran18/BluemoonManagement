@@ -60,8 +60,12 @@ public class Apartment {
     /**
      * 1 Apartment can have many ApartmentSpecificAdjustments.
      */
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<ApartmentSpecificAdjustment> apartmentSpecificAdjustments = new HashSet<>();
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "ApartmentAdjustment",
+            joinColumns = @JoinColumn(name = "ApartmentID")
+    )
+    private Set<ApartmentAdjustment> adjustments = new HashSet<>();
 
     @Column(name = "CreatedAt")
     private LocalDateTime createdAt;

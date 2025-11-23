@@ -2,80 +2,84 @@ package com.project.repository;
 
 import com.project.entity.Apartment;
 import com.project.entity.Resident;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
-import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ApplicationScoped
 public class ApartmentRepository implements PanacheRepository<Apartment> {
 
+    /**
+     * Get all apartments
+     */
+    public List<Apartment> getAll() {
+        return listAll();
+    }
 
     /**
-     * Search + pagination for apartments.
-     * Deterministic ordering added for stable paging.
+     * Filter + pagination (simple Panache version)
      */
-    public List<Apartment> search(
+    public List<Apartment> getByFilter(
             String building,
             String roomNumber,
             Long headResidentId,
             int page,
             int limit
     ) {
-        int safePage = Math.max(page, 1);
-        int safeLimit = Math.max(limit, 1);
-
-        Map<String, Object> params = new HashMap<>();
         List<String> clauses = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
 
         if (building != null && !building.isBlank()) {
-            clauses.add("building = :building");
-            params.put("building", building);
+            clauses.add("building LIKE :building");
+            params.put("building", "%" + building + "%");
         }
+
         if (roomNumber != null && !roomNumber.isBlank()) {
-            clauses.add("roomNumber = :roomNumber");
-            params.put("roomNumber", roomNumber);
+            clauses.add("roomNumber LIKE :roomNumber");
+            params.put("roomNumber", "%" + roomNumber + "%");
         }
+
         if (headResidentId != null) {
             clauses.add("headResident.residentId = :headResidentId");
             params.put("headResidentId", headResidentId);
         }
 
-        // ORDER BY added for deterministic pagination
-        String order = " ORDER BY apartmentId";
+        PanacheQuery<Apartment> query;
 
         if (clauses.isEmpty()) {
-            return findAll(Sort.by("apartmentId"))
-                    .page(Page.of(safePage - 1, safeLimit))
-                    .list();
+            query = findAll();
         } else {
-            String query = String.join(" AND ", clauses) + order;
-            return find(query, params)
-                    .page(Page.of(safePage - 1, safeLimit))
-                    .list();
+            String where = String.join(" AND ", clauses);
+            query = find(where, params);
         }
+
+        return query.page(Page.of(page - 1, limit)).list();
     }
 
     /**
-     * Count total apartments matching the filters.
+     * Count for pagination
      */
-    public long countSearch(String building, String roomNumber, Long headResidentId) {
-        Map<String, Object> params = new HashMap<>();
+    public long countByFilter(
+            String building,
+            String roomNumber,
+            Long headResidentId
+    ) {
         List<String> clauses = new ArrayList<>();
+        Map<String, Object> params = new HashMap<>();
 
         if (building != null && !building.isBlank()) {
-            clauses.add("building = :building");
-            params.put("building", building);
+            clauses.add("building LIKE :building");
+            params.put("building", "%" + building + "%");
         }
+
         if (roomNumber != null && !roomNumber.isBlank()) {
-            clauses.add("roomNumber = :roomNumber");
-            params.put("roomNumber", roomNumber);
+            clauses.add("roomNumber LIKE :roomNumber");
+            params.put("roomNumber", "%" + roomNumber + "%");
         }
+
         if (headResidentId != null) {
             clauses.add("headResident.residentId = :headResidentId");
             params.put("headResidentId", headResidentId);
@@ -84,42 +88,40 @@ public class ApartmentRepository implements PanacheRepository<Apartment> {
         if (clauses.isEmpty()) {
             return count();
         } else {
-            String query = String.join(" AND ", clauses);
-            return count(query, params);
+            String where = String.join(" AND ", clauses);
+            return count(where, params);
         }
     }
 
     /**
-     * Load apartment with its resident list using a single query.
-     * Prevents lazy-init exceptions & N+1 problems.
+     * Find apartment by ID and also load its residents
+     * (simple version, NO JPQL fetch join)
      */
+    public Apartment findWithResidents(Long apartmentId) {
+        Apartment apt = findById(apartmentId);
+        if (apt == null) return null;
 
-    public Apartment findWithResidents(Long id) {
-        try {
-            return getEntityManager()
-                    .createQuery(
-                            "SELECT a FROM Apartment a " +
-                                    "LEFT JOIN FETCH a.residents " +
-                                    "WHERE a.apartmentId = :id",
-                            Apartment.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-        } catch (jakarta.persistence.NoResultException ex) {
-            return null;
-        }
+        // force-load residents in a separate query
+        apt.setResidents(
+                findResidents(apartmentId)
+        );
+
+        return apt;
     }
 
-
     /**
-     * Load all residents from a given apartment.
+     * Get all residents of an apartment
      */
     public List<Resident> findResidents(Long apartmentId) {
         return getEntityManager()
                 .createQuery(
-                        "SELECT r FROM Resident r " +
-                                "WHERE r.apartment.apartmentId = :id " +
-                                "ORDER BY r.residentId",
-                        Resident.class)
+                        """
+                        SELECT r FROM Resident r
+                        WHERE r.apartment.apartmentId = :id
+                        ORDER BY r.residentId
+                        """,
+                        Resident.class
+                )
                 .setParameter("id", apartmentId)
                 .getResultList();
     }

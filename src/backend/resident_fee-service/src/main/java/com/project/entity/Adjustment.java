@@ -5,8 +5,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "Adjustment")
@@ -56,10 +54,5 @@ public class Adjustment {
     @Column(name = "ExpiryDate", nullable = false)
     private LocalDateTime expiryDate;
 
-    /**
-     * One Adjustment can apply to many ApartmentSpecificAdjustments.
-     */
-    @OneToMany(mappedBy = "adjustment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<ApartmentSpecificAdjustment> apartmentSpecificAdjustments = new HashSet<>();
 }
 

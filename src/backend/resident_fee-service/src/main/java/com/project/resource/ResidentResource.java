@@ -1,27 +1,29 @@
 package com.project.resource;
 
-import com.project.dto.*;
-import com.project.exception.BadRequestException;
-import com.project.exception.BusinessException;
+import com.project.dto.ResidentDTO.*;
+import com.project.exception.ApiResponse;
 import com.project.service.ResidentService;
-import main.java.com.project.exception.ApiResponse;
+
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.*;
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @Path("/api/v1/residents")
-@Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@RequestScoped
+@Produces(MediaType.APPLICATION_JSON)
 public class ResidentResource {
 
     @Inject
     ResidentService residentService;
 
-    // GET list
+    ////////////////////////////////////////
+    // GET LIST
+    ////////////////////////////////////////
+
     @GET
-    public Response listResidents(
+    public Response getResidentsByFilter(
             @QueryParam("apartment_id") Long apartmentId,
             @QueryParam("full_name") String fullName,
             @QueryParam("phone_number") String phoneNumber,
@@ -29,104 +31,73 @@ public class ResidentResource {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("limit") @DefaultValue("10") int limit
     ) {
-        try {
-            ResidentListResponseDTO dto =
-                    residentService.list(apartmentId, fullName, phoneNumber, email, page, limit);
+        ResidentListResponseDTO resDTO = residentService.getResidentsByFilter(
+                apartmentId,
+                fullName,
+                phoneNumber,
+                email,
+                page,
+                limit
+        );
 
-            return Response.ok(ApiResponse.ok(dto)).build();
-
-        } catch (Exception e) {
-            return Response.status(500)
-                    .entity(ApiResponse.error(500, "Failed to list residents"))
-                    .build();
-        }
+        return Response.ok(ApiResponse.ok(resDTO)).build();
     }
 
-    // GET detail
+    ////////////////////////////////////////
+    // GET DETAIL
+    ////////////////////////////////////////
+
     @GET
-    @Path("{residentId}")
-    public Response getResident(@PathParam("residentId") Long residentId) {
-        try {
-            ResidentDetailsDTO dto = residentService.getDetails(residentId);
-            return Response.ok(ApiResponse.ok(dto)).build();
+    @Path("/{resident_id}")
+    public Response getResidentById(
+            @PathParam("resident_id") Long residentId
+    ) {
+        ResidentDetailsDTO resDTO = residentService.getResidentById(residentId);
 
-        } catch (BadRequestException e) {
-            return Response.status(404)
-                    .entity(ApiResponse.error(404, e.getMessage()))
-                    .build();
-
-        } catch (BusinessException e) {
-            return Response.status(500)
-                    .entity(ApiResponse.error(500, e.getMessage()))
-                    .build();
-        }
+        return Response.ok(ApiResponse.ok(resDTO)).build();
     }
 
-    // POST create
+    ////////////////////////////////////////
+    // CREATE
+    ////////////////////////////////////////
+
     @POST
     public Response createResident(
-            @QueryParam("apartment_id") Long apartmentId,
-            ResidentCreateDTO req
+            @Valid ResidentCreateDTO dto
     ) {
-        try {
-            ResidentDetailsDTO dto = residentService.create(req, apartmentId);
-            return Response.status(201).entity(ApiResponse.created(dto)).build();
+        residentService.createResident(dto);
 
-        } catch (BadRequestException e) {
-            return Response.status(400)
-                    .entity(ApiResponse.error(400, e.getMessage()))
-                    .build();
-
-        } catch (BusinessException e) {
-            return Response.status(500)
-                    .entity(ApiResponse.error(500, e.getMessage()))
-                    .build();
-        }
+        return Response.status(Response.Status.CREATED)
+                .entity(ApiResponse.created(dto))
+                .build();
     }
 
-    // PUT update
+    ////////////////////////////////////////
+    // UPDATE
+    ////////////////////////////////////////
+
     @PUT
-    @Path("{residentId}")
+    @Path("/{resident_id}")
     public Response updateResident(
-            @PathParam("residentId") Long residentId,
-            @QueryParam("apartment_id") Long apartmentId,
-            ResidentUpdateDTO req
+            @PathParam("resident_id") Long residentId,
+            @Valid ResidentUpdateDTO dto
     ) {
-        try {
-            ResidentDetailsDTO dto = residentService.update(residentId, req, apartmentId);
-            return Response.ok(ApiResponse.ok(dto)).build();
+        residentService.updateResident(residentId, dto);
 
-        } catch (BadRequestException e) {
-            return Response.status(400)
-                    .entity(ApiResponse.error(400, e.getMessage()))
-                    .build();
-
-        } catch (BusinessException e) {
-            return Response.status(500)
-                    .entity(ApiResponse.error(500, e.getMessage()))
-                    .build();
-        }
+        return Response.ok(ApiResponse.ok(dto)).build();
     }
 
+    ////////////////////////////////////////
     // DELETE
+    ////////////////////////////////////////
+
     @DELETE
-    @Path("{residentId}")
-    public Response deleteResident(@PathParam("residentId") Long residentId) {
-        try {
-            residentService.delete(residentId);
-            return Response.status(204)
-                    .entity(ApiResponse.noContent("Deleted success"))
-                    .build();
+    @Path("/{resident_id}")
+    public Response deleteResident(
+            @PathParam("resident_id") Long residentId
+    ) {
+        residentService.deleteResident(residentId);
 
-        } catch (BadRequestException e) {
-            return Response.status(404)
-                    .entity(ApiResponse.error(404, e.getMessage()))
-                    .build();
-
-        } catch (BusinessException e) {
-            return Response.status(500)
-                    .entity(ApiResponse.error(500, e.getMessage()))
-                    .build();
-        }
+        return Response.ok(ApiResponse.noContent("Deleted successfully")).build();
     }
 }

@@ -1,7 +1,6 @@
-// java
 package com.project.mapper;
 
-import com.project.dto.ResidentListResponseDTO;
+import com.project.dto.ResidentDTO.*;
 import com.project.entity.Resident;
 
 import java.util.Collections;
@@ -13,7 +12,7 @@ public class ResidentListResponseMapper {
     public static ResidentListResponseDTO toDTO(
             int page,
             int limit,
-            int totalItems,
+            long totalItems,
             List<Resident> residents
     ) {
         ResidentListResponseDTO dto = new ResidentListResponseDTO();
