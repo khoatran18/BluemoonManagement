@@ -1,6 +1,6 @@
 package com.project.mapper;
 
-import com.project.dto.ApartmentListResponseDTO;
+import com.project.dto.ApartmentDTO.*;
 import com.project.entity.Apartment;
 
 import java.util.List;
@@ -11,7 +11,7 @@ public class ApartmentListResponseMapper {
     public static ApartmentListResponseDTO toDTO(
             int page,
             int limit,
-            int totalItems,
+            long totalItems,
             List<Apartment> apartments
     ) {
         ApartmentListResponseDTO dto = new ApartmentListResponseDTO();

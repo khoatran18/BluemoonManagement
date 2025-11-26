@@ -1,19 +1,28 @@
 package com.project.repository;
 
 import com.project.entity.Resident;
+import com.project.entity.Apartment;
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.persistence.NoResultException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ApplicationScoped
 public class ResidentRepository implements PanacheRepository<Resident> {
 
-    public List<Resident> search(
+    /**
+     * Get all residents
+     */
+    public List<Resident> getAll() {
+        return listAll();
+    }
+
+    /**
+     * Filter + pagination (simple Panache version)
+     */
+    public List<Resident> getByFilter(
             Long apartmentId,
             String fullName,
             String phoneNumber,
@@ -21,76 +30,101 @@ public class ResidentRepository implements PanacheRepository<Resident> {
             int page,
             int limit
     ) {
-        int safePage = Math.max(page, 1);
-        int safeLimit = Math.max(limit, 1);
-
-        StringBuilder q = new StringBuilder("1=1");
+        List<String> clauses = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
         if (apartmentId != null) {
-            q.append(" AND apartment.apartmentId = :apartmentId");
+            clauses.add("apartment.apartmentId = :apartmentId");
             params.put("apartmentId", apartmentId);
         }
+
         if (fullName != null && !fullName.isBlank()) {
-            q.append(" AND LOWER(fullName) LIKE :fullName");
+            clauses.add("LOWER(fullName) LIKE :fullName");
             params.put("fullName", "%" + fullName.toLowerCase() + "%");
         }
+
         if (phoneNumber != null && !phoneNumber.isBlank()) {
-            q.append(" AND phoneNumber LIKE :phoneNumber");
+            clauses.add("phoneNumber LIKE :phoneNumber");
             params.put("phoneNumber", "%" + phoneNumber + "%");
         }
+
         if (email != null && !email.isBlank()) {
-            q.append(" AND LOWER(email) LIKE :email");
+            clauses.add("LOWER(email) LIKE :email");
             params.put("email", "%" + email.toLowerCase() + "%");
         }
 
-        return find(q.toString(), params).page(Page.of(safePage - 1, safeLimit)).list();
+        PanacheQuery<Resident> query;
+
+        if (clauses.isEmpty()) {
+            query = findAll();
+        } else {
+            String where = String.join(" AND ", clauses);
+            query = find(where, params);
+        }
+
+        return query.page(Page.of(page - 1, limit)).list();
     }
 
-    public long countSearch(Long apartmentId, String fullName, String phoneNumber, String email) {
-        StringBuilder q = new StringBuilder("1=1");
+    /**
+     * Count matching rows
+     */
+    public long countByFilter(
+            Long apartmentId,
+            String fullName,
+            String phoneNumber,
+            String email
+    ) {
+        List<String> clauses = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
         if (apartmentId != null) {
-            q.append(" AND apartment.apartmentId = :apartmentId");
+            clauses.add("apartment.apartmentId = :apartmentId");
             params.put("apartmentId", apartmentId);
         }
+
         if (fullName != null && !fullName.isBlank()) {
-            q.append(" AND LOWER(fullName) LIKE :fullName");
+            clauses.add("LOWER(fullName) LIKE :fullName");
             params.put("fullName", "%" + fullName.toLowerCase() + "%");
         }
+
         if (phoneNumber != null && !phoneNumber.isBlank()) {
-            q.append(" AND phoneNumber LIKE :phoneNumber");
+            clauses.add("phoneNumber LIKE :phoneNumber");
             params.put("phoneNumber", "%" + phoneNumber + "%");
         }
+
         if (email != null && !email.isBlank()) {
-            q.append(" AND LOWER(email) LIKE :email");
+            clauses.add("LOWER(email) LIKE :email");
             params.put("email", "%" + email.toLowerCase() + "%");
         }
 
-        return count(q.toString(), params);
-    }
-
-    public Resident findWithApartment(Long residentId) {
-        // Use EntityManager fetch-join and handle no-result safely
-        try {
-            return getEntityManager()
-                    .createQuery(
-                            "SELECT r FROM Resident r LEFT JOIN FETCH r.apartment WHERE r.residentId = :id",
-                            Resident.class)
-                    .setParameter("id", residentId)
-                    .getSingleResult();
-        } catch (NoResultException ex) {
-            return null;
+        if (clauses.isEmpty()) {
+            return count();
+        } else {
+            String where = String.join(" AND ", clauses);
+            return count(where, params);
         }
     }
 
+    /**
+     * Load resident with Apartment info
+     */
+    public Resident findWithApartment(Long id) {
+        Resident resident = findById(id);
+        if (resident == null) return null;
+
+        // Force load apartment if lazy (simple version)
+        Apartment apt = resident.getApartment();
+        if (apt != null) {
+            apt.getApartmentId(); // touch property to avoid LazyInitializationException in some cases
+        }
+
+        return resident;
+    }
+
+    /**
+     * Get all residents of an apartment
+     */
     public List<Resident> findByApartmentId(Long apartmentId) {
-        // fixed: include operator in query string
-        return find("apartment.apartmentId = ?1", apartmentId).list();
-    }
-
-    public Resident findHead(Long apartmentId) {
-        return find("isHead = TRUE AND apartment.apartmentId = :id", Map.of("id", apartmentId)).firstResult();
+        return find("apartment.apartmentId = ?1 ORDER BY residentId", apartmentId).list();
     }
 }

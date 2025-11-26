@@ -1,19 +1,19 @@
 package com.project.service;
 
-import com.project.dto.*;
+import com.project.dto.ResidentDTO.*;
 import com.project.entity.Resident;
-import com.project.entity.Apartment;
-import com.project.exception.BadRequestException;
-import com.project.exception.BusinessException;
+import com.project.exception.InternalServerException;
+import com.project.exception.NotFoundException;
+
 import com.project.mapper.*;
+
 import com.project.repository.ResidentRepository;
-import com.project.repository.ApartmentRepository;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 
 @ApplicationScoped
 public class ResidentService {
@@ -21,31 +21,11 @@ public class ResidentService {
     @Inject
     ResidentRepository residentRepository;
 
-    @Inject
-    ApartmentRepository apartmentRepository;
+    //////////////////////////////
+    // GET LIST
+    //////////////////////////////
 
-    /**
-     * GET /api/v1/residents/{id}
-     * Uses fetch-join to avoid N+1
-     */
-    public ResidentDetailsDTO getDetails(Long residentId) {
-        try {
-            Resident entity = residentRepository.findWithApartment(residentId);
-            if (entity == null) {
-                throw new BadRequestException("Resident not found");
-            }
-            return ResidentDetailsMapper.toDTO(entity);
-        } catch (BadRequestException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("Failed to load resident details");
-        }
-    }
-
-    /**
-     * GET /api/v1/residents (search + paging)
-     */
-    public ResidentListResponseDTO list(
+    public ResidentListResponseDTO getResidentsByFilter(
             Long apartmentId,
             String fullName,
             String phoneNumber,
@@ -54,119 +34,99 @@ public class ResidentService {
             int limit
     ) {
         try {
-            List<Resident> residents =
-                    residentRepository.search(apartmentId, fullName, phoneNumber, email, page, limit);
+            int queryPage = Math.max(page, 1);
+            int queryLimit = Math.max(limit, 1);
 
-            long total =
-                    residentRepository.countSearch(apartmentId, fullName, phoneNumber, email);
+            List<Resident> list = residentRepository.getByFilter(
+                    apartmentId,
+                    fullName,
+                    phoneNumber,
+                    email,
+                    queryPage,
+                    queryLimit
+            );
 
-            return ResidentListResponseMapper.toDTO(page, limit, (int) total, residents);
+            long count = residentRepository.countByFilter(
+                    apartmentId,
+                    fullName,
+                    phoneNumber,
+                    email
+            );
+            return ResidentListResponseMapper.toDTO(queryPage, queryLimit, count, list);
 
         } catch (Exception e) {
-            throw new BusinessException("Failed to list residents");
+            throw new InternalServerException(e.getMessage());
         }
     }
 
-    /**
-     * POST /api/v1/residents
-     * Behavior (API-accurate):
-     * - apartmentId is passed separately by controller, required
-     * - owner-id & isHead are NOT part of API and therefore not handled
-     */
-    @Transactional
-    public ResidentDetailsDTO create(ResidentCreateDTO dto, Long apartmentId) {
+    //////////////////////////////
+    // GET DETAIL
+    //////////////////////////////
+
+    public ResidentDetailsDTO getResidentById(Long id) {
         try {
-            if (dto == null) {
-                throw new BadRequestException("Request body is required");
-            }
+            Resident entity = residentRepository.findWithApartment(id);
+            if (entity == null)
+                throw new NotFoundException("Resident not found with id: " + id);
 
-            if (apartmentId == null) {
-                throw new BadRequestException("apartment_id is required");
-            }
+            return ResidentDetailsMapper.toDTO(entity);
 
-            Apartment apartment = apartmentRepository.findById(apartmentId);
-            if (apartment == null) {
-                throw new BadRequestException("Apartment not found");
-            }
+        } catch (Exception e) {
+            throw new InternalServerException(e.getMessage());
+        }
+    }
 
-            if (dto.fullName == null || dto.fullName.isBlank()) {
-                throw new BadRequestException("full_name is required");
-            }
+    //////////////////////////////
+    // CREATE
+    //////////////////////////////
 
-            Resident entity = ResidentMutationMapper.toEntity(dto, apartment);
-
-            // isHead is not allowed to be set here; always default -> false
-            entity.setIsHead(false);
+    @Transactional
+    public void createResident(ResidentCreateDTO dto) {
+        try {
+            // Convert DTO → Entity (no apartment passed)
+            Resident entity = ResidentMutationMapper.toEntity(dto, null);
 
             residentRepository.persist(entity);
 
-            return ResidentDetailsMapper.toDTO(entity);
-
-        } catch (BadRequestException e) {
-            throw e;
         } catch (Exception e) {
-            throw new BusinessException("Failed to create resident");
+            throw new InternalServerException(e.getMessage());
         }
     }
 
-    /**
-     * PUT /api/v1/residents/{id}
-     * Behavior:
-     * - Updates only primitive fields (full_name, phone_number, email)
-     * - Disallows apartment reassignment via this endpoint
-     * - Does NOT touch head-resident logic (handled only by ApartmentService)
-     */
+    //////////////////////////////
+    // UPDATE
+    //////////////////////////////
+
     @Transactional
-    public ResidentDetailsDTO update(Long id, ResidentUpdateDTO dto, Long apartmentId) {
+    public void updateResident(Long id, ResidentUpdateDTO dto) {
         try {
-            if (dto == null) {
-                throw new BadRequestException("Request body is required");
-            }
-
             Resident entity = residentRepository.findById(id);
-            if (entity == null) {
-                throw new BadRequestException("Resident not found");
-            }
+            if (entity == null)
+                throw new NotFoundException("Resident not found with id: " + id);
 
-            // If apartmentId provided, must match existing apartment
-            if (apartmentId != null &&
-                    !Objects.equals(apartmentId, entity.getApartment().getApartmentId())) {
-
-                throw new BadRequestException(
-                        "Changing apartment through resident update is not allowed. Use apartment endpoints.");
-            }
-
-            // Validation
-            if (dto.fullName != null && dto.fullName.isBlank()) {
-                throw new BadRequestException("full_name cannot be blank");
-            }
-
-            // Update only primitive fields (mapper must NOT update apartment / owner / isHead)
+            // update only personal info
             ResidentMutationMapper.updateEntity(entity, dto);
 
-            return ResidentDetailsMapper.toDTO(entity);
-
-        } catch (BadRequestException e) {
-            throw e;
         } catch (Exception e) {
-            throw new BusinessException("Failed to update resident");
+            throw new InternalServerException(e.getMessage());
         }
     }
 
-    /**
-     * DELETE /api/v1/residents/{id}
-     */
+    //////////////////////////////
+    // DELETE
+    //////////////////////////////
+
     @Transactional
-    public void delete(Long id) {
+    public void deleteResident(Long id) {
         try {
-            boolean removed = residentRepository.deleteById(id);
-            if (!removed) {
-                throw new BadRequestException("Resident not found");
-            }
-        } catch (BadRequestException e) {
-            throw e;
+            Resident entity = residentRepository.findById(id);
+            if (entity == null)
+                throw new NotFoundException("Resident not found with id: " + id);
+
+            residentRepository.delete(entity);
+
         } catch (Exception e) {
-            throw new BusinessException("Failed to delete resident");
+            throw new InternalServerException(e.getMessage());
         }
     }
 }

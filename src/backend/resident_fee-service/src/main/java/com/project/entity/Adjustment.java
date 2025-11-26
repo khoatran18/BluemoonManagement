@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @Entity
 @Table(name = "Adjustment")
 @Getter
@@ -56,10 +57,5 @@ public class Adjustment {
     @Column(name = "ExpiryDate", nullable = false)
     private LocalDate endDate;
 
-    /**
-     * One Adjustment can apply to many ApartmentSpecificAdjustments.
-     */
-    @OneToMany(mappedBy = "adjustment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<ApartmentSpecificAdjustment> apartmentSpecificAdjustments = new HashSet<>();
 }
 
