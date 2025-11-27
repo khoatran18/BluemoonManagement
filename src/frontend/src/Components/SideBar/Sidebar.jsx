@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import "./Sidebar.css";
 import bluemoonLogo from "../../assets/logo/bluemoon_logo.svg";
@@ -30,7 +30,6 @@ const SidebarItem = ({ icon, label, to, active, onClick }) => {
 };
 
 const SidebarDropdown = ({ icon, label, open, onToggle, children }) => {
-
   return (
     <div className="sidebar-section">
       <button onClick={onToggle} className="sidebar-dropdown-btn">
@@ -44,7 +43,9 @@ const SidebarDropdown = ({ icon, label, open, onToggle, children }) => {
         />
       </button>
 
-      {open && <div className={`sidebar-submenu ${open ? "submenu-open" : "submenu-close" }`}>{children}</div>}
+      <div className={`sidebar-submenu ${open ? "open" : ""}`}>
+        {children}
+      </div>
     </div>
   );
 };
@@ -64,30 +65,75 @@ const Sidebar = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const [activeItem, setActiveItem] = useState(SidebarNav.overview)
 
-  return (
-    <div className="sidebar">
-      {/* Logo */}
-      <div className="sidebar-logo">
-        <img src={bluemoonLogo} alt="Bluemoon" />
-        <span className="sidebar-logo-text">Bluemoon</span>
-      </div>
+  // 🔥 ADD: toggle sidebar when mobile
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-      {/* Menu */}
-      <nav className="sidebar-nav">
-        <SidebarItem icon={sidebarOverview} label="Tổng quan" to={`/${SidebarNav.overview}`} active={activeItem === SidebarNav.overview} onClick={() => {setActiveItem(SidebarNav.overview)}} />
-        <SidebarDropdown
-          icon={sidebarApartment}
-          label="Quản lý chung cư"
-          open={openMenu}
-          onToggle={() => setOpenMenu(!openMenu)}>
-          <SidebarItem label="Căn hộ" to={`/${SidebarNav.apartment.apartment}`} active={activeItem === SidebarNav.apartment.apartment} onClick={() => {setActiveItem(SidebarNav.apartment.apartment)}}/>
-          <SidebarItem label="Cư dân" to={`/${SidebarNav.apartment.resident}`} active={activeItem === SidebarNav.apartment.resident} onClick={() => {setActiveItem(SidebarNav.apartment.resident)}}/>
-       </SidebarDropdown>
-        <SidebarItem icon={sidebarFee} label="Quản lý phí" to={`/${SidebarNav.fee}`} active={activeItem === SidebarNav.fee} onClick={() => {setActiveItem(SidebarNav.fee)}}/>
-        <SidebarItem icon={sidebarAnnouncement} label="Thông báo" to={`/${SidebarNav.announcement}`} active={activeItem === SidebarNav.announcement} onClick={() => {setActiveItem(SidebarNav.announcement)}}/>
-        <SidebarItem icon={sidebarPay} label="Thanh toán" to={`/${SidebarNav.pay}`} active={activeItem === SidebarNav.pay} onClick={() => {setActiveItem(SidebarNav.pay)}}/>
-      </nav>
-    </div>
+  return (
+    <>
+      {/* 🔥 Toggle Button (mobile) */}
+      <button className="sidebar-toggle" onClick={() => setSidebarOpen(true)}>
+        ☰
+      </button>
+
+      {/* 🔥 Overlay */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? "show" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <img src={bluemoonLogo} alt="Bluemoon" />
+          <span className="sidebar-logo-text">Bluemoon</span>
+        </div>
+
+        {/* Menu */}
+        <nav className="sidebar-nav">
+          <SidebarItem icon={sidebarOverview} label="Tổng quan"
+            to={`/${SidebarNav.overview}`}
+            active={activeItem === SidebarNav.overview}
+            onClick={() => { setActiveItem(SidebarNav.overview); setSidebarOpen(false) }}
+          />
+
+          <SidebarDropdown
+            icon={sidebarApartment}
+            label="Quản lý chung cư"
+            open={openMenu}
+            onToggle={() => setOpenMenu(!openMenu)}>
+            <SidebarItem label="Căn hộ"
+              to={`/${SidebarNav.apartment.apartment}`}
+              active={activeItem === SidebarNav.apartment.apartment}
+              onClick={() => { setActiveItem(SidebarNav.apartment.apartment); setSidebarOpen(false) }}
+            />
+
+            <SidebarItem label="Cư dân"
+              to={`/${SidebarNav.apartment.resident}`}
+              active={activeItem === SidebarNav.apartment.resident}
+              onClick={() => { setActiveItem(SidebarNav.apartment.resident); setSidebarOpen(false) }}
+            />
+          </SidebarDropdown>
+
+          <SidebarItem icon={sidebarFee} label="Quản lý phí"
+            to={`/${SidebarNav.fee}`}
+            active={activeItem === SidebarNav.fee}
+            onClick={() => { setActiveItem(SidebarNav.fee); setSidebarOpen(false) }}
+          />
+
+          <SidebarItem icon={sidebarAnnouncement} label="Thông báo"
+            to={`/${SidebarNav.announcement}`}
+            active={activeItem === SidebarNav.announcement}
+            onClick={() => { setActiveItem(SidebarNav.announcement); setSidebarOpen(false) }}
+          />
+
+          <SidebarItem icon={sidebarPay} label="Thanh toán"
+            to={`/${SidebarNav.pay}`}
+            active={activeItem === SidebarNav.pay}
+            onClick={() => { setActiveItem(SidebarNav.pay); setSidebarOpen(false) }}
+          />
+        </nav>
+      </div>
+    </>
   );
 };
 

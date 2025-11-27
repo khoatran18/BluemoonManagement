@@ -13,7 +13,6 @@ const Apartment = () => {
        {/* Các thành phần con */}
        <SearchBarSection />
        <DataTableSection />
-       <PaginationControlsSection />
     </div>
   );
 };

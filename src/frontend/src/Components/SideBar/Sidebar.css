@@ -2,7 +2,7 @@
    Sidebar Container
    ============================ */
 .sidebar {
-  width: 260px;
+  width: 220px;
   height: 100vh;
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
@@ -135,9 +135,69 @@
 .sidebar-submenu {
   margin-left: 32px;
   margin-top: 6px;
+  max-height: 0;
+  opacity: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
   overflow: hidden;
 }
+
+.sidebar-submenu.open {
+  max-height: 300px;
+  opacity: 1;
+}
+
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.25s;
+  z-index: 1000;
+}
+
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px; 
+    height: 100vh;
+    z-index: 1002;
+    background: #fff;
+    transition: left 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    width: 220px;
+  }
+
+  .sidebar.open {
+    left: 0; 
+  }
+}
+
 
