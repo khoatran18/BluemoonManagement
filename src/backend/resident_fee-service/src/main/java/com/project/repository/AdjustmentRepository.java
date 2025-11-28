@@ -4,6 +4,7 @@ import com.project.entity.Adjustment;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ApplicationScoped
 public class AdjustmentRepository implements PanacheRepository<Adjustment> {
 
     /**
@@ -146,7 +148,6 @@ public class AdjustmentRepository implements PanacheRepository<Adjustment> {
             entity.setReason(adjustment.getReason());
             entity.setStartDate(adjustment.getStartDate());
             entity.setEndDate(adjustment.getEndDate());
-            entity.setApartmentSpecificAdjustments(adjustment.getApartmentSpecificAdjustments());
         }
     }
 

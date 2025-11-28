@@ -1,0 +1,34 @@
+1. Căn hộ (Apartment)
+Kịch bản	Method	URL Đầy Đủ	Headers (Thêm)	Request Body (Raw JSON)	Mô tả
+1.1. Danh sách có Filter	GET	/apartments?building=A&limit=1	(None)	(None)	Lấy 1 căn hộ đầu tiên ở Building 'A'.
+1.2. Chi tiết căn hộ	GET	/apartments/1	(None)	(None)	Lấy chi tiết Căn hộ ID 1.
+1.3. POST Tạo mới	POST	/apartments	Content-Type: application/json	json { "building": "Z", "room_number": "999" }	Tạo căn hộ mới (ID này dùng để test sau đó).
+1.4. PUT Cập nhật	PUT	/apartments/1	Content-Type: application/json	json { "apartment_id": 1, "building": "A", "room_number": "101", "head_resident_id": 3 }	Cập nhật thông tin căn hộ ID 1 (Head Resident ID 3).
+1.5. DELETE Xóa	DELETE	/apartments/99	(None)	(None)	Xóa căn hộ ID 99 (ID thử nghiệm).
+
+
+2. Cư dân (Resident)
+Kịch bản	Method	URL Đầy Đủ	Headers (Thêm)	Request Body (Raw JSON)	Mô tả
+2.1. Danh sách có Filter	GET	/residents?apartment_id=1	(None)	(None)	Lấy danh sách cư dân của căn hộ ID 1.
+2.2. Xem chi tiết cư dân	GET	/residents/3	(None)	(None)	Lấy chi tiết cư dân ID 3.
+2.3. POST Thêm mới	POST	/residents	Content-Type: application/json	json { "full_name": "Cư Dân Test Mới", "email": "test@newresident.com", "phone_number": "0912345678", "apartment_id": 1 }	Thêm cư dân mới vào Căn hộ ID 1.
+2.3. PUT Cập nhật	PUT	/residents/3	Content-Type: application/json	json { "resident_id": 3, "full_name": "Nguyen Van A (Update)", "email": "a.update@example.com", "phone_number": "0900000001", "apartment_id": 1 }	Cập nhật thông tin Cư dân ID 3.
+2.3. DELETE Xóa	DELETE	/residents/99	(None)	(None)	Xóa cư dân ID 99 (ID thử nghiệm).
+
+
+3. Loại phí & Danh mục phí (FeeType, FeeCategory)
+Kịch bản	Method	URL Đầy Đủ	Headers (Thêm)	Request Body (Raw JSON)	Mô tả
+3.1. GET FeeType	GET	/fee-types	(None)	(None)	Lấy danh sách các loại phí (Định kỳ, Đột xuất, Tự nguyện).
+3.2. GET Category (Filter)	GET	/fee-categories?fee_type_id=1	(None)	(None)	Lấy danh mục phí thuộc loại Định kỳ (ID 1).
+3.2. POST Tạo Category	POST	/fee-categories	Content-Type: application/json	json { "fee_type_id": 2, "name": "Phí Vệ sinh Đột xuất", "description": "Chi phí thuê dọn dẹp sau sự cố" }	Tạo danh mục mới thuộc loại Đột xuất (ID 2).
+3.2. PUT Cập nhật Category	PUT	/fee-categories	Content-Type: application/json	json { "fee_category_id": 1, "fee_type_id": 1, "name": "Phí Dịch vụ Quản lý (New)", "description": "Phí quản lý hàng tháng" }	Cập nhật tên Fee Category ID 1.
+3.2. DELETE Xóa Category	DELETE	/fee-categories/99	(None)	(None)	Xóa Fee Category ID 99 (ID thử nghiệm).
+
+
+4. Phí (Fee)
+Kịch bản	Method	URL Đầy Đủ	Headers (Thêm)	Request Body (Raw JSON)	Mô tả
+4.1. POST Tạo phí mới	POST	/fees	Content-Type: application/json	json { "fee_type_id": 1, "fee_category_id": 1, "fee_name": "Phí QL Test 11/2025", "fee_description": "Phí quản lý tháng 11 test", "fee_amount": 100000, "applicable_month": "2025-11", "effective_date": "2025-11-01", "expiry_date": "2025-11-30", "status": "Draft" }	Tạo phí Định kỳ mới, trạng thái Draft.
+4.2. GET Danh sách có Filter	GET	/fees?status=Active&limit=2	(None)	(None)	Lấy 2 khoản phí đầu tiên đang Active.
+4.3. GET Chi tiết phí	GET	/fees/1	(None)	(None)	Lấy chi tiết khoản phí ID 1.
+4.4. PUT Cập nhật phí	PUT	/fees/1	Content-Type: application/json	json { "fee_id": 1, "fee_type_id": 1, "fee_category_id": 1, "fee_name": "Phí QL Test 11/2025 (Final)", "fee_description": "Phí quản lý tháng 11 chính thức", "fee_amount": 120000, "applicable_month": "2025-11", "effective_date": "2025-11-01", "expiry_date": "2025-11-30", "status": "Active" }	Cập nhật phí ID 1: tăng số tiền và chuyển sang Active.
+4.5. DELETE Xóa phí	DELETE	/fees/99	(None)	(None)
