@@ -1,0 +1,337 @@
+-- DROP TABLES (Đảm bảo thứ tự để tránh lỗi ràng buộc khóa ngoại)
+DROP TABLE IF EXISTS "ApartmentFeeStatus_ExtraAdjustments";
+DROP TABLE IF EXISTS "ApartmentFeeStatus_Adjustments";
+DROP TABLE IF EXISTS "ApartmentFeeStatus_PaidFees";
+DROP TABLE IF EXISTS "ApartmentFeeStatus_UnpaidFees";
+DROP TABLE IF EXISTS "ApartmentAdjustment";
+DROP TABLE IF EXISTS "ApartmentFeeStatus";
+DROP TABLE IF EXISTS "Adjustment";
+DROP TABLE IF EXISTS "Fee";
+DROP TABLE IF EXISTS "FeeCategory";
+DROP TABLE IF EXISTS "FeeType";
+DROP TABLE IF EXISTS "Resident";
+DROP TABLE IF EXISTS "Apartment";
+
+-----------------------------------------------------------
+-- TẠO BẢNG CHÍNH
+-----------------------------------------------------------
+
+-- 1. Apartment
+CREATE TABLE "Apartment" (
+                             "ApartmentID" BIGSERIAL PRIMARY KEY,
+                             "Building" VARCHAR(30) NOT NULL,
+                             "RoomNumber" VARCHAR(6) NOT NULL,
+                             "HeadResidentID" BIGINT, -- Khóa ngoại sẽ được thêm sau Resident
+                             "CreatedAt" TIMESTAMP WITHOUT TIME ZONE,
+                             "UpdatedAt" TIMESTAMP WITHOUT TIME ZONE
+);
+
+-- 2. Resident
+CREATE TABLE "Resident" (
+                            "ResidentID" BIGSERIAL PRIMARY KEY,
+                            "ApartmentID" BIGINT NOT NULL, -- FK to Apartment
+                            "OwnerResidentID" BIGINT, -- Self-FK to Resident
+                            "FullName" VARCHAR(30) NOT NULL,
+                            "PhoneNumber" VARCHAR(10),
+                            "Email" VARCHAR(40),
+                            "IsHead" BOOLEAN,
+                            "CreatedAt" TIMESTAMP WITHOUT TIME ZONE,
+                            "UpdatedAt" TIMESTAMP WITHOUT TIME ZONE,
+    -- FK Apartment (ON DELETE CASCADE)
+                            CONSTRAINT "fk_resident_apartment"
+                                FOREIGN KEY ("ApartmentID")
+                                    REFERENCES "Apartment"("ApartmentID")
+                                    ON DELETE CASCADE,
+    -- Self-FK OwnerResident (ON DELETE SET NULL)
+                            CONSTRAINT "fk_resident_owner_resident"
+                                FOREIGN KEY ("OwnerResidentID")
+                                    REFERENCES "Resident"("ResidentID")
+                                    ON DELETE SET NULL
+);
+
+-- Cập nhật FK HeadResidentID trong Apartment (ON DELETE SET NULL)
+ALTER TABLE "Apartment"
+    ADD CONSTRAINT "fk_apartment_head_resident"
+        FOREIGN KEY ("HeadResidentID")
+            REFERENCES "Resident"("ResidentID")
+            ON DELETE SET NULL;
+
+
+-- 3. FeeType
+CREATE TABLE "FeeType" (
+                           "FeeTypeID" BIGSERIAL PRIMARY KEY,
+                           "FeeTypeName" VARCHAR(10) NOT NULL
+);
+
+-- 4. FeeCategory
+CREATE TABLE "FeeCategory" (
+                               "FeeCategoryID" BIGSERIAL PRIMARY KEY,
+                               "FeeTypeID" BIGINT NOT NULL, -- FK to FeeType (ON DELETE CASCADE)
+                               "FeeCategoryDescription" VARCHAR(100),
+                               "FeeCategoryName" VARCHAR(30) NOT NULL,
+    -- FK FeeType
+                               CONSTRAINT "fk_feecategory_feetype"
+                                   FOREIGN KEY ("FeeTypeID")
+                                       REFERENCES "FeeType"("FeeTypeID")
+                                       ON DELETE CASCADE
+);
+
+-- 5. Fee
+CREATE TABLE "Fee" (
+                       "FeeID" BIGSERIAL PRIMARY KEY,
+                       "FeeTypeID" BIGINT NOT NULL, -- FK to FeeType (ON DELETE CASCADE)
+                       "FeeCategoryID" BIGINT NOT NULL, -- FK to FeeCategory (ON DELETE CASCADE)
+                       "FeeName" VARCHAR(50) NOT NULL,
+                       "FeeDescription" VARCHAR(300) NOT NULL,
+                       "ApplicableMonth" VARCHAR(4),
+                       "Amount" NUMERIC(12, 2),
+                       "StartDate" DATE,
+                       "EndDate" DATE,
+                       "Status" VARCHAR(8),
+                       "CreatedAt" TIMESTAMP WITHOUT TIME ZONE,
+                       "UpdatedAt" TIMESTAMP WITHOUT TIME ZONE,
+    -- FK FeeType
+                       CONSTRAINT "fk_fee_feetype"
+                           FOREIGN KEY ("FeeTypeID")
+                               REFERENCES "FeeType"("FeeTypeID")
+                               ON DELETE CASCADE,
+    -- FK FeeCategory
+                       CONSTRAINT "fk_fee_feecategory"
+                           FOREIGN KEY ("FeeCategoryID")
+                               REFERENCES "FeeCategory"("FeeCategoryID")
+                               ON DELETE CASCADE
+);
+
+-- 6. Adjustment
+CREATE TABLE "Adjustment" (
+                              "AdjustmentID" BIGSERIAL PRIMARY KEY,
+                              "FeeID" BIGINT, -- FK to Fee (ON DELETE CASCADE)
+                              "AdjustmentAmount" NUMERIC(12, 2),
+                              "AdjustmentType" VARCHAR(10) NOT NULL,
+                              "Reason" VARCHAR(300),
+                              "StartDate" DATE NOT NULL,
+                              "EndDate" DATE NOT NULL,
+    -- FK Fee
+                              CONSTRAINT "fk_adjustment_fee"
+                                  FOREIGN KEY ("FeeID")
+                                      REFERENCES "Fee"("FeeID")
+                                      ON DELETE CASCADE
+);
+
+-- 7. ApartmentFeeStatus
+CREATE TABLE "ApartmentFeeStatus" (
+                                      "ApartmentID" BIGINT PRIMARY KEY, -- Shared PK and FK to Apartment (ON DELETE CASCADE)
+                                      "FeeID" BIGINT NOT NULL, -- FK to Fee (ON DELETE RESTRICT)
+                                      "AmountDue" NUMERIC(12, 2),
+                                      "AmountPaid" NUMERIC(12, 2),
+                                      "Balance" NUMERIC(12, 2),
+                                      "UpdatedAt" TIMESTAMP WITHOUT TIME ZONE,
+    -- FK Apartment
+                                      CONSTRAINT "fk_afs_apartment"
+                                          FOREIGN KEY ("ApartmentID")
+                                              REFERENCES "Apartment"("ApartmentID")
+                                              ON DELETE CASCADE,
+    -- FK Fee
+                                      CONSTRAINT "fk_afs_fee"
+                                          FOREIGN KEY ("FeeID")
+                                              REFERENCES "Fee"("FeeID")
+                                              ON DELETE RESTRICT
+);
+
+-- 8. ApartmentAdjustment (Bảng cho @ElementCollection)
+CREATE TABLE "ApartmentAdjustment" (
+                                       "ApartmentID" BIGINT NOT NULL, -- FK to Apartment
+                                       "AdjustmentID" BIGINT,
+                                       "FeeID" BIGINT,
+                                       "AdjustmentAmount" NUMERIC(12, 2),
+                                       "AdjustmentType" VARCHAR(255),
+                                       "Reason" VARCHAR(255),
+                                       "EffectiveDate" DATE,
+                                       "ExpiryDate" DATE,
+                                       PRIMARY KEY ("ApartmentID", "AdjustmentID"),
+    -- FK Apartment
+                                       CONSTRAINT "fk_apartmentadjustment_apartment"
+                                           FOREIGN KEY ("ApartmentID")
+                                               REFERENCES "Apartment"("ApartmentID")
+                                               ON DELETE CASCADE
+);
+
+-----------------------------------------------------------
+-- TẠO CÁC BẢNG NỐI (MANY-TO-MANY)
+-----------------------------------------------------------
+
+-- 9. ApartmentFeeStatus_UnpaidFees
+CREATE TABLE "ApartmentFeeStatus_UnpaidFees" (
+                                                 "ApartmentID" BIGINT NOT NULL,
+                                                 "FeeID" BIGINT NOT NULL,
+                                                 PRIMARY KEY ("ApartmentID", "FeeID"),
+                                                 CONSTRAINT "fk_afsaf_apartment" FOREIGN KEY ("ApartmentID") REFERENCES "ApartmentFeeStatus"("ApartmentID") ON DELETE CASCADE,
+                                                 CONSTRAINT "fk_afsaf_fee" FOREIGN KEY ("FeeID") REFERENCES "Fee"("FeeID") ON DELETE CASCADE
+);
+
+-- 10. ApartmentFeeStatus_PaidFees
+CREATE TABLE "ApartmentFeeStatus_PaidFees" (
+                                               "ApartmentID" BIGINT NOT NULL,
+                                               "FeeID" BIGINT NOT NULL,
+                                               PRIMARY KEY ("ApartmentID", "FeeID"),
+                                               CONSTRAINT "fk_afspf_apartment" FOREIGN KEY ("ApartmentID") REFERENCES "ApartmentFeeStatus"("ApartmentID") ON DELETE CASCADE,
+                                               CONSTRAINT "fk_afspf_fee" FOREIGN KEY ("FeeID") REFERENCES "Fee"("FeeID") ON DELETE CASCADE
+);
+
+-- 11. ApartmentFeeStatus_Adjustments (Điều chỉnh chính)
+CREATE TABLE "ApartmentFeeStatus_Adjustments" (
+                                                  "ApartmentID" BIGINT NOT NULL,
+                                                  "AdjustmentID" BIGINT NOT NULL,
+                                                  PRIMARY KEY ("ApartmentID", "AdjustmentID"),
+                                                  CONSTRAINT "fk_afsa_apartment" FOREIGN KEY ("ApartmentID") REFERENCES "ApartmentFeeStatus"("ApartmentID") ON DELETE CASCADE,
+                                                  CONSTRAINT "fk_afsa_adjustment" FOREIGN KEY ("AdjustmentID") REFERENCES "Adjustment"("AdjustmentID") ON DELETE CASCADE
+);
+
+-- 12. ApartmentFeeStatus_ExtraAdjustments (Điều chỉnh phụ)
+CREATE TABLE "ApartmentFeeStatus_ExtraAdjustments" (
+                                                       "ApartmentID" BIGINT NOT NULL,
+                                                       "AdjustmentID" BIGINT NOT NULL,
+                                                       PRIMARY KEY ("ApartmentID", "AdjustmentID"),
+                                                       CONSTRAINT "fk_afsea_apartment" FOREIGN KEY ("ApartmentID") REFERENCES "ApartmentFeeStatus"("ApartmentID") ON DELETE CASCADE,
+                                                       CONSTRAINT "fk_afsea_adjustment" FOREIGN KEY ("AdjustmentID") REFERENCES "Adjustment"("AdjustmentID") ON DELETE CASCADE
+);
+
+-- Thiết lập lại sequence cho dữ liệu mẫu
+DO $$ BEGIN
+    PERFORM setval('"Apartment_ApartmentID_seq"', 1, false);
+    PERFORM setval('"Resident_ResidentID_seq"', 1, false);
+    PERFORM setval('"FeeType_FeeTypeID_seq"', 1, false);
+    PERFORM setval('"FeeCategory_FeeCategoryID_seq"', 1, false);
+    PERFORM setval('"Fee_FeeID_seq"', 1, false);
+    PERFORM setval('"Adjustment_AdjustmentID_seq"', 1, false);
+END $$;
+
+
+-- 1. FeeType
+INSERT INTO "FeeType" ("FeeTypeID", "FeeTypeName") VALUES
+                                                       (1, 'OBLIGATORY'), (2, 'VOLUNTARY'), (3, 'IMPROMPTU');
+
+
+-- 2. FeeCategory
+INSERT INTO "FeeCategory" ("FeeCategoryID", "FeeTypeID", "FeeCategoryDescription", "FeeCategoryName") VALUES
+                                                                                                          (1, 1, 'Phí dịch vụ cơ bản hàng tháng', 'Phí Dịch vụ'),
+                                                                                                          (2, 1, 'Phí bảo trì các thiết bị chung', 'Phí Bảo trì'),
+                                                                                                          (3, 1, 'Phí gửi xe máy/ô tô', 'Phí Gửi xe'),
+                                                                                                          (4, 2, 'Phí đóng góp cho quỹ cộng đồng', 'Quỹ Cộng đồng'),
+                                                                                                          (5, 2, 'Phí sử dụng phòng gym và hồ bơi', 'Tiện ích Nâng cao'),
+                                                                                                          (6, 1, 'Phí vệ sinh môi trường hàng tháng', 'Phí Vệ sinh'),
+                                                                                                          (7, 3, 'Chi phí sửa chữa hệ thống cấp nước đột xuất', 'Sửa chữa Đột xuất'),
+                                                                                                          (8, 2, 'Đóng góp sự kiện lễ hội', 'Phí Sự kiện'),
+                                                                                                          (9, 1, 'Phí quản lý chung cư', 'Phí Quản lý'),
+                                                                                                          (10, 1, 'Phí cáp quang internet', 'Phí Internet');
+
+
+-- 3. Fee
+-- Sử dụng NOW() và CURRENT_DATE trực tiếp
+INSERT INTO "Fee" ("FeeID", "FeeTypeID", "FeeCategoryID", "FeeName", "FeeDescription", "ApplicableMonth", "Amount", "StartDate", "EndDate", "Status", "CreatedAt", "UpdatedAt") VALUES
+                                                                                                                                                                                    (1, 1, 1, 'Dịch vụ Quản lý Q12', 'Phí quản lý cơ bản tháng 12/2025', '1225', 500000.00, '2025-12-01', '2025-12-31', 'ACTIVE', NOW(), NOW()),
+                                                                                                                                                                                    (2, 1, 3, 'Phí gửi xe máy Q12', 'Phí gửi 1 xe máy tháng 12/2025', '1225', 100000.00, '2025-12-01', '2025-12-31', 'ACTIVE', NOW(), NOW()),
+                                                                                                                                                                                    (3, 1, 6, 'Vệ sinh môi trường T11', 'Phí vệ sinh môi trường tháng 11/2025', '1125', 50000.00, '2025-11-01', '2025-11-30', 'CLOSED', NOW(), NOW()),
+                                                                                                                                                                                    (4, 2, 4, 'Đóng góp Quỹ Xanh', 'Phí tự nguyện đóng góp trồng cây xanh', NULL, 20000.00, CURRENT_DATE, '2026-12-31', 'ACTIVE', NOW(), NOW()),
+                                                                                                                                                                                    (5, 1, 2, 'Bảo trì Thang máy T1', 'Phí bảo trì định kỳ thang máy Q1/2026', '0126', 150000.00, '2026-01-01', '2026-03-31', 'DRAFT', NOW(), NOW()),
+                                                                                                                                                                                    (6, 1, 10, 'Internet T12', 'Phí thuê bao internet tháng 12', '1225', 120000.00, '2025-12-01', '2025-12-31', 'ACTIVE', NOW(), NOW()),
+                                                                                                                                                                                    (7, 3, 7, 'Sửa chữa ống nước', 'Sửa chữa đường ống bị vỡ cục bộ', NULL, 300000.00, '2025-11-20', '2025-12-01', 'ACTIVE', NOW(), NOW()),
+                                                                                                                                                                                    (8, 2, 8, 'Tiệc Giáng sinh', 'Phí tham gia tiệc Giáng sinh 2025', NULL, 50000.00, '2025-12-01', '2025-12-25', 'ACTIVE', NOW(), NOW()),
+                                                                                                                                                                                    (9, 1, 9, 'Quản lý an ninh T12', 'Phí dịch vụ an ninh tháng 12', '1225', 150000.00, '2025-12-01', '2025-12-31', 'ACTIVE', NOW(), NOW()),
+                                                                                                                                                                                    (10, 1, 1, 'Dịch vụ Quản lý Q11', 'Phí quản lý cơ bản tháng 11/2025', '1125', 500000.00, '2025-11-01', '2025-11-30', 'ARCHIVED', NOW(), NOW());
+
+
+-- 4. Adjustment
+INSERT INTO "Adjustment" ("AdjustmentID", "FeeID", "AdjustmentAmount", "AdjustmentType", "Reason", "StartDate", "EndDate") VALUES
+                                                                                                                               (1, 1, 50000.00, 'decrease', 'Giảm trừ do căn hộ mới', CURRENT_DATE, '2026-01-31'),
+                                                                                                                               (2, 2, 100000.00, 'increase', 'Thêm phí gửi xe ô tô', CURRENT_DATE, '2026-12-31'),
+                                                                                                                               (3, 6, 20000.00, 'decrease', 'Khuyến mãi nhà mạng', CURRENT_DATE, CURRENT_DATE + interval '1 month'),
+                                                                                                                               (4, 7, 100000.00, 'decrease', 'Đã đóng góp một phần', CURRENT_DATE, '2025-12-31'),
+                                                                                                                               (5, 9, 50000.00, 'increase', 'Yêu cầu thêm bảo vệ ngoài giờ', CURRENT_DATE, '2025-12-31'),
+                                                                                                                               (6, 1, 10000.00, 'increase', 'Phụ phí giữ chỗ', CURRENT_DATE, '2025-12-31'),
+                                                                                                                               (7, 2, 50000.00, 'decrease', 'Chỉ gửi 1/2 tháng', CURRENT_DATE, '2025-12-15'),
+                                                                                                                               (8, NULL, 50000.00, 'decrease', 'Chiết khấu chung cho căn hộ', CURRENT_DATE, '2025-12-31'),
+                                                                                                                               (9, 6, 5000.00, 'decrease', 'Lỗi hệ thống tính phí', CURRENT_DATE, '2025-12-31'),
+                                                                                                                               (10, 9, 20000.00, 'decrease', 'Giảm phí an ninh', CURRENT_DATE, '2025-12-31');
+
+
+-- 5. Apartment
+INSERT INTO "Apartment" ("ApartmentID", "Building", "RoomNumber", "HeadResidentID", "CreatedAt", "UpdatedAt") VALUES
+                                                                                                                  (1, 'A', '101', NULL, NOW(), NOW()), (2, 'A', '202', NULL, NOW(), NOW()),
+                                                                                                                  (3, 'B', '305', NULL, NOW(), NOW()), (4, 'B', '401', NULL, NOW(), NOW()),
+                                                                                                                  (5, 'C', '510', NULL, NOW(), NOW()), (6, 'C', '603', NULL, NOW(), NOW()),
+                                                                                                                  (7, 'A', '707', NULL, NOW(), NOW()), (8, 'B', '802', NULL, NOW(), NOW()),
+                                                                                                                  (9, 'C', '901', NULL, NOW(), NOW()), (10, 'A', '1004', NULL, NOW(), NOW());
+
+
+-- 6. Resident
+INSERT INTO "Resident" ("ResidentID", "ApartmentID", "OwnerResidentID", "FullName", "PhoneNumber", "Email", "IsHead", "CreatedAt", "UpdatedAt") VALUES
+                                                                                                                                                    (1, 1, NULL, 'Nguyễn Văn A', '0901111111', 'a.nv@example.com', TRUE, NOW(), NOW()),
+                                                                                                                                                    (2, 1, 1, 'Trần Thị B', '0902222222', 'b.tt@example.com', FALSE, NOW(), NOW()),
+                                                                                                                                                    (3, 2, NULL, 'Lê Văn C', '0903333333', 'c.lv@example.com', TRUE, NOW(), NOW()),
+                                                                                                                                                    (4, 3, NULL, 'Phạm Thị D', '0904444444', 'd.pt@example.com', TRUE, NOW(), NOW()),
+                                                                                                                                                    (5, 4, 3, 'Hoàng Văn E', '0905555555', 'e.hv@example.com', TRUE, NOW(), NOW()),
+                                                                                                                                                    (6, 5, NULL, 'Đỗ Thị F', '0906666666', 'f.dt@example.com', TRUE, NOW(), NOW()),
+                                                                                                                                                    (7, 6, NULL, 'Vũ Văn G', '0907777777', 'g.vv@example.com', TRUE, NOW(), NOW()),
+                                                                                                                                                    (8, 7, NULL, 'Bùi Thị H', '0908888888', 'h.bt@example.com', TRUE, NOW(), NOW()),
+                                                                                                                                                    (9, 8, 1, 'Đặng Văn I', '0909999999', 'i.dv@example.com', TRUE, NOW(), NOW()),
+                                                                                                                                                    (10, 9, NULL, 'Lý Thị K', '0910000000', 'k.lt@example.com', TRUE, NOW(), NOW());
+
+-- Cập nhật HeadResidentID cho Apartment
+UPDATE "Apartment" SET "HeadResidentID" = 1 WHERE "ApartmentID" = 1;
+UPDATE "Apartment" SET "HeadResidentID" = 3 WHERE "ApartmentID" = 2;
+UPDATE "Apartment" SET "HeadResidentID" = 4 WHERE "ApartmentID" = 3;
+UPDATE "Apartment" SET "HeadResidentID" = 5 WHERE "ApartmentID" = 4;
+UPDATE "Apartment" SET "HeadResidentID" = 6 WHERE "ApartmentID" = 5;
+UPDATE "Apartment" SET "HeadResidentID" = 7 WHERE "ApartmentID" = 6;
+UPDATE "Apartment" SET "HeadResidentID" = 8 WHERE "ApartmentID" = 7;
+UPDATE "Apartment" SET "HeadResidentID" = 9 WHERE "ApartmentID" = 8;
+UPDATE "Apartment" SET "HeadResidentID" = 10 WHERE "ApartmentID" = 9;
+
+
+-- 7. ApartmentFeeStatus
+INSERT INTO "ApartmentFeeStatus" ("ApartmentID", "FeeID", "AmountDue", "AmountPaid", "Balance", "UpdatedAt") VALUES
+                                                                                                                 (1, 1, 600000.00, 0.00, 600000.00, NOW()),
+                                                                                                                 (2, 6, 120000.00, 120000.00, 0.00, NOW()),
+                                                                                                                 (3, 9, 150000.00, 50000.00, 100000.00, NOW()),
+                                                                                                                 (4, 7, 300000.00, 0.00, 300000.00, NOW()),
+                                                                                                                 (5, 1, 500000.00, 500000.00, 0.00, NOW()),
+                                                                                                                 (6, 2, 100000.00, 0.00, 100000.00, NOW()),
+                                                                                                                 (7, 4, 20000.00, 20000.00, 0.00, NOW()),
+                                                                                                                 (8, 1, 500000.00, 0.00, 500000.00, NOW()),
+                                                                                                                 (9, 6, 120000.00, 0.00, 120000.00, NOW()),
+                                                                                                                 (10, 9, 150000.00, 150000.00, 0.00, NOW());
+
+
+-- 8. ApartmentAdjustment
+INSERT INTO "ApartmentAdjustment" ("ApartmentID", "AdjustmentID", "FeeID", "AdjustmentAmount", "AdjustmentType", "Reason", "EffectiveDate", "ExpiryDate") VALUES
+                                                                                                                                                              (1, 101, 1, 50000.00, 'decrease', 'Giảm phí dịch vụ cho căn hộ nhỏ', CURRENT_DATE, '2026-12-31'),
+                                                                                                                                                              (1, 102, 2, 20000.00, 'increase', 'Phụ phí giữ xe máy loại cao cấp', CURRENT_DATE, '2025-12-31'),
+                                                                                                                                                              (2, 201, 6, 10000.00, 'decrease', 'Ưu đãi khách hàng lâu năm', CURRENT_DATE, '2025-12-31'),
+                                                                                                                                                              (3, 301, 9, 10000.00, 'increase', 'Bảo trì riêng', CURRENT_DATE, '2025-12-31'),
+                                                                                                                                                              (4, 401, 7, 50000.00, 'decrease', 'Miễn trừ phí sửa chữa', CURRENT_DATE, '2025-12-31'),
+                                                                                                                                                              (5, 501, 1, 0.00, 'decrease', 'Miễn phí tháng đầu tiên', CURRENT_DATE, CURRENT_DATE + interval '1 month'),
+                                                                                                                                                              (6, 601, 2, 5000.00, 'increase', 'Phụ phí vé tháng', CURRENT_DATE, '2025-12-31'),
+                                                                                                                                                              (7, 701, 4, 10000.00, 'decrease', 'Giảm đóng góp quỹ', CURRENT_DATE, '2025-12-31'),
+                                                                                                                                                              (8, 801, 1, 20000.00, 'increase', 'Phụ phí căn góc', CURRENT_DATE, '2025-12-31'),
+                                                                                                                                                              (9, 901, 6, 15000.00, 'decrease', 'Chương trình khuyến mãi', CURRENT_DATE, '2025-12-31');
+
+
+-- 9. ApartmentFeeStatus_UnpaidFees (Nợ phí)
+INSERT INTO "ApartmentFeeStatus_UnpaidFees" ("ApartmentID", "FeeID") VALUES
+                                                                         (1, 1), (1, 2), (3, 9), (4, 7), (6, 2), (8, 1), (9, 6);
+
+
+-- 10. ApartmentFeeStatus_PaidFees (Đã trả phí)
+INSERT INTO "ApartmentFeeStatus_PaidFees" ("ApartmentID", "FeeID") VALUES
+                                                                       (1, 3), (2, 6), (3, 3), (5, 1), (7, 4), (10, 9);
+
+
+-- 11. ApartmentFeeStatus_Adjustments (Điều chỉnh LỚN - AdjustmentList)
+INSERT INTO "ApartmentFeeStatus_Adjustments" ("ApartmentID", "AdjustmentID") VALUES
+                                                                                 (1, 1), (3, 10), (4, 4);
+
+
+-- 12. ApartmentFeeStatus_ExtraAdjustments (Điều chỉnh PHỤ - ExtraAdjustmentList)
+INSERT INTO "ApartmentFeeStatus_ExtraAdjustments" ("ApartmentID", "AdjustmentID") VALUES
+                                                                                      (1, 8), (6, 7);
