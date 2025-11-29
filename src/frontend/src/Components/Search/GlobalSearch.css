@@ -1,0 +1,24 @@
+.global-search-container {
+  display: flex;
+  align-items: center;
+  background-color: #f3f4f6; /* Màu nền xám nhẹ */
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 300px; /* Độ rộng tùy chỉnh */
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  color: #9ca3af;
+  margin-right: 8px;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  color: #374151;
+  font-size: 14px;
+}
