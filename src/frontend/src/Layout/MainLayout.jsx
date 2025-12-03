@@ -30,7 +30,6 @@ export default function MainLayout() {
         <div style={{ 
           flex: 1, 
           overflowY: "auto", 
-          backgroundColor: "#f8f9fc", // Màu nền xám nhẹ cho đẹp
           position: "relative" 
         }}>
           <Outlet />

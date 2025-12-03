@@ -4,6 +4,7 @@ import ComingSoon from './Layout/ComingSoon/ComingSoon';
 import Overview from './Layout/Overview/Overview';
 import MainLayout from './Layout/MainLayout';
 import Apartment from './Layout/Apartment/Apartment';
+import Fee from './Layout/Fee/Fee';
 
 export default function App() {
   return (
@@ -14,7 +15,7 @@ export default function App() {
           <Route path="overview" element={<ComingSoon />} />
           <Route path="apartment" element={<Apartment />} />
           <Route path="resident" element={<ComingSoon />} />
-          <Route path="fee" element={<ComingSoon />}/>
+          <Route path="fee" element={<Fee />}/>
           <Route path="announcement" element={<ComingSoon />} />
           <Route path="pay" element={<ComingSoon />} />
         </Route>
