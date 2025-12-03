@@ -1,10 +1,10 @@
-package com.project.mapper;
+package com.project.resident_fee_service.mapper;
 
-import com.project.dto.ApartmentFeeStatusDTO;
-import com.project.entity.Adjustment;
-import com.project.entity.ApartmentFeeStatus;
-import com.project.entity.Fee;
-import com.project.repository.FeeRepository;
+import com.project.resident_fee_service.dto.ApartmentFeeStatusDTO;
+import com.project.resident_fee_service.entity.Adjustment;
+import com.project.resident_fee_service.entity.ApartmentFeeStatus;
+import com.project.resident_fee_service.entity.Fee;
+import com.project.resident_fee_service.repository.FeeRepository;
 
 import java.util.HashSet;
 import java.util.Set;

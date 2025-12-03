@@ -1,8 +1,8 @@
 package com.project.resource;
 
-import com.project.dto.ApartmentFeeStatusDTO;
-import com.project.exception.ApiResponse;
-import com.project.service.ApartmentFeeStatusService;
+import com.project.resident_fee_service.dto.ApartmentFeeStatusDTO;
+import com.project.resident_fee_service.exception.ApiResponse;
+import com.project.resident_fee_service.service.ApartmentFeeStatusService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;

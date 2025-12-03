@@ -1,5 +1,6 @@
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\dto\AdjustmentDTO.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\dto\ApartmentDTO.java
+D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\dto\ApartmentFeeStatusDTO.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\dto\FeeCategoryDTO.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\dto\FeeDTO.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\dto\FeeTypeDTO.java
@@ -22,6 +23,7 @@ D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\NotFoundException.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\AdjustmentMapper.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ApartmentDetailsMapper.java
+D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ApartmentFeeStatusMapper.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ApartmentListItemMapper.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ApartmentListResponseMapper.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ApartmentMutationMapper.java
@@ -34,18 +36,21 @@ D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ResidentListResponseMapper.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ResidentMutationMapper.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\repository\AdjustmentRepository.java
+D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\repository\ApartmentFeeStatusRepository.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\repository\ApartmentRepository.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\repository\FeeCategoryRepository.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\repository\FeeRepository.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\repository\FeeTypeRepository.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\repository\ResidentRepository.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\resource\AdjustmentResource.java
+D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\resource\ApartmentFeeStatusResource.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\resource\ApartmentResource.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\resource\FeeCategoryResource.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\resource\FeeResource.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\resource\FeeTypeResource.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\resource\ResidentResource.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\service\AdjustmentService.java
+D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\service\ApartmentFeeStatusService.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\service\ApartmentService.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\service\FeeCategoryService.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\service\FeeService.java

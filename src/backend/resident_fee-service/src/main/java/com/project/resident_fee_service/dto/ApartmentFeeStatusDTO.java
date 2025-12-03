@@ -1,8 +1,8 @@
-package com.project.dto;
+package com.project.resident_fee_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.entity.Adjustment;
-import com.project.entity.FeeType;
+import com.project.resident_fee_service.entity.Adjustment;
+import com.project.resident_fee_service.entity.FeeType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

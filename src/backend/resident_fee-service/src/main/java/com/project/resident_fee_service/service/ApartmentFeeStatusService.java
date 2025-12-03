@@ -1,11 +1,11 @@
-package com.project.service;
+package com.project.resident_fee_service.service;
 
-import com.project.dto.ApartmentFeeStatusDTO;
-import com.project.entity.ApartmentFeeStatus;
-import com.project.exception.InternalServerException;
-import com.project.exception.NotFoundException;
-import com.project.mapper.ApartmentFeeStatusMapper;
-import com.project.repository.ApartmentFeeStatusRepository;
+import com.project.resident_fee_service.dto.ApartmentFeeStatusDTO;
+import com.project.resident_fee_service.entity.ApartmentFeeStatus;
+import com.project.resident_fee_service.exception.InternalServerException;
+import com.project.resident_fee_service.exception.NotFoundException;
+import com.project.resident_fee_service.mapper.ApartmentFeeStatusMapper;
+import com.project.resident_fee_service.repository.ApartmentFeeStatusRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

@@ -1,8 +1,8 @@
-package com.project.repository;
+package com.project.resident_fee_service.repository;
 
-import com.project.entity.ApartmentFeeStatus;
-import com.project.entity.Fee;
-import com.project.entity.Adjustment;
+import com.project.resident_fee_service.entity.ApartmentFeeStatus;
+import com.project.resident_fee_service.entity.Fee;
+import com.project.resident_fee_service.entity.Adjustment;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
