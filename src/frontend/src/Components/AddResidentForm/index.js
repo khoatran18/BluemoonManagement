@@ -1,0 +1,1 @@
+export { AddResidentForm } from "./AddResidentForm";
