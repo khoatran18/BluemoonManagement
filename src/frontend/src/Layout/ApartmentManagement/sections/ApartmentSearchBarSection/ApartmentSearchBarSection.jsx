@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Modal } from "../../../../Components/Modal";
-import { AddResidentForm } from "../../../../Components/AddResidentForm";
+import { AddApartmentForm } from "../../../../Components/AddApartmentForm";
 import { SuccessModal } from "../../../../Components/SuccessModal";
 
-export const SearchBarSection = ({ onSearchChange }) => {
+export const ApartmentSearchBarSection = ({ onSearchChange }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -22,7 +22,7 @@ export const SearchBarSection = ({ onSearchChange }) => {
     console.log("Filter button clicked");
   };
 
-  const handleAddResidentClick = () => {
+  const handleAddApartmentClick = () => {
     setIsModalOpen(true);
   };
 
@@ -30,12 +30,11 @@ export const SearchBarSection = ({ onSearchChange }) => {
     setIsModalOpen(false);
   };
 
-  const handleAddResidentSubmit = (formData) => {
-    console.log("Thêm cư dân:", formData);
+  const handleAddApartmentSubmit = (formData) => {
+    console.log("Thêm căn hộ:", formData);
     setSuccessData(formData);
     setIsSuccessModalOpen(true);
     setIsModalOpen(false);
-    // Thêm logic xử lý thêm cư dân ở đây
   };
 
   return (
@@ -83,29 +82,30 @@ export const SearchBarSection = ({ onSearchChange }) => {
             Lọc
           </span>
         </button>
-
       </div>
+
       <div className="flex gap-2 absolute right-0 top-3 h-10">
         {/* Add Button */}
         <button
-          className="group box-border px-4 py-[9.5px] inline-flex items-center justify-center gap-2 rounded-lg border border-solid border-blue-600 bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors w-40"
-          onClick={handleAddResidentClick}
+          className="group box-border px-4 py-[9.5px] inline-flex items-center justify-center gap-2 rounded-lg border border-solid border-blue-600 bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors w-48"
+          onClick={handleAddApartmentClick}
           type="button"
-          aria-label="Thêm cư dân"
+          aria-label="Thêm căn hộ"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            strokeWidth={2}
+            strokeWidth={1}
             stroke="currentColor"
+            fill="currentColor"
             viewBox="0 0 24 24"
-            className="relative w-10 h-10 text-white transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110"
+            className="relative w-5 h-5 text-white transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110"
             aria-hidden="true"
           >
-            <path fillRule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clipRule="evenodd" />
+            <path fillRule="evenodd" d="M12 2a1 1 0 011 1v8h8a1 1 0 110 2h-8v8a1 1 0 11-2 0v-8H3a1 1 0 110-2h8V3a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
 
           <span className="relative font-body-2-medium font-[number:var(--body-2-medium-font-weight)] text-white text-[length:var(--body-2-medium-font-size)] tracking-[var(--body-2-medium-letter-spacing)] leading-[var(--body-2-medium-line-height)] whitespace-nowrap [font-style:var(--body-2-medium-font-style)]">
-            THÊM CƯ DÂN
+            THÊM CĂN HỘ
           </span>
         </button>
       </div>
@@ -113,10 +113,10 @@ export const SearchBarSection = ({ onSearchChange }) => {
       <Modal
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        title="Thêm dân cư mới"
+        title="Thêm căn hộ mới"
       >
-        <AddResidentForm
-          onSubmit={handleAddResidentSubmit}
+        <AddApartmentForm
+          onSubmit={handleAddApartmentSubmit}
           onCancel={handleModalClose}
         />
       </Modal>
@@ -124,7 +124,7 @@ export const SearchBarSection = ({ onSearchChange }) => {
       <SuccessModal
         isOpen={isSuccessModalOpen}
         onClose={() => setIsSuccessModalOpen(false)}
-        message="Thêm dân cư thành công!"
+        message="Thêm căn hộ thành công!"
         residentData={successData}
       />
     </header>

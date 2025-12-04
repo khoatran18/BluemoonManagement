@@ -94,7 +94,7 @@ export const DataTableSection = ({ searchQuery = "" }) => {
   return (
     <>
       <Table data={data} pageSize={10}>
-        <Column dataIndex="id" title="Mã căn hộ" sortable />
+        <Column dataIndex="id" title="Mã cư dân" sortable />
         <Column dataIndex="name" title="Tên cư dân" sortable />
         <Column dataIndex="room" title="Số phòng" sortable />
         <Column
