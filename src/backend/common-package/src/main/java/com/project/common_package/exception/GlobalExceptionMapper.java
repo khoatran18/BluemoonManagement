@@ -1,4 +1,4 @@
-package com.project.resident_fee_service.exception;
+package com.project.common_package.exception;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;

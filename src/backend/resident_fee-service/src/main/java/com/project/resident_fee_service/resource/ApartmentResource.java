@@ -1,7 +1,7 @@
 package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.ApartmentDTO.*;
-import com.project.resident_fee_service.exception.ApiResponse;
+import com.project.common_package.exception.ApiResponse;
 import com.project.resident_fee_service.service.ApartmentService;
 
 import jakarta.inject.Inject;

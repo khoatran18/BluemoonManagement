@@ -7,7 +7,9 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>common-package</module>
         <module>resident_fee-service</module>
+        <module>auth-service</module>
     </modules>
 
     <properties>

@@ -13,14 +13,6 @@ D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\entity\FeeCategory.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\entity\FeeType.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\entity\Resident.java
-D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\ApiResponse.java
-D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\BadRequestException.java
-D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\BaseException.java
-D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\BusinessException.java
-D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\ConflictException.java
-D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\GlobalExceptionMapper.java
-D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\InternalServerException.java
-D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\exception\NotFoundException.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\AdjustmentMapper.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ApartmentDetailsMapper.java
 D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\src\main\java\com\project\resident_fee_service\mapper\ApartmentFeeStatusMapper.java

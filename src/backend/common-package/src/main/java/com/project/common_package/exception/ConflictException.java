@@ -1,4 +1,4 @@
-package com.project.resident_fee_service.exception;
+package com.project.common_package.exception;
 
 public class ConflictException extends BaseException {
     public ConflictException(String message) {

@@ -1,6 +1,6 @@
 package com.project.resident_fee_service.mapper;
 
-import com.project.resident_fee_service.exception.ConflictException;
+import com.project.common_package.exception.ConflictException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

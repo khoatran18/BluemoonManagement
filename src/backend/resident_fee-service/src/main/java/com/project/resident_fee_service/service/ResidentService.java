@@ -2,10 +2,8 @@ package com.project.resident_fee_service.service;
 
 import com.project.resident_fee_service.dto.ResidentDTO.*;
 import com.project.resident_fee_service.entity.Resident;
-import com.project.resident_fee_service.exception.InternalServerException;
-import com.project.resident_fee_service.exception.NotFoundException;
-
-import com.project.resident_fee_service.mapper.*;
+import com.project.common_package.exception.InternalServerException;
+import com.project.common_package.exception.NotFoundException;
 
 import com.project.resident_fee_service.mapper.ResidentDetailsMapper;
 import com.project.resident_fee_service.mapper.ResidentListResponseMapper;

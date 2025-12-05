@@ -2,8 +2,8 @@ package com.project.resident_fee_service.service;
 
 import com.project.resident_fee_service.dto.FeeDTO;
 import com.project.resident_fee_service.entity.Fee;
-import com.project.resident_fee_service.exception.InternalServerException;
-import com.project.resident_fee_service.exception.NotFoundException;
+import com.project.common_package.exception.InternalServerException;
+import com.project.common_package.exception.NotFoundException;
 import com.project.resident_fee_service.mapper.FeeMapper;
 import com.project.resident_fee_service.mapper.LocalDateMapper;
 import com.project.resident_fee_service.repository.FeeRepository;

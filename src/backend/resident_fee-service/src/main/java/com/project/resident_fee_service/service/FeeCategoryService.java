@@ -2,8 +2,8 @@ package com.project.resident_fee_service.service;
 
 import com.project.resident_fee_service.dto.FeeCategoryDTO;
 import com.project.resident_fee_service.entity.FeeCategory;
-import com.project.resident_fee_service.exception.InternalServerException;
-import com.project.resident_fee_service.exception.NotFoundException;
+import com.project.common_package.exception.InternalServerException;
+import com.project.common_package.exception.NotFoundException;
 import com.project.resident_fee_service.mapper.FeeCategoryMapper;
 import com.project.resident_fee_service.repository.FeeCategoryRepository;
 import jakarta.enterprise.context.ApplicationScoped;

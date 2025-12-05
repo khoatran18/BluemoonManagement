@@ -1,7 +1,7 @@
 package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.FeeDTO;
-import com.project.resident_fee_service.exception.ApiResponse;
+import com.project.common_package.exception.ApiResponse;
 import com.project.resident_fee_service.service.FeeService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
