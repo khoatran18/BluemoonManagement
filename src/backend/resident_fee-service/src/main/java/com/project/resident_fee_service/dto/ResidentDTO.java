@@ -100,5 +100,8 @@ public class ResidentDTO {
 
         @JsonProperty("phone_number")
         public String phoneNumber;
+
+        @JsonProperty("apartment_id")
+        public Long apartmentId;
     }
 }

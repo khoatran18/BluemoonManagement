@@ -31,20 +31,21 @@ public class ApartmentFeeStatus {
     )
     private Apartment apartment;
 
-    /**
-     * Fee relationship.
-     * ON DELETE RESTRICT (cannot delete a Fee if statuses exist)
-     */
-    @ManyToOne(optional = false)
-    @JoinColumn(
-            name = "FeeID",
-            nullable = false,
-            foreignKey = @ForeignKey(
-                    name = "fk_afs_fee",
-                    foreignKeyDefinition = "FOREIGN KEY (FeeID) REFERENCES Fee(FeeID) ON DELETE RESTRICT"
-            )
-    )
-    private Fee fee;
+//    /**
+//     * Fee relationship.
+//     * ON DELETE RESTRICT (cannot delete a Fee if statuses exist)
+//     */
+//    @ManyToOne(optional = true)
+//    @JoinColumn(
+//            name = "FeeID",
+//            nullable = true,
+//            foreignKey = @ForeignKey(
+//                    name = "fk_afs_fee",
+//                    foreignKeyDefinition = "FOREIGN KEY (FeeID) REFERENCES Fee(FeeID) ON DELETE RESTRICT"
+//            )
+//    )
+//    private Fee fee;
+
     @ManyToMany
     @JoinTable(
             name = "ApartmentFeeStatus_UnpaidFees",
@@ -77,8 +78,8 @@ public class ApartmentFeeStatus {
     )
     private Set<Adjustment> extraAdjustmentList;
 
-    @Column(name = "AmountDue", precision = 12, scale = 2)
-    private BigDecimal amountDue;
+//    @Column(name = "AmountDue", precision = 12, scale = 2)
+//    private BigDecimal amountDue;
 
     @Column(name = "AmountPaid", precision = 12, scale = 2)
     private BigDecimal amountPaid;

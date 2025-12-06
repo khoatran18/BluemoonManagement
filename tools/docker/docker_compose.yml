@@ -10,6 +10,7 @@ services:
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: main_db
       TZ: Asia/Ho_Chi_Minh
+      PGTZ: Asia/Ho_Chi_Minh
     volumes:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:

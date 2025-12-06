@@ -1,20 +1,34 @@
 package com.project.resident_fee_service.service;
 
 import com.project.resident_fee_service.dto.ApartmentFeeStatusDTO;
+import com.project.resident_fee_service.entity.Apartment;
 import com.project.resident_fee_service.entity.ApartmentFeeStatus;
 import com.project.common_package.exception.InternalServerException;
 import com.project.common_package.exception.NotFoundException;
+import com.project.resident_fee_service.entity.Fee;
 import com.project.resident_fee_service.mapper.ApartmentFeeStatusMapper;
 import com.project.resident_fee_service.repository.ApartmentFeeStatusRepository;
+import com.project.resident_fee_service.repository.ApartmentRepository;
+import com.project.resident_fee_service.repository.FeeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ApartmentFeeStatusService {
 
     @Inject
     ApartmentFeeStatusRepository repository;
+
+    @Inject
+    FeeRepository feeRepository;
+
+    @Inject
+    ApartmentRepository apartmentRepository;
 
     ApartmentFeeStatusMapper mapper = new ApartmentFeeStatusMapper();
 
@@ -73,6 +87,30 @@ public class ApartmentFeeStatusService {
 
             // 3. Persist changes (Panache tracks entity automatically)
             repository.updateStatus(entity);
+
+            // 4. Update apartment paid in Fee
+            Set<Fee> existingPaidFees = entity.getPaidFeeList();
+            Set<ApartmentFeeStatusDTO.FeeStatusUpdateDTO.FeeRef> incomingPaidFees = dto.paidFees;
+
+            Set<Long> existingIds = existingPaidFees.stream()
+                    .map(Fee::getFeeId)
+                    .collect(Collectors.toSet());
+            Set<Long> incomingIds = incomingPaidFees.stream()
+                    .map(f -> f.feeId)
+                    .collect(Collectors.toSet());
+            Set<Long> newFeeIds = new HashSet<>(incomingIds);
+            newFeeIds.removeAll(existingIds);
+
+            Apartment apartment = entity.getApartment();
+            for (Long feeId : existingIds) {
+                Fee fee = feeRepository.findById(feeId);
+                if (fee == null) {
+                    throw new NotFoundException("Fee id not found: " + feeId); // hoặc throw nếu cần
+                }
+
+                // Add Apartment to paidList in Fee
+                fee.getPaidApartmentList().add(apartment);
+            }
 
         } catch (NotFoundException e) {
             throw e; // pass through

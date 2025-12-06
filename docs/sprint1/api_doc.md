@@ -196,7 +196,8 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 {
   "full_name": "Tran Thi A",
   "email": "",
-  "phone_number": ""
+  "phone_number": "",
+  "apartment_id": 1,
 }
 ```
 
@@ -423,7 +424,6 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
         "expiry_date": "",
       }
     ],
-    "total_fee": 50,
     "total_paid": 20,
     "balance": 30,
     "updated_at": ""
@@ -441,10 +441,11 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
   "balance": 20,
   (Fee bên dưới là thêm mới)
   "paid_fees": [
-    {"fee_id":  1}
+    {"fee_id":  1},
+    {"fee_id":  3}  
   ],
   "unpaid_fees": [
-    {"fee_id":  1}
+    {"fee_id":  2}
   ]
 }
 ```

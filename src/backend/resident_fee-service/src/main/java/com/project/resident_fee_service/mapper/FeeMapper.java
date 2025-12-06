@@ -1,6 +1,7 @@
 package com.project.resident_fee_service.mapper;
 
 import com.project.resident_fee_service.dto.FeeDTO;
+import com.project.resident_fee_service.entity.Apartment;
 import com.project.resident_fee_service.entity.Fee;
 import com.project.resident_fee_service.entity.FeeCategory;
 import com.project.resident_fee_service.entity.FeeType;
@@ -9,7 +10,9 @@ import com.project.resident_fee_service.repository.FeeTypeRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FeeMapper {
 
@@ -111,6 +114,7 @@ public class FeeMapper {
         FeeCategory feeCategory = feeCategoryRepository.findById(dto.FeeCategoryId);
         LocalDate startDate = LocalDateMapper.StringToLocalDate(dto.EffectiveDate);
         LocalDate endDate = LocalDateMapper.StringToLocalDate(dto.ExpiryDate);
+        Set<Apartment> paidApartmentList = new HashSet<>();
 
         // Create result
         entity.setFeeType(feeType);
@@ -118,6 +122,7 @@ public class FeeMapper {
         entity.setFeeName(dto.FeeName);
         entity.setFeeDescription(dto.FeeDescription);
         entity.setAmount(dto.FeeAmount);
+        entity.setPaidApartmentList(paidApartmentList);
         entity.setApplicableMonth(dto.ApplicableMonth);
         entity.setStatus(dto.Status);
         entity.setStartDate(startDate);

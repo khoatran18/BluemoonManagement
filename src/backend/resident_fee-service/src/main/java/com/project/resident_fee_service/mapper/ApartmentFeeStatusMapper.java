@@ -54,7 +54,7 @@ public class ApartmentFeeStatusMapper {
 
 
         // ================= Totals ======================
-        dto.totalFee = entity.getAmountDue();
+//        dto.totalFee = entity.getAmountDue();
         dto.totalPaid = entity.getAmountPaid();
         dto.balance = entity.getBalance();
         dto.updatedAt = entity.getUpdatedAt();

@@ -36,10 +36,10 @@ public class Resident {
      * Resident belongs to an Apartment (owning side).
      * ON DELETE CASCADE: if Apartment is removed, Resident rows are removed by DB.
      */
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(
             name = "ApartmentID",
-            nullable = false,
+            nullable = true,
             foreignKey = @ForeignKey(
                     name = "fk_resident_apartment",
                     foreignKeyDefinition = "FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID) ON DELETE CASCADE"

@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Fee")
@@ -63,6 +64,14 @@ public class Fee {
     @Column(name = "Amount", precision = 12, scale = 2)
     private BigDecimal amount;
 
+    @ManyToMany
+    @JoinTable(
+            name = "Apartment_PaidFee",
+            joinColumns = @JoinColumn(name = "FeeID"),
+            inverseJoinColumns = @JoinColumn(name = "ApartmentID")
+    )
+    private Set<Apartment> paidApartmentList;
+
     @Column(name = "StartDate")
     private LocalDate startDate;
 
@@ -80,12 +89,12 @@ public class Fee {
     @Enumerated(EnumType.STRING)
     private FeeStatus status;
 
-    /**
-     * Fee has many ApartmentFeeStatus rows.
-     * DB ON DELETE RESTRICT prevents deleting a Fee while status records exist.
-     */
-    @OneToMany(mappedBy = "fee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ApartmentFeeStatus> apartmentFeeStatuses;
+//    /**
+//     * Fee has many ApartmentFeeStatus rows.
+//     * DB ON DELETE RESTRICT prevents deleting a Fee while status records exist.
+//     */
+//    @OneToMany(mappedBy = "fee", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<ApartmentFeeStatus> apartmentFeeStatuses;
 
     /**
      * Fee has many Adjustments.

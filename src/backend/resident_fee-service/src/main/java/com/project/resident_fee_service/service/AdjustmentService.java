@@ -4,6 +4,9 @@ import com.project.resident_fee_service.dto.AdjustmentDTO;
 import com.project.resident_fee_service.entity.Adjustment;
 import com.project.common_package.exception.InternalServerException;
 import com.project.common_package.exception.NotFoundException;
+import com.project.resident_fee_service.entity.Apartment;
+import com.project.resident_fee_service.entity.ApartmentFeeStatus;
+import com.project.resident_fee_service.entity.Fee;
 import com.project.resident_fee_service.mapper.AdjustmentMapper;
 import com.project.resident_fee_service.mapper.LocalDateMapper;
 import com.project.resident_fee_service.repository.AdjustmentRepository;
@@ -14,6 +17,7 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @ApplicationScoped
 public class AdjustmentService {
@@ -164,6 +168,20 @@ public class AdjustmentService {
         try {
             // Persist to database
             repository.create(entity);
+
+            // Update to balance in ApartmentFeeStatus
+            if (entity.getFee() != null) {
+                Fee fee = entity.getFee();
+                // Get paidApartments in Fee updated by Adjustments
+                Set<Apartment> apartments = fee.getPaidApartmentList();
+                for (Apartment apartment : apartments) {
+                    ApartmentFeeStatus apartmentFeeStatus = apartment.getApartmentFeeStatus();
+                    // Calculate to update in Balance
+                    BigDecimal changeAmount = (entity.getAdjustmentType() == Adjustment.AdjustmentType.decrease) ? entity.getAdjustmentAmount() : entity.getAdjustmentAmount().negate();
+                    apartmentFeeStatus.setBalance(apartmentFeeStatus.getBalance().add(changeAmount));
+                }
+            }
+
         } catch (Exception e) {
             throw new InternalServerException(e.getMessage());
         }

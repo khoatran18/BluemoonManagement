@@ -4,6 +4,7 @@ import com.project.resident_fee_service.dto.AdjustmentDTO;
 import com.project.resident_fee_service.dto.ApartmentDTO.*;
 import com.project.resident_fee_service.entity.Adjustment;
 import com.project.resident_fee_service.entity.Apartment;
+import com.project.resident_fee_service.entity.ApartmentFeeStatus;
 import com.project.resident_fee_service.entity.Resident;
 import com.project.common_package.exception.InternalServerException;
 import com.project.common_package.exception.NotFoundException;
@@ -12,6 +13,7 @@ import com.project.resident_fee_service.mapper.ApartmentDetailsMapper;
 import com.project.resident_fee_service.mapper.ApartmentListResponseMapper;
 import com.project.resident_fee_service.mapper.ApartmentMutationMapper;
 import com.project.resident_fee_service.repository.AdjustmentRepository;
+import com.project.resident_fee_service.repository.ApartmentFeeStatusRepository;
 import com.project.resident_fee_service.repository.ApartmentRepository;
 import com.project.resident_fee_service.repository.ResidentRepository;
 
@@ -33,6 +35,9 @@ public class ApartmentService {
 
     @Inject
     ResidentRepository residentRepository;
+
+    @Inject
+    ApartmentFeeStatusRepository apartmentFeeStatusRepository;
 
     AdjustmentMapper adjustmentMapper = new AdjustmentMapper();
 
@@ -124,6 +129,13 @@ public class ApartmentService {
         try {
             Apartment entity = ApartmentMutationMapper.toEntity(dto);
             apartmentRepository.persist(entity);
+
+            Long apartmentId = entity.getApartmentId();
+            ApartmentFeeStatus apartmentFeeStatus = new ApartmentFeeStatus();
+            apartmentFeeStatus.setApartment(entity);
+
+            apartmentFeeStatusRepository.persist(apartmentFeeStatus);
+
         } catch (Exception e) {
             throw new InternalServerException(e.getMessage());
         }

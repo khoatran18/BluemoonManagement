@@ -102,9 +102,6 @@ public class ApartmentFeeStatusDTO {
             public LocalDate expiryDate;
         }
 
-        @JsonProperty("total_fee")
-        public BigDecimal totalFee;
-
         @JsonProperty("total_paid")
         public BigDecimal totalPaid;
 
@@ -114,6 +111,8 @@ public class ApartmentFeeStatusDTO {
         @JsonProperty("updated_at")
         public LocalDateTime updatedAt;
     }
+
+
     public static class FeeStatusUpdateDTO {
         @JsonProperty("total_paid")
         public BigDecimal totalPaid;

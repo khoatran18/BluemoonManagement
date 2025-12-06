@@ -1,6 +1,7 @@
 package com.project.resident_fee_service.service;
 
 import com.project.resident_fee_service.dto.ResidentDTO.*;
+import com.project.resident_fee_service.entity.Apartment;
 import com.project.resident_fee_service.entity.Resident;
 import com.project.common_package.exception.InternalServerException;
 import com.project.common_package.exception.NotFoundException;
@@ -8,6 +9,7 @@ import com.project.common_package.exception.NotFoundException;
 import com.project.resident_fee_service.mapper.ResidentDetailsMapper;
 import com.project.resident_fee_service.mapper.ResidentListResponseMapper;
 import com.project.resident_fee_service.mapper.ResidentMutationMapper;
+import com.project.resident_fee_service.repository.ApartmentRepository;
 import com.project.resident_fee_service.repository.ResidentRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,6 +23,9 @@ public class ResidentService {
 
     @Inject
     ResidentRepository residentRepository;
+
+    @Inject
+    ApartmentRepository apartmentRepository;
 
     //////////////////////////////
     // GET LIST
@@ -84,8 +89,15 @@ public class ResidentService {
     @Transactional
     public void createResident(ResidentCreateDTO dto) {
         try {
-            // Convert DTO → Entity (no apartment passed)
-            Resident entity = ResidentMutationMapper.toEntity(dto, null);
+
+            System.out.println("apartmentId=" + dto.apartmentId);
+            System.out.println("fullName=" + dto.fullName);
+
+            Apartment apartment = apartmentRepository.findById(dto.apartmentId);
+            if (apartment == null)
+                throw new NotFoundException("Apartment not found with id: " + dto.apartmentId);
+
+            Resident entity = ResidentMutationMapper.toEntity(dto, apartment);
 
             residentRepository.persist(entity);
 
