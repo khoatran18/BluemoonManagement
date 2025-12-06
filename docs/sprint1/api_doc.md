@@ -196,7 +196,8 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 {
   "full_name": "Tran Thi A",
   "email": "",
-  "phone_number": ""
+  "phone_number": "",
+  "apartment_id": 1,
 }
 ```
 
@@ -423,7 +424,6 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
         "expiry_date": "",
       }
     ],
-    "total_fee": 50,
     "total_paid": 20,
     "balance": 30,
     "updated_at": ""
@@ -441,10 +441,11 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
   "balance": 20,
   (Fee bên dưới là thêm mới)
   "paid_fees": [
-    {"fee_id":  1}
+    {"fee_id":  1},
+    {"fee_id":  3}  
   ],
   "unpaid_fees": [
-    {"fee_id":  1}
+    {"fee_id":  2}
   ]
 }
 ```
@@ -488,6 +489,8 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 ### 6.3. Lấy danh sách Adjustment
 * GET /api/v1/adjustments (Admin)
 * Query:
+    * page: optional (default=10)
+    * limit: optional (default=1)
     * fee_id: number (optional)
     * adjustment_amount: number (optional)
     * adjustment_type: number (optional)
@@ -538,24 +541,25 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
 ### 7.1. Lấy danh sách ApartmentSpecificAdjustment
 
-* GET /api/v1/apartment-specific-adjustments
+* GET /api/v1/adjustments/apartment_specific_adjustments
 * Query:
-    * page: number (optional, default=1)
-    * limit: number (optional, default=10)
-    * apartment_id: number (optional)
-    * adjustment_id: number (optional)
+    * page: optional (default=10)
+    * limit: optional (default=1)
+    * adjustment_amount: number (optional)
+    * adjustment_type: number (optional)
+    * effective_date: string (optional)
+    * expiry_date: string (optional)
+  
 * Response:
 ```json
 {
   "page": 1,
   "limit": 10,
   "total_items": 25,
-  "apartment_specific_adjustments": [
+  "adjustments": [
     {
-      "apartment_id": 1,
       "adjustment_id": 1,
-      "fee_id": 5,
-      "fee_name": "Fee Name",
+      "fee_id": -1,
       "adjustment_amount": 50000,
       "adjustment_type": "decrease",
       "reason": "Giảm phí do sự cố",
@@ -568,22 +572,15 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
 ### 7.2. Lấy danh sách ApartmentSpecificAdjustment theo ApartmentID
 
-* GET /api/v1/apartment-specific-adjustments/apartments/{apartment_id}
-* Query:
-    * page: number (optional, default=1)
-    * limit: number (optional, default=10)
+* GET /api/v1/apartments/apartment_specific_adjustments/{apartment_id}
 * Response:
 ```json
 {
-  "page": 1,
-  "limit": 10,
-  "total_items": 25,
   "apartment_specific_adjustments": [
     {
       "adjustment_id": 1,
-      "fee_id": 5,
-      "fee_name": "Fee Name",
       "adjustment_amount": 50000,
+      "fee_id": -1,
       "adjustment_type": "decrease",
       "reason": "Giảm phí do sự cố",
       "effective_date": "2025-10-15",
@@ -593,31 +590,9 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 }
 ```
 
-### 7.3. Lấy thông tin chi tiết ApartmentSpecificAdjustment theo ID
+### 7.3. Cập nhật thông tin ApartmentSpecificAdjustment theo apartment_id
 
-* GET /api/v1/apartment-specific-adjustments/apartments/{apartment_id}/{adjustment_id}
-* Response:
-```json
-{
-  "apartment_id": 1,
-  "adjustment_id": 2,
-  "fee_id": 5,
-  "fee_name": "Fee Name",
-  "fee_type_id": 1,
-  "fee_type_name": "Name Type",
-  "fee_category_id": 2,
-  "fee_category_name": "Name Category",
-  "adjustment_amount": 50000,
-  "adjustment_type": "decrease",
-  "reason": "Giảm phí do sự cố",
-  "effective_date": "2025-10-15",
-  "expiry_date": "2025-10-15"
-}
-```
-
-### 7.4. Cập nhật thông tin ApartmentSpecificAdjustment theo apartment_id
-
-* PUT /api/v1/apartment-specific-adjustments/apartments/{apartment_id}
+* PUT /api/v1/apartments/apartment_specific_adjustments/{apartment_id}
 * Request:
 
 ```json
