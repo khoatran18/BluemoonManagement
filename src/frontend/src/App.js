@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ComingSoon from './Layout/ComingSoon/ComingSoon';
 import Overview from './Layout/Overview/Overview';
 import MainLayout from './Layout/MainLayout';
-import ApartmentManagement from './Layout/ApartmentManagement/ApartmentManagement';
-import ResidentManagement from './Layout/ResidentManagement/ResidentManagement';
+import ApartmentManagement from './Layout/Apartment/ApartmentManagement.jsx';
+import ResidentManagement from './Layout/Resident/ResidentManagement.jsx';
 
 export default function App() {
   return (

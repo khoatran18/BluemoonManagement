@@ -1,8 +1,8 @@
 .apartment-management-container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 24px;
+  gap: 0;
+  padding: 0;
   background-color: #f8f9fc;
   min-height: calc(100vh - 64px);
   font-family: "Inter", sans-serif;

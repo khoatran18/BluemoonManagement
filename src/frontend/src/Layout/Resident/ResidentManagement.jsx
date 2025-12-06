@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../ResidentManagement/ResidentManagement.css';
+import './ResidentManagement.css';
 import { SearchBarSection } from './sections/SearchBarSection/SearchBarSection';
 import { DataTableSection } from './sections/DataTableSection/DataTableSection';
 

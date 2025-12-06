@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import '../ApartmentManagement/ApartmentManagement.css';
-import { ApartmentSearchBarSection } from './sections/ApartmentSearchBarSection/ApartmentSearchBarSection';
-import { ApartmentDataTableSection } from './sections/ApartmentDataTableSection/ApartmentDataTableSection';
+import './ApartmentManagement.css';
+import { ApartmentSearchBarSection } from './sections/SearchBarSection/ApartmentSearchBarSection.jsx';
+import { ApartmentDataTableSection } from './sections/DataTableSection/ApartmentDataTableSection.jsx';
 
 const ApartmentManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
