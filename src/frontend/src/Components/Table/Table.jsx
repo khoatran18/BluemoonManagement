@@ -1,102 +1,98 @@
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import "./Table.css";
 import Column from "./Column";
 import Pagination from "../Pagination/Pagination";
 
-export default function Table({ children, data, pageSize = 10, onRowSelect }) {
-    const columns = React.Children.toArray(children)
-        .filter((child) => child.type === Column)
-        .map((child) => child.props);
+export default function Table({
+  children,
+  data,
+  page,
+  limit,
+  onPageChange,
+  onLimitChange,
+  onRowSelect
+}) {
+  const columns = React.Children.toArray(children)
+    .filter((child) => child.type === Column)
+    .map((child) => child.props);
 
-    // sort
-    const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  // SORT
+  const [sortConfig, setSortConfig] = React.useState({
+    key: null,
+    direction: null,
+  });
 
-    const handleSort = (key) => {
-        const direction =
-        sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
-        setSortConfig({ key, direction });
-    };
+  const handleSort = (key) => {
+    const direction =
+      sortConfig.key === key && sortConfig.direction === "asc"
+        ? "desc"
+        : "asc";
 
-    const sortedData = React.useMemo(() => {
-        if (!sortConfig.key) return data;
+    setSortConfig({ key, direction });
+  };
 
-        return [...data].sort((a, b) => {
-        const v1 = a[sortConfig.key];
-        const v2 = b[sortConfig.key];
+  const sortedData = useMemo(() => {
+    if (!sortConfig.key) return data;
 
-        if (v1 < v2) return sortConfig.direction === "asc" ? -1 : 1;
-        if (v1 > v2) return sortConfig.direction === "asc" ? 1 : -1;
-        return 0;
-        });
-    }, [data, sortConfig]);
+    return [...data].sort((a, b) => {
+      const v1 = a[sortConfig.key];
+      const v2 = b[sortConfig.key];
 
+      if (v1 < v2) return sortConfig.direction === "asc" ? -1 : 1;
+      if (v1 > v2) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [data, sortConfig]);
 
-    // selected row
-    const [selectedIndex, setSelectedIndex] = useState(null);
-    const [page, setPage] = useState(1);
+  const start = (page - 1) * limit;
+  const currentData = sortedData.slice(start, start + limit);
 
-    const start = (page - 1) * pageSize;
-    const currentData = sortedData.slice(start, start + pageSize);
+  return (
+    <div>
+      <div className="table-wrapper">
+        <table className="base-table">
+          <thead>
+            <tr>
+              {columns.map((col) => (
+                <th
+                  key={col.dataIndex}
+                  onClick={col.sortable ? () => handleSort(col.key) : undefined}
+                  className={col.sortable ? "sortable" : ""}
+                >
+                  {col.title}
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-    const handleRowClick = (index, row) => {
-        setSelectedIndex(index);
-        onRowSelect?.(row);
-    };
+          <tbody>
+            {currentData.map((row, index) => (
+              <tr
+                key={start + index}
+                onClick={() => onRowSelect?.(row)}
+              >
+                {columns.map((col) => (
+                  <td key={col.dataIndex}>
+                    <div>
+                      {col.render
+                        ? col.render(row[col.dataIndex], row)
+                        : row[col.dataIndex]}
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-    return (
-        <div>
-            <div className="table-wrapper">
-            <table className="base-table">
-                <thead>
-                <tr>
-                    {columns.map((col) => (
-                    <th
-                        key={col.dataIndex}
-                        onClick={col.sortable ? () => handleSort(col.key) : undefined}
-                        className={col.sortable ? "sortable" : ""}
-                    >
-                        {col.title}
-                        {col.sortable && (
-                        <span className="sort-icon">
-                            {sortConfig.key !== col.key
-                            ? "↕"
-                            : sortConfig.direction === "asc"
-                            ? "↑"
-                            : "↓"}
-                        </span>
-                        )}
-                    </th>
-                    ))}
-                </tr>
-                </thead>
-
-                <tbody>
-                    {currentData.map((row, index) => (
-                    <tr
-                        key={start + index}
-                        className={selectedIndex === index ? "selected-row" : ""}
-                        onClick={(e) => handleRowClick(index, row, e)}
-                    >
-                        {columns.map((col) => (
-                        <td key={col.dataIndex}>
-                            {col.render
-                            ? col.render(row[col.dataIndex], row)
-                            : row[col.dataIndex]}
-                        </td>
-                        ))}
-                    </tr>
-                    ))}
-                </tbody>
-            </table>
-            </div>
-
-            {/* Pagination */}
-            <Pagination
-                total={sortedData.length}
-                current={page}
-                pageSize={pageSize}
-                onChange={(p) => setPage(p)}
-            />
-        </div>
-    );
+      <Pagination
+        total={sortedData.length}
+        page={page}
+        limit={limit}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
+    </div>
+  );
 }

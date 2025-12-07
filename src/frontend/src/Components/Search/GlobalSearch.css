@@ -5,6 +5,13 @@
   padding: 8px 12px;
   border-radius: 8px;
   width: 300px; /* Độ rộng tùy chỉnh */
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.global-search-container:focus-within {
+  border-color: #4fb8ff;
+  box-shadow: 0 0 6px 2px rgba(79, 184, 255, 0.45); 
 }
 
 .search-icon {

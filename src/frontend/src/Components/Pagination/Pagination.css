@@ -75,3 +75,40 @@
 .arrow {
   font-size: 14px;
 }
+
+.limit-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 16px;
+  font-size: 14px;
+  color: #4a4f58;
+  user-select: none;
+}
+
+.limit-selector select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #D0D5DD;
+  background: #FFFFFF;
+  color: #344054;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.limit-selector select:hover {
+  border-color: #B3B8C2;
+  background: #F9FAFB;
+}
+
+.limit-selector select:focus {
+  outline: none;
+  border-color: #1A73E8; 
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+}
+
+.limit-selector span {
+  color: #475467;
+}
+

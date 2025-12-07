@@ -1,0 +1,33 @@
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  background: #2563eb;  
+  box-shadow:
+  inset 0px 1px 0 #4B85FA,             
+  0px 1px 1px 0px rgba(0, 0, 0, 0.14),  
+  0px 0px 0px 1px #1354D4,
+  0px 4px 10px -2px rgba(19, 84, 212, 0.24);
+
+  color: white;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.primary-btn .icon {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.primary-btn:hover {
+  background: #1354D4          
+}
+

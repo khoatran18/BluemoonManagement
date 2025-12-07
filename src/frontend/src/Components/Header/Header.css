@@ -5,21 +5,21 @@
   padding: 16px 24px;
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
-  height: 64px; /* Chiều cao cố định cho header */
+  height: 117px; 
   box-sizing: border-box;
 }
 
 .page-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #111827;
+  font-size: 36px;
+  font-weight: 650;
+  color: #444956;
   margin: 0;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 20px; /* Khoảng cách giữa các phần tử bên phải */
+  gap: 20px; 
 }
 
 .user-avatar img {
