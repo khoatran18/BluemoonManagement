@@ -7,7 +7,7 @@ export default function MainLayout() {
 
   // 3. Hàm kiểm tra đường dẫn để đặt tên Tiêu đề
   const getPageTitle = (path) => {
-    if (path.includes('/apartment')) return 'Quản lý căn hộ';
+    if (path.includes('/apartment')) return 'Quản lý căn hộ ';
     if (path.includes('/resident')) return 'Quản lý cư dân';
     if (path.includes('/fee')) return 'Quản lý phí';
     // Thêm các case khác tùy ý
