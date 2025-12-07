@@ -1,9 +1,12 @@
 .resident-management-container {
   display: flex;
   flex-direction: column;
+  padding-left: 40px;
+  padding-right: 40px;
+  margin: 35px;
+  gap: 16px;
   gap: 0;
   padding: 0;
-  background-color: #f8f9fc;
   min-height: calc(100vh - 64px);
   font-family: "Inter", sans-serif;
 }

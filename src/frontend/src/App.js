@@ -16,7 +16,7 @@ export default function App() {
           <Route path="overview" element={<ComingSoon />} />
           <Route path="apartment" element={<ApartmentManagement />} />
           <Route path="resident" element={<ResidentManagement />} />
-          <Route path="fee" element={<ComingSoon />}/>
+          <Route path="fee" element={<Fee />}/>
           <Route path="announcement" element={<ComingSoon />} />
           <Route path="pay" element={<ComingSoon />} />
         </Route>

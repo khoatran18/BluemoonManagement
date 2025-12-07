@@ -9,6 +9,8 @@ export const ApartmentDataTableSection = ({ searchQuery = "" }) => {
   const [selectedApartment, setSelectedApartment] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(5);
 
   // Mock data for apartments
   const allData = Array.from({ length: 32 }).map((_, i) => ({
@@ -71,7 +73,15 @@ export const ApartmentDataTableSection = ({ searchQuery = "" }) => {
 
   return (
     <>
-      <Table data={data} pageSize={10}>
+      <Table        
+        data={data}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l);
+          setPage(1);
+        }}>
         <Column dataIndex="id" title="Mã căn hộ" sortable />
         <Column dataIndex="building" title="Tòa nhà" sortable />
         <Column dataIndex="room" title="Số phòng" sortable />
