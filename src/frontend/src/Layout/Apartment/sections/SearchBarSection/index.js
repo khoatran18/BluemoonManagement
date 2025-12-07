@@ -1,1 +1,1 @@
-export { SearchBarSection } from "./SearchBarSection";
+export { ApartmentSearchBarSection } from "./ApartmentSearchBarSection";

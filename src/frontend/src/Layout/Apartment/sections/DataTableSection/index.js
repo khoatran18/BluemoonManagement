@@ -1,1 +1,1 @@
-export { DataTableSection } from "./DataTableSection";
+export { ApartmentDataTableSection } from "./ApartmentDataTableSection";

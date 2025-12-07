@@ -50,16 +50,16 @@ export const SearchBarSection = ({ onSearchChange }) => {
         />
 
         <label htmlFor="apartment-search" className="sr-only">
-          Tìm kiếm căn hộ
+          Tìm kiếm cư dân
         </label>
         <input
           id="apartment-search"
           type="search"
           value={searchQuery}
           onChange={handleSearchChange}
-          placeholder="Tìm kiếm căn hộ"
+          placeholder="Tìm kiếm cư dân"
           className="relative flex-1 font-body-b2 font-[number:var(--body-b2-font-weight)] text-greygrey-900 text-[length:var(--body-b2-font-size)] tracking-[var(--body-b2-letter-spacing)] leading-[var(--body-b2-line-height)] [font-style:var(--body-b2-font-style)] placeholder:text-gray-300 outline-none"
-          aria-label="Tìm kiếm căn hộ"
+          aria-label="Tìm kiếm cư dân"
         />
       </div>
 
@@ -88,20 +88,21 @@ export const SearchBarSection = ({ onSearchChange }) => {
       <div className="flex gap-2 absolute right-0 top-3 h-10">
         {/* Add Button */}
         <button
-          className="group box-border px-4 py-[9.5px] inline-flex items-center justify-center gap-2 rounded-lg border border-solid border-blue-600 bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors w-40"
+          className="group box-border px-4 py-[9.5px] inline-flex items-center justify-center gap-2 rounded-lg border border-solid border-blue-600 bg-blue-600 cursor-pointer hover:bg-blue-700 transition-colors w-48"
           onClick={handleAddResidentClick}
           type="button"
           aria-label="Thêm cư dân"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            strokeWidth={2}
+            strokeWidth={1}
             stroke="currentColor"
+            fill="currentColor"
             viewBox="0 0 24 24"
-            className="relative w-10 h-10 text-white transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110"
+            className="relative w-4 h-4 text-white transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110"
             aria-hidden="true"
           >
-            <path fillRule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clipRule="evenodd" />
+            <path fillRule="evenodd" d="M12 2a1 1 0 011 1v8h8a1 1 0 110 2h-8v8a1 1 0 11-2 0v-8H3a1 1 0 110-2h8V3a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
 
           <span className="relative font-body-2-medium font-[number:var(--body-2-medium-font-weight)] text-white text-[length:var(--body-2-medium-font-size)] tracking-[var(--body-2-medium-letter-spacing)] leading-[var(--body-2-medium-line-height)] whitespace-nowrap [font-style:var(--body-2-medium-font-style)]">

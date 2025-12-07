@@ -1,22 +1,20 @@
-// src/Layout/Apartment/Apartment.jsx
 import React, { useState } from 'react';
-import './Apartment.css'
 // Import các section con
+import './ResidentManagement.css';
 import { SearchBarSection } from './sections/SearchBarSection/SearchBarSection';
 import { DataTableSection } from './sections/DataTableSection/DataTableSection';
-import { PaginationControlsSection } from './sections/PaginationControlsSection/PaginationControlsSection';
 
-const Apartment = () => {
+const ResidentManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  console.log("Apartment searchQuery state:", searchQuery);
+  console.log("ResidentManagement searchQuery state:", searchQuery);
 
   return (
-    <div className="apartment-container"> 
+    <div className="resident-management-container"> 
        <SearchBarSection onSearchChange={setSearchQuery} />
        <DataTableSection searchQuery={searchQuery} />
     </div>
   );
 };
 
-export default Apartment;
+export default ResidentManagement;

@@ -1,8 +1,0 @@
-.apartment-container {
-    display: flex;
-    flex-direction: column;
-    padding-left: 40px;
-    padding-right: 40px;
-    margin: 35px;
-    gap: 16px;
-}
