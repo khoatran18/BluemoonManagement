@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { ActionMenu } from "../../../Components/ActionMenu";
 import editIcon from "../../../assets/icon/fee/pencil-filled.svg";
 import deleteIcon from "../../../assets/icon/fee/trash-filled.svg";
 import Table from "../../../Components/Table/Table";
@@ -152,13 +153,24 @@ export default function DataTableSection({ activeType, activeStatus, search }) {
         <Column
           dataIndex="actions"
           title="Thao tác"
-          render={(_, row) => (
-            <button
-              className="action-btn"
-              onClick={(e) => handleOpenMenu(row, e)}
-            >
-              ⋮
-            </button>
+          render={(_, record) => (
+            <ActionMenu
+              recordId={record.id}
+              actions={[
+                {
+                  label: "Sửa",
+                  icon: "edit",
+                  type: "edit",
+                  onClick: () => handleEdit(record.id),
+                },
+                {
+                  label: "Xóa",
+                  icon: "delete",
+                  type: "delete",
+                  onClick: () => handleDelete(record.id),
+                },
+              ]}
+              />
           )}
         />
       </Table>

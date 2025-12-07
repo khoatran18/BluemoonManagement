@@ -1,5 +1,6 @@
 // src/Layout/Apartment/Apartment.jsx
 import React, { useState } from 'react';
+import './Apartment.css'
 // Import các section con
 import { SearchBarSection } from './sections/SearchBarSection/SearchBarSection';
 import { DataTableSection } from './sections/DataTableSection/DataTableSection';

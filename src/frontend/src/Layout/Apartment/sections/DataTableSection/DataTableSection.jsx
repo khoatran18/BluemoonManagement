@@ -12,6 +12,8 @@ export const DataTableSection = ({ searchQuery = "" }) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(5);
 
   const apartments = [
     {
@@ -93,7 +95,14 @@ export const DataTableSection = ({ searchQuery = "" }) => {
 
   return (
     <>
-      <Table data={data} pageSize={10}>
+      <Table data={data}
+        page={page}
+        limit={limit}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l);
+          setPage(1);
+        }}>
         <Column dataIndex="id" title="Mã căn hộ" sortable />
         <Column dataIndex="name" title="Tên cư dân" sortable />
         <Column dataIndex="room" title="Số phòng" sortable />

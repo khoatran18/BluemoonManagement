@@ -20,17 +20,15 @@
 }
 
 .action-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
+  position: fixed;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: auto;
   z-index: 9999;
-  margin-top: 4px;
-  margin-left: 40px;
+  /* margin-top: 4px;
+  margin-left: 40px; */
   overflow: hidden;
 }
 
