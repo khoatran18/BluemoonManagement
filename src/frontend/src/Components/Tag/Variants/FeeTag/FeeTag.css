@@ -1,0 +1,14 @@
+.fee-obligatory {
+    background-color: #EEF2FF;   
+    color: #3B5BFE;
+}
+
+.fee-voluntary {
+    background-color: #D9D9D9;
+    color: #333;
+}
+
+.fee-impromptu {
+    background-color: #D8FFC8;
+    color: #4FA100;
+}
