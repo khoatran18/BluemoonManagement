@@ -55,6 +55,33 @@ public class MockData {
         }
         Thread.sleep(5000);
 
+        // PUT Method for head resident
+        for (int apt = 1; apt <= 50; apt++) {
+            int headResidentId = (apt - 1) * 3 + 1;
+            int resident2 = headResidentId + 1;
+            int resident3 = headResidentId + 2;
+
+            String building = (apt <= 25) ? "A" : "B";
+            int floor = (apt % 5 == 0) ? (apt / 5) : (apt / 5 + 1);
+            String room = building + floor + (apt < 10 ? "0" + apt : apt);
+
+            String body = "{" +
+                    "\"apartment_id\":" + apt + "," +
+                    "\"building\":\"" + building + "\"," +
+                    "\"room_number\":\"" + room + "\"," +
+                    "\"head_resident_id\":" + headResidentId + "," +
+                    "\"residents\":[" +
+                    "{\"id\":" + headResidentId + "}," +
+                    "{\"id\":" + resident2 + "}," +
+                    "{\"id\":" + resident3 + "}" +
+                    "]" +
+                    "}";
+            put("/api/v1/apartments/" + apt, body);
+            Thread.sleep(100);
+        }
+
+        Thread.sleep(3000);
+
         // 4. Fees (Tạo 20 loại phí phát sinh trong các tháng khác nhau)
         String[] months = {"2025-06", "2025-07", "2025-08"};
         for (int i = 1; i <= 20; i++) {
