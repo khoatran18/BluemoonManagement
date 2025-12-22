@@ -4,151 +4,107 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.*;
 import java.time.Duration;
+import java.util.Random;
 
 public class MockData {
 
     private static final String BASE_URL = "http://localhost:8080";
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
+    private static final Random RANDOM = new Random();
 
     public static void main(String[] args) throws Exception {
 
-        // =========================================================
-        // 1. Fee Types (fixed, giả sử đã có hoặc seed riêng)
-        // =========================================================
-        // KHÔNG POST ở đây nếu hệ thống đã seed sẵn
+        System.out.println("🚀 STARTING LARGE MOCK DATA GENERATION...");
 
-        // =========================================================
-        // 2. Fee Categories
-        // =========================================================
-        for (int i = 1; i <= 3; i++) {
+        // 1. Fee Categories (Tạo 10 danh mục khác nhau)
+        String[] catNames = {"Phí Quản Lý", "Phí Gửi Xe Máy", "Phí Gửi Ô Tô", "Phí Vệ Sinh", "Phí Bảo Trì", "Tiền Nước", "Internet", "Gym & Pool", "An Ninh", "Tiền rác"};
+        for (int i = 0; i < catNames.length; i++) {
             String body = "{" +
-                    "\"fee_type_id\":1," +
-                    "\"name\":\"Danh mục " + i + "\"," +
-                    "\"description\":\"Mô tả danh mục " + i + "\"" +
+                    "\"fee_type_id\":" + (i < 5 ? 1 : 2) + "," + // 5 cái đầu là bắt buộc, sau là tự nguyện
+                    "\"name\":\"" + catNames[i] + "\"," +
+                    "\"description\":\"Chi phí hàng tháng cho " + catNames[i] + "\"" +
                     "}";
             post("/api/v1/fee-categories", body);
         }
 
-        // =========================================================
-        // 3. Apartments (POST – chỉ building, room_number)
-        // =========================================================
-        for (int i = 1; i <= 5; i++) {
+        // 2. Apartments (Tạo 50 căn hộ ở 2 tòa nhà A và B)
+        for (int i = 1; i <= 50; i++) {
+            String building = (i <= 25) ? "A" : "B";
+            int floor = (i % 5 == 0) ? (i / 5) : (i / 5 + 1);
+            String room = building + floor + (i < 10 ? "0" + i : i);
             String body = "{" +
-                    "\"building\":\"A\"," +
-                    "\"room_number\":\"10" + i + "\"" +
+                    "\"building\":\"" + building + "\"," +
+                    "\"room_number\":\"" + room + "\"" +
                     "}";
             post("/api/v1/apartments", body);
         }
 
-        // =========================================================
-        // 4. Residents (POST – không is_head)
-        // =========================================================
-        int residentId = 1;
-        for (int apt = 1; apt <= 5; apt++) {
-
-            for (int j = 0; j < 2; j++) {
-                String body = "{" +
-                        "\"full_name\":\"Resident " + residentId + "\"," +
-                        "\"email\":\"r" + residentId + "@test.com\"," +
-                        "\"phone_number\":\"0900000" + residentId + "\"," +
-                        "\"apartment_id\":" + apt +
-                        "}";
-                post("/api/v1/residents", body);
-                residentId++;
-            }
-        }
-
-        // =========================================================
-        // 5. UPDATE Apartment (set head_resident + residents)
-        // =========================================================
-        int currentResident = 1;
-        for (int apt = 1; apt <= 5; apt++) {
-
+        // 3. Residents (150 cư dân - trung bình 3 người/căn)
+        for (int i = 1; i <= 150; i++) {
+            int aptId = (i % 50 == 0) ? 50 : (i % 50);
+            boolean isHead = (i <= 50); // 50 người đầu tiên là chủ hộ
             String body = "{" +
-                    "\"apartment_id\":" + apt + "," +
-                    "\"building\":\"A\"," +
-                    "\"room_number\":\"10" + apt + "\"," +
-                    "\"head_resident_id\":" + currentResident + "," +
-                    "\"residents\":[" +
-                    "{\"id\":" + currentResident + "}," +
-                    "{\"id\":" + (currentResident + 1) + "}" +
-                    "]" +
+                    "\"apartment_id\":" + aptId + "," +
+                    "\"full_name\":\"Nguyễn Văn " + i + "\"," +
+                    "\"phone_number\":\"0912345" + (100 + i) + "\"," +
+                    "\"email\":\"user" + i + "@gmail.com\"," +
+                    "\"is_head\":" + isHead +
                     "}";
-
-            put("/api/v1/apartments/" + apt, body);
-            currentResident += 2;
+            post("/api/v1/residents", body);
         }
 
-        // =========================================================
-        // 6. Fees (POST /fees)
-        // =========================================================
-        for (int i = 1; i <= 3; i++) {
+        // 4. Fees (Tạo 20 loại phí phát sinh trong các tháng khác nhau)
+        String[] months = {"2025-06", "2025-07", "2025-08"};
+        for (int i = 1; i <= 20; i++) {
+            int catId = (i % 10 == 0) ? 10 : (i % 10);
+            String month = months[i % 3];
+            String status = (i < 15) ? "ACTIVE" : "CLOSED";
             String body = "{" +
-                    "\"fee_type_id\":1," +
-                    "\"fee_category_id\":1," +
-                    "\"fee_name\":\"Phí điện tháng " + i + "/2025\"," +
-                    "\"fee_description\":\"Mô tả phí\"," +
-                    "\"fee_amount\":400000," +
-                    "\"applicable_month\":\"2025\"," +
-                    "\"effective_date\":\"2025-0" + i + "-01\"," +
-                    "\"expiry_date\":\"2025-0" + i + "-28\"," +
-                    "\"status\":\"Active\"" +
+                    "\"fee_type_id\":" + (catId <= 5 ? 1 : 2) + "," +
+                    "\"fee_category_id\":" + catId + "," +
+                    "\"fee_name\":\"" + catNames[catId-1] + " tháng " + month + "\"," +
+                    "\"fee_description\":\"Thông báo phí định kỳ\"," +
+                    "\"fee_amount\":" + (50000 + RANDOM.nextInt(200000)) + "," +
+                    "\"applicable_month\":\"" + month + "\"," +
+                    "\"effective_date\":\"" + month + "-01\"," +
+                    "\"expiry_date\":\"" + month + "-28\"," +
+                    "\"status\":\"" + status + "\"" +
                     "}";
             post("/api/v1/fees", body);
         }
 
-        // =========================================================
-        // 7. Adjustments (global + apartment-specific)
-        // =========================================================
-
-        // 7.1 Global adjustments (fee_id > 0)
-        for (int i = 1; i <= 2; i++) {
+        // 5. Adjustments (Tạo 30 chính sách giảm trừ/tăng thêm)
+        for (int i = 1; i <= 30; i++) {
+            int feeId = (i % 20 == 0) ? 20 : (i % 20);
+            String type = (i % 3 == 0) ? "increase" : "decrease";
             String body = "{" +
-                    "\"fee_id\":" + i + "," +
-                    "\"adjustment_amount\":50000," +
-                    "\"adjustment_type\":\"decrease\"," +
-                    "\"reason\":\"Giảm phí chung\"," +
-                    "\"effective_date\":\"2025-10-01\"," +
-                    "\"expiry_date\":\"2025-10-31\"" +
-                    "}";
-            post("/api/v1/adjustments", body);
-        }
-
-        // 7.2 Apartment-specific adjustments (fee_id = -1)
-        for (int i = 1; i <= 5; i++) {
-            String body = "{" +
-                    "\"fee_id\":-1," +
-                    "\"adjustment_amount\":30000," +
-                    "\"adjustment_type\":\"decrease\"," +
-                    "\"reason\":\"Gia đình chính sách\"," +
-                    "\"effective_date\":\"2025-11-01\"," +
+                    "\"fee_id\":" + feeId + "," +
+                    "\"adjustment_amount\":" + (10000 + RANDOM.nextInt(30000)) + "," +
+                    "\"adjustment_type\":\"" + type + "\"," +
+                    "\"reason\":\"Ưu đãi/Phụ phí đợt " + i + "\"," +
+                    "\"effective_date\":\"2025-06-01\"," +
                     "\"expiry_date\":\"2025-12-31\"" +
                     "}";
             post("/api/v1/adjustments", body);
         }
 
-        // =========================================================
-        // 8. Assign apartment-specific adjustments
-        // =========================================================
-        for (int apt = 1; apt <= 5; apt++) {
-            String body = "{\"adjustment_ids\":[" + apt + "]}";
-            put("/api/v1/apartments/apartment_specific_adjustments/" + apt, body);
-        }
+        // 6. Apartment Fee Status (Cập nhật trạng thái cho 50 căn hộ)
+        // Tạo sự khác biệt: một số căn đã trả hết, một số căn nợ
+        for (int apt = 1; apt <= 50; apt++) {
+            int paidFee = (apt % 3 == 0) ? 1 : 2; // Căn chia hết cho 3 thì trả ít hơn
+            int unpaidFee = (apt % 3 == 0) ? 3 : 4;
 
-        // =========================================================
-        // 9. UPDATE ApartmentFeeStatus (PUT only)
-        // =========================================================
-        for (int apt = 1; apt <= 5; apt++) {
             String body = "{" +
-                    "\"total_paid\":200000," +
-                    "\"balance\":200000," +
-                    "\"paid_fees\":[{\"fee_id\":1}]," +
-                    "\"unpaid_fees\":[{\"fee_id\":2}]" +
+                    "\"total_paid\":" + (100000 * paidFee) + "," +
+                    "\"balance\":" + (50000 * unpaidFee) + "," +
+                    "\"paid_fees\":[{\"fee_id\":" + paidFee + "}, {\"fee_id\":" + (paidFee + 5) + "}]," +
+                    "\"unpaid_fees\":[{\"fee_id\":" + unpaidFee + "}, {\"fee_id\":" + (unpaidFee + 1) + "}]," +
+                    "\"adjustments\":[{\"adjustment_id\":" + (apt % 30 == 0 ? 30 : apt % 30) + "}]" +
                     "}";
             put("/api/v1/apartment-fee-statuses/" + apt, body);
         }
 
-        System.out.println("MOCK DATA DONE");
+        System.out.println("✅ MOCK DATA GENERATION COMPLETED SUCCESSFULLY!");
     }
 
     // ================= HTTP HELPERS =================
@@ -161,22 +117,22 @@ public class MockData {
         send("PUT", path, json);
     }
 
-    private static void send(String method, String path, String json)
-            throws IOException, InterruptedException {
-
+    private static void send(String method, String path, String json) throws IOException, InterruptedException {
         HttpRequest.Builder b = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + path))
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json");
 
-        if ("POST".equals(method))
-            b.POST(HttpRequest.BodyPublishers.ofString(json));
-        else
-            b.PUT(HttpRequest.BodyPublishers.ofString(json));
+        if ("POST".equals(method)) b.POST(HttpRequest.BodyPublishers.ofString(json));
+        else b.PUT(HttpRequest.BodyPublishers.ofString(json));
 
-        HttpResponse<String> res =
-                CLIENT.send(b.build(), HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> res = CLIENT.send(b.build(), HttpResponse.BodyHandlers.ofString());
 
-        System.out.println(method + " " + path + " -> " + res.statusCode());
+        if (res.statusCode() >= 400) {
+            System.err.println("❌ FAILED " + method + " " + path + " | Status: " + res.statusCode());
+            System.err.println("Body: " + res.body());
+        } else {
+            System.out.println("✅ SUCCESS " + method + " " + path + " | Status: " + res.statusCode());
+        }
     }
 }
