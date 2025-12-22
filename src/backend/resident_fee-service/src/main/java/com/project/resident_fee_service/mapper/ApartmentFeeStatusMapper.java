@@ -2,8 +2,10 @@ package com.project.resident_fee_service.mapper;
 
 import com.project.resident_fee_service.dto.ApartmentFeeStatusDTO;
 import com.project.resident_fee_service.entity.Adjustment;
+import com.project.resident_fee_service.entity.Apartment;
 import com.project.resident_fee_service.entity.ApartmentFeeStatus;
 import com.project.resident_fee_service.entity.Fee;
+import com.project.resident_fee_service.repository.ApartmentRepository;
 import com.project.resident_fee_service.repository.FeeRepository;
 
 import java.util.HashSet;
@@ -12,6 +14,7 @@ import java.util.Set;
 public class ApartmentFeeStatusMapper {
 
     private final FeeRepository feeRepository = new FeeRepository();
+    private final ApartmentRepository  apartmentRepository = new ApartmentRepository();
 
     // ==========================================================
     // =============== 5.1  GET MAPPER ==========================
@@ -31,27 +34,61 @@ public class ApartmentFeeStatusMapper {
         dto.unpaidFees = new HashSet<>();
         if (entity.getUnpaidFeeList() != null) {
             for (Fee fee : entity.getUnpaidFeeList()) {
+                if (fee.getStatus() != Fee.FeeStatus.ACTIVE) {
+                    continue;
+                }
                 dto.unpaidFees.add(feeEntityToDTO(fee));
             }
         }
 
-        // ================= Adjustments =================
+//        // ================= Adjustments =================
+//        dto.adjustments = new HashSet<>();
+//        if (entity.getAdjustmentList() != null) {
+//            for (Adjustment adj : entity.getAdjustmentList()) {
+//                dto.adjustments.add(adjustmentEntityToDTO(adj));
+//            }
+//        }
+
+        // ================= Adjustments (from FeeList) =================
         dto.adjustments = new HashSet<>();
-        if (entity.getAdjustmentList() != null) {
-            for (Adjustment adj : entity.getAdjustmentList()) {
-                dto.adjustments.add(adjustmentEntityToDTO(adj));
+        Set<Fee> feeSources = new HashSet<>();
+
+        if (entity.getUnpaidFeeList() != null) {
+            feeSources.addAll(entity.getUnpaidFeeList());
+        }
+
+        for (Fee fee : feeSources) {
+
+            // Get only ACTIVE
+            if (fee.getStatus() != Fee.FeeStatus.ACTIVE) {
+                continue;
+            }
+            if (fee.getAdjustments() != null) {
+                for (Adjustment adj : fee.getAdjustments()) {
+                    dto.adjustments.add(adjustmentEntityToDTO(adj));
+                }
             }
         }
 
         // ============ Extra Adjustments ================
+//        dto.extraAdjustments = new HashSet<>();
+//        if (entity.getExtraAdjustmentList() != null) {
+//            for (Adjustment adj : entity.getExtraAdjustmentList()) {
+//                dto.extraAdjustments.add(extraAdjustmentEntityToDTO(adj));
+//            }
+//        }
         dto.extraAdjustments = new HashSet<>();
+        if (entity.getApartment() != null) {
 
-        if (entity.getExtraAdjustmentList() != null) {
-            for (Adjustment adj : entity.getExtraAdjustmentList()) {
-                dto.extraAdjustments.add(extraAdjustmentEntityToDTO(adj));
+            // load apartment with specific adjustments
+            Apartment apartment = apartmentRepository.findById(entity.getApartment().getApartmentId());
+
+            if (apartment != null && apartment.getAdjustments() != null) {
+                for (Adjustment adj : apartment.getAdjustments()) {
+                    dto.extraAdjustments.add(extraAdjustmentEntityToDTO(adj));
+                }
             }
         }
-
 
         // ================= Totals ======================
 //        dto.totalFee = entity.getAmountDue();
@@ -153,6 +190,11 @@ public class ApartmentFeeStatusMapper {
 
         // ========= Paid Fees ==========
         if (dto.paidFees != null) {
+
+            Set<Fee> oldPaid = entity.getPaidFeeList() != null
+                    ? new HashSet<>(entity.getPaidFeeList())
+                    : new HashSet<>();
+
             Set<Fee> newPaid = new HashSet<>();
             for (ApartmentFeeStatusDTO.FeeStatusUpdateDTO.FeeRef ref : dto.paidFees) {
                 if (ref.feeId != null) {
@@ -160,6 +202,21 @@ public class ApartmentFeeStatusMapper {
                     if (fee != null) newPaid.add(fee);
                 }
             }
+
+            // Get new paidFees
+            Set<Fee> addedFees = new HashSet<>(newPaid);
+            addedFees.removeAll(oldPaid);
+
+            Apartment apartment = entity.getApartment();
+
+            // Add Apartment into all Fee.paidApartmentList
+            for (Fee fee : addedFees) {
+                if (fee.getPaidApartmentList() == null) {
+                    fee.setPaidApartmentList(new HashSet<>());
+                }
+                fee.getPaidApartmentList().add(apartment);
+            }
+
             entity.setPaidFeeList(newPaid);
         }
 

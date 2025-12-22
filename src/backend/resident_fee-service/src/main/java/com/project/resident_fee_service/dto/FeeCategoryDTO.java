@@ -22,7 +22,7 @@ public class FeeCategoryDTO {
         @JsonProperty("total_items")
         public Long TotalItems;
 
-        @JsonProperty("fee_categories")
+        @JsonProperty("fee-categories")
         public List<GetFeeCategoriesResponseItemDTO> FeeCategories;
     }
 

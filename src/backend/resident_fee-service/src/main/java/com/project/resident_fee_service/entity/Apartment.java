@@ -46,7 +46,8 @@ public class Apartment {
      * JPA cascade here to allow in-memory cascade when removing the apartment.
      * DB-level ON DELETE CASCADE is defined on Resident.ApartmentID FK.
      */
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
+//    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
     private List<Resident> residents;
 
     /**

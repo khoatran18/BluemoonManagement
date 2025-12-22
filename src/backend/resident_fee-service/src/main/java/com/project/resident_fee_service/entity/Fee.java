@@ -58,7 +58,7 @@ public class Fee {
     @Column(name = "FeeDescription", length = 300, nullable = false)
     private String feeDescription;
 
-    @Column(name = "ApplicableMonth", length = 4)
+    @Column(name = "ApplicableMonth", length = 20)
     private String applicableMonth;
 
     @Column(name = "Amount", precision = 12, scale = 2)

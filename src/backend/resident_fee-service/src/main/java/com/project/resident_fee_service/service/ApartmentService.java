@@ -158,10 +158,13 @@ public class ApartmentService {
             // Resolve head resident (null if clearing head)
             Resident headResident = null;
             if (dto.headResidentId != null) {
+                System.out.println("Head oke:" + dto.headResidentId);
                 headResident = residentRepository.findById(dto.headResidentId);
                 if (headResident == null) {
                     throw new NotFoundException("Head resident not found: " + dto.headResidentId);
                 }
+//                headResident.setIsHead(true);
+                System.out.println(headResident);
             }
 
             // Resolve residents list ONLY IF dto.residents != null
@@ -173,10 +176,12 @@ public class ApartmentService {
                             if (found == null) {
                                 throw new NotFoundException("Resident not found with id: " + r.id);
                             }
+                            found.setIsHead(false);
                             return found;
                         })
                         .toList();
             }
+            headResident.setIsHead(true);
 
             // IMPORTANT: pass exactly what mapper expects
             ApartmentMutationMapper.updateEntity(

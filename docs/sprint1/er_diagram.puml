@@ -81,7 +81,7 @@ entity "Adjustment" as Adjustment{
   AdjustmentType: CHAR(10)
   Reason: NVARCHAR(300)
   EffectiveDate: DATETIME
-  ExpiryDate: DATETIME 
+  ExpiryDate: DATETIME
   --
   <<CHECK>> AdjustmentType IN ('increase', 'decrease')
 }

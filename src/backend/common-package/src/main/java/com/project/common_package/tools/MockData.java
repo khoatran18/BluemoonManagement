@@ -12,17 +12,15 @@ public class MockData {
 
     public static void main(String[] args) throws Exception {
 
-        // -----------------------------
-        // 1. Fee Types (3 fixed)
-        // -----------------------------
-//        post("/api/v1/fee-types", "{\"name\":\"Định kỳ\"}");
-//        post("/api/v1/fee-types", "{\"name\":\"Đột xuất\"}");
-//        post("/api/v1/fee-types", "{\"name\":\"Tự nguyện\"}");
+        // =========================================================
+        // 1. Fee Types (fixed, giả sử đã có hoặc seed riêng)
+        // =========================================================
+        // KHÔNG POST ở đây nếu hệ thống đã seed sẵn
 
-        // -----------------------------
-        // 2. Fee Categories (10 categories)
-        // -----------------------------
-        for (int i = 1; i <= 10; i++) {
+        // =========================================================
+        // 2. Fee Categories
+        // =========================================================
+        for (int i = 1; i <= 3; i++) {
             String body = "{" +
                     "\"fee_type_id\":1," +
                     "\"name\":\"Danh mục " + i + "\"," +
@@ -31,122 +29,129 @@ public class MockData {
             post("/api/v1/fee-categories", body);
         }
 
-        // -----------------------------
-        // 3. Apartments (10 apartments)
-        // -----------------------------
-        for (int i = 1; i <= 10; i++) {
-            String room = "10" + i;
-            String body = "{\"building\":\"A\",\"room_number\":\"" + room + "\"}";
+        // =========================================================
+        // 3. Apartments (POST – chỉ building, room_number)
+        // =========================================================
+        for (int i = 1; i <= 5; i++) {
+            String body = "{" +
+                    "\"building\":\"A\"," +
+                    "\"room_number\":\"10" + i + "\"" +
+                    "}";
             post("/api/v1/apartments", body);
         }
 
-        // -----------------------------
-        // 4. Residents (20 – 2 each apartment)
-        // -----------------------------
+        // =========================================================
+        // 4. Residents (POST – không is_head)
+        // =========================================================
         int residentId = 1;
-        for (int apt = 1; apt <= 10; apt++) {
-            String r1 = "{" +
-                    "\"full_name\":\"Resident " + residentId + "\"," +
-                    "\"email\":\"r" + residentId + "@test.com\"," +
-                    "\"phone_number\":\"0900000" + residentId + "\"," +
-                    "\"apartment_id\":" + apt + "," +
-                    "\"is_head\":true" +
-                    "}";
-            post("/api/v1/residents", r1);
-            residentId++;
+        for (int apt = 1; apt <= 5; apt++) {
 
-            String r2 = "{" +
-                    "\"full_name\":\"Resident " + residentId + "\"," +
-                    "\"email\":\"r" + residentId + "@test.com\"," +
-                    "\"phone_number\":\"0900000" + residentId + "\"," +
-                    "\"apartment_id\":" + apt + "," +
-                    "\"is_head\":false" +
-                    "}";
-            post("/api/v1/residents", r2);
-            residentId++;
+            for (int j = 0; j < 2; j++) {
+                String body = "{" +
+                        "\"full_name\":\"Resident " + residentId + "\"," +
+                        "\"email\":\"r" + residentId + "@test.com\"," +
+                        "\"phone_number\":\"0900000" + residentId + "\"," +
+                        "\"apartment_id\":" + apt +
+                        "}";
+                post("/api/v1/residents", body);
+                residentId++;
+            }
         }
 
-        // -----------------------------
-        // 5. Fees (10 fees)
-        // -----------------------------
-        for (int i = 1; i <= 9; i++) {
+        // =========================================================
+        // 5. UPDATE Apartment (set head_resident + residents)
+        // =========================================================
+        int currentResident = 1;
+        for (int apt = 1; apt <= 5; apt++) {
+
+            String body = "{" +
+                    "\"apartment_id\":" + apt + "," +
+                    "\"building\":\"A\"," +
+                    "\"room_number\":\"10" + apt + "\"," +
+                    "\"head_resident_id\":" + currentResident + "," +
+                    "\"residents\":[" +
+                    "{\"id\":" + currentResident + "}," +
+                    "{\"id\":" + (currentResident + 1) + "}" +
+                    "]" +
+                    "}";
+
+            put("/api/v1/apartments/" + apt, body);
+            currentResident += 2;
+        }
+
+        // =========================================================
+        // 6. Fees (POST /fees)
+        // =========================================================
+        for (int i = 1; i <= 3; i++) {
             String body = "{" +
                     "\"fee_type_id\":1," +
                     "\"fee_category_id\":1," +
-                    "\"fee_name\":\"Fee name" + i + "/2025\"," +
-                    "\"fee_amount\":" + (100000 + i * 10000) + "," +
-                    "\"fee_description\":\"Mô tả fee " + i + "\"," +
-                    "\"applicable_month\":\"2025\"," +  // phải 4 ký tự
+                    "\"fee_name\":\"Phí điện tháng " + i + "/2025\"," +
+                    "\"fee_description\":\"Mô tả phí\"," +
+                    "\"fee_amount\":400000," +
+                    "\"applicable_month\":\"2025\"," +
                     "\"effective_date\":\"2025-0" + i + "-01\"," +
                     "\"expiry_date\":\"2025-0" + i + "-28\"," +
-                    "\"status\":\"ACTIVE\"" +           // enum chuẩn
+                    "\"status\":\"Active\"" +
                     "}";
             post("/api/v1/fees", body);
         }
 
+        // =========================================================
+        // 7. Adjustments (global + apartment-specific)
+        // =========================================================
 
-        // -----------------------------
-        // 6. Adjustments (10 adjustments)
-        // -----------------------------
-        for (int i = 1; i <= 5; i++) {
-            // global adjustments (fee_id = i)
+        // 7.1 Global adjustments (fee_id > 0)
+        for (int i = 1; i <= 2; i++) {
             String body = "{" +
                     "\"fee_id\":" + i + "," +
-                    "\"adjustment_amount\":5000," +
+                    "\"adjustment_amount\":50000," +
                     "\"adjustment_type\":\"decrease\"," +
-                    "\"reason\":\"Điều chỉnh chung " + i + "\"," +
-                    "\"effective_date\":\"2025-10-15\"," +
-                    "\"expiry_date\":\"2025-10-30\"" +
+                    "\"reason\":\"Giảm phí chung\"," +
+                    "\"effective_date\":\"2025-10-01\"," +
+                    "\"expiry_date\":\"2025-10-31\"" +
                     "}";
             post("/api/v1/adjustments", body);
         }
 
-        for (int i = 6; i <= 10; i++) {
-            // apartment-specific (fee_id = -1)
+        // 7.2 Apartment-specific adjustments (fee_id = -1)
+        for (int i = 1; i <= 5; i++) {
             String body = "{" +
                     "\"fee_id\":-1," +
-                    "\"adjustment_amount\":3000," +
+                    "\"adjustment_amount\":30000," +
                     "\"adjustment_type\":\"decrease\"," +
-                    "\"reason\":\"Điều chỉnh riêng " + i + "\"," +
+                    "\"reason\":\"Gia đình chính sách\"," +
                     "\"effective_date\":\"2025-11-01\"," +
                     "\"expiry_date\":\"2025-12-31\"" +
                     "}";
             post("/api/v1/adjustments", body);
         }
 
-        // -----------------------------
-        // 7. Assign adjustments to each apartment (IDs 1..10)
-        // -----------------------------
-        for (int apt = 1; apt <= 10; apt++) {
-            int a1 = apt;
-            int a2 = Math.min(apt + 1, 10);   // tránh tạo id 11
-
-            String body = "{\"adjustment_ids\": [" + a1 + ", " + a2 + "]}";
+        // =========================================================
+        // 8. Assign apartment-specific adjustments
+        // =========================================================
+        for (int apt = 1; apt <= 5; apt++) {
+            String body = "{\"adjustment_ids\":[" + apt + "]}";
             put("/api/v1/apartments/apartment_specific_adjustments/" + apt, body);
         }
 
-        // -----------------------------
-        // 8. Apartment Fee Status
-        // -----------------------------
-
-        for (int apt = 1; apt <= 10; apt++) {
-
-//            // 8.1 – CREATE initial apartment fee status (KHÔNG ĐỘNG VÀO LOGIC CŨ)
-//            String createBody = "{\"apartment_id\":" + apt + "}";
-//            post("/api/v1/apartment-fee-statuses", createBody);
-
-            // 8.2 – UPDATE fee status (giữ nguyên như bạn viết)
-            String updateBody = "{" +
-                    "\"total_paid\":50000," +
-                    "\"balance\":150000," +
-                    "\"paid_fees\":[{\"fee_id\":1}], " +
+        // =========================================================
+        // 9. UPDATE ApartmentFeeStatus (PUT only)
+        // =========================================================
+        for (int apt = 1; apt <= 5; apt++) {
+            String body = "{" +
+                    "\"total_paid\":200000," +
+                    "\"balance\":200000," +
+                    "\"paid_fees\":[{\"fee_id\":1}]," +
                     "\"unpaid_fees\":[{\"fee_id\":2}]" +
                     "}";
-            put("/api/v1/apartment-fee-statuses/" + apt, updateBody);
+            put("/api/v1/apartment-fee-statuses/" + apt, body);
         }
 
-        System.out.println("DONE");
+        System.out.println("MOCK DATA DONE");
     }
+
+    // ================= HTTP HELPERS =================
 
     private static void post(String path, String json) throws IOException, InterruptedException {
         send("POST", path, json);
@@ -156,19 +161,22 @@ public class MockData {
         send("PUT", path, json);
     }
 
-    private static void send(String method, String path, String json) throws IOException, InterruptedException {
+    private static void send(String method, String path, String json)
+            throws IOException, InterruptedException {
+
         HttpRequest.Builder b = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + path))
                 .timeout(Duration.ofSeconds(10))
                 .header("Content-Type", "application/json");
 
-        if (method.equals("POST"))
+        if ("POST".equals(method))
             b.POST(HttpRequest.BodyPublishers.ofString(json));
-        else if (method.equals("PUT"))
+        else
             b.PUT(HttpRequest.BodyPublishers.ofString(json));
 
-        HttpResponse<String> res = CLIENT.send(b.build(), HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> res =
+                CLIENT.send(b.build(), HttpResponse.BodyHandlers.ofString());
+
         System.out.println(method + " " + path + " -> " + res.statusCode());
-        System.out.println(res.body());
     }
 }

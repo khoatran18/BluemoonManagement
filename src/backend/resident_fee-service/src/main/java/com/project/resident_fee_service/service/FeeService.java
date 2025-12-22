@@ -1,11 +1,14 @@
 package com.project.resident_fee_service.service;
 
 import com.project.resident_fee_service.dto.FeeDTO;
+import com.project.resident_fee_service.entity.Apartment;
+import com.project.resident_fee_service.entity.ApartmentFeeStatus;
 import com.project.resident_fee_service.entity.Fee;
 import com.project.common_package.exception.InternalServerException;
 import com.project.common_package.exception.NotFoundException;
 import com.project.resident_fee_service.mapper.FeeMapper;
 import com.project.resident_fee_service.mapper.LocalDateMapper;
+import com.project.resident_fee_service.repository.ApartmentRepository;
 import com.project.resident_fee_service.repository.FeeRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,6 +16,7 @@ import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 @ApplicationScoped
@@ -20,6 +24,9 @@ public class FeeService {
 
     @Inject
     FeeRepository repository;
+
+    @Inject
+    ApartmentRepository apartmentRepository;
 
     FeeMapper feeMapper = new FeeMapper();
 
@@ -123,6 +130,19 @@ public class FeeService {
         try {
             // Persist to database
             repository.create(entity);
+
+            // Implement add Fee to all Apartment
+            List<Apartment> apartments = apartmentRepository.getAll();
+            for (Apartment apartment : apartments) {
+
+                ApartmentFeeStatus afs = apartment.getApartmentFeeStatus();
+                if (afs.getUnpaidFeeList() == null) {
+                    afs.setUnpaidFeeList(new HashSet<>());
+                }
+
+                // Add fee into unpaidFeeList
+                afs.getUnpaidFeeList().add(entity);
+            }
         } catch (Exception e) {
             throw new InternalServerException(e.getMessage());
         }

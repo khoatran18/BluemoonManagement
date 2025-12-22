@@ -15,7 +15,7 @@ public class ResidentDetailsMapper {
         dto.fullName = entity.getFullName();
         dto.email = entity.getEmail();
         dto.phoneNumber = entity.getPhoneNumber();
-        dto.isHead = entity.getIsHead();
+        dto.isHead = entity.getIsHead() != null && entity.getIsHead();
 
         Apartment apt = entity.getApartment();
         if (apt != null) {

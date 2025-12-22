@@ -42,11 +42,11 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 * Role: Admin, Collector
 * Query Parameters:
 
-    * building: string (optional)
-    * room_number: string (optional)
-    * head_resident_id: string (optional)
-    * page: number (optional, default=1)
-    * limit: number (optional, default=10)
+  * building: string (optional)
+  * room_number: string (optional)
+  * head_resident_id: string (optional)
+  * page: number (optional, default=1)
+  * limit: number (optional, default=10)
 * Response:
 
   ```json
@@ -147,12 +147,12 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 * Role: Admin, Collector
 * Query Parameters:
 
-    * apartment_id: int (optional)
-    * full_name: string (optional)
-    * phone_number: string (optional)
-    * email: string (optional)
-    * page: number (optional, default=1)
-    * limit: number (optional, default=10)
+  * apartment_id: int (optional)
+  * full_name: string (optional)
+  * phone_number: string (optional)
+  * email: string (optional)
+  * page: number (optional, default=1)
+  * limit: number (optional, default=10)
 * Response:
 
   ```json
@@ -179,13 +179,13 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 * Response
 ```json
     {
-      "resident_id": 10,
-      "full_name": "Tran Thi B",
-      "email": "b@example.com",
-      "phone_number": "0987654321",
-      "apartment": {"id": 1, "building": "A", "room_number": "101"},
-      "is_head": false
-    }
+  "resident_id": 10,
+  "full_name": "Tran Thi B",
+  "email": "b@example.com",
+  "phone_number": "0987654321",
+  "apartment": {"id": 1, "building": "A", "room_number": "101"},
+  "is_head": false
+}
 ```
 
 ### 2.3. Thêm / Cập nhật / Xóa cư dân
@@ -232,11 +232,11 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
 ### 3.2. Danh sách Fee Category
 
-* GET /api/v1/fee-categories 
+* GET /api/v1/fee-categories
 * Query:
-    * fee_type_id: number (optional)
-    * page: number (optional, default=1)
-    * limit: number (optional, default=10)
+  * fee_type_id: number (optional)
+  * page: number (optional, default=1)
+  * limit: number (optional, default=10)
 * Response:
 
   ```json
@@ -300,16 +300,16 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 * GET /api/v1/fees
 * Role: Admin
 * Query:
-    * fee_type_id: number (optional)
-    * fee_category_id: number (optional)
-    * fee_name: string (optional)
-    * fee_amount: number (optional)
-    * applicable_month: string (optional)
-    * effective_date: string (optional)
-    * expiry_date: string (optional)
-    * status: string (optional)
-    * page: number (optional, default=1)
-    * limit: number (optional, default=10)
+  * fee_type_id: number (optional)
+  * fee_category_id: number (optional)
+  * fee_name: string (optional)
+  * fee_amount: number (optional)
+  * applicable_month: string (optional)
+  * effective_date: string (optional)
+  * expiry_date: string (optional)
+  * status: string (optional)
+  * page: number (optional, default=1)
+  * limit: number (optional, default=10)
 * Response:
 ```json
 {
@@ -369,7 +369,7 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
     "status": "Active"
   }
   ```
-  
+
 ### 4.5. Xóa phí
 * DELETE: /api/v1/fees/{fee_id}
 * Request:
@@ -389,48 +389,48 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
 ```json
 {
-    "apartment_id": 1,
-    "unpaid_fees": [
-      { "fee_id": 5, 
-        "fee_name": "Phí điện tháng 10", 
-        "fee_amount": 400000, 
-        "fee_type_id":  1, 
-        "fee_type_name":  "Name", 
-        "fee_category_id":  2, 
-        "fee_category_name":  "Name",
-        "effective_date":  "...", "expiry_date":  "...", 
-        "fee_description":  "..."
-      }
-    ],
-    "adjustments": [
-      {
-        "adjustment_id": 1, (Adjustment dành riêng cho một vài căn hộ sẽ có fee_id = -1)
-        "fee_id": 2,
-        "adjustment_amount": 100.2,
-        "adjustment_type": "Type",
-        "reason": "Do not know",
-        "effective_date": "",
-        "expiry_date": "",
-      } 
-    ],
-    "extra_adjustments": [
-      {
-        "adjustment_id": 1, 
-        "fee_id": -1, (Adjustment dành riêng cho một vài căn hộ sẽ có fee_id = -1)
-        "adjustment_amount": 100.2,
-        "adjustment_type": "Type",
-        "reason": "Do not know",
-        "effective_date": "",
-        "expiry_date": "",
-      }
-    ],
-    "total_paid": 20,
-    "balance": 30,
-    "updated_at": ""
+  "apartment_id": 1,
+  "unpaid_fees": [
+    { "fee_id": 5,
+      "fee_name": "Phí điện tháng 10",
+      "fee_amount": 400000,
+      "fee_type_id":  1,
+      "fee_type_name":  "Name",
+      "fee_category_id":  2,
+      "fee_category_name":  "Name",
+      "effective_date":  "...", "expiry_date":  "...",
+      "fee_description":  "..."
+    }
+  ],
+  "adjustments": [
+    {
+      "adjustment_id": 1, (Adjustment dành riêng cho một vài căn hộ sẽ có fee_id = -1)
+      "fee_id": 2,
+      "adjustment_amount": 100.2,
+      "adjustment_type": "Type",
+      "reason": "Do not know",
+      "effective_date": "",
+      "expiry_date": "",
+    }
+  ],
+  "extra_adjustments": [
+    {
+      "adjustment_id": 1,
+      "fee_id": -1, (Adjustment dành riêng cho một vài căn hộ sẽ có fee_id = -1)
+      "adjustment_amount": 100.2,
+      "adjustment_type": "Type",
+      "reason": "Do not know",
+      "effective_date": "",
+      "expiry_date": "",
+    }
+  ],
+  "total_paid": 20,
+  "balance": 30,
+  "updated_at": ""
 }
 ```
 
-### 5.2. Cập nhật tình trạng theo apartment_id 
+### 5.2. Cập nhật tình trạng theo apartment_id
 
 * PUT /api/v1/apartment-fee-statuses/{apartment_id}
 * Request body:
@@ -442,7 +442,7 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
   (Fee bên dưới là thêm mới)
   "paid_fees": [
     {"fee_id":  1},
-    {"fee_id":  3}  
+    {"fee_id":  3}
   ],
   "unpaid_fees": [
     {"fee_id":  2}
@@ -489,13 +489,13 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 ### 6.3. Lấy danh sách Adjustment
 * GET /api/v1/adjustments (Admin)
 * Query:
-    * page: optional (default=10)
-    * limit: optional (default=1)
-    * fee_id: number (optional)
-    * adjustment_amount: number (optional)
-    * adjustment_type: number (optional)
-    * effective_date: string (optional)
-    * expiry_date: string (optional)
+  * page: optional (default=10)
+  * limit: optional (default=1)
+  * fee_id: number (optional)
+  * adjustment_amount: number (optional)
+  * adjustment_type: number (optional)
+  * effective_date: string (optional)
+  * expiry_date: string (optional)
 
 * Response:
 ```json
@@ -543,13 +543,13 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
 * GET /api/v1/adjustments/apartment_specific_adjustments
 * Query:
-    * page: optional (default=10)
-    * limit: optional (default=1)
-    * adjustment_amount: number (optional)
-    * adjustment_type: number (optional)
-    * effective_date: string (optional)
-    * expiry_date: string (optional)
-  
+  * page: optional (default=10)
+  * limit: optional (default=1)
+  * adjustment_amount: number (optional)
+  * adjustment_type: number (optional)
+  * effective_date: string (optional)
+  * expiry_date: string (optional)
+
 * Response:
 ```json
 {

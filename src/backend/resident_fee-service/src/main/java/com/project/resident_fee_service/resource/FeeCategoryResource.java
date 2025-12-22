@@ -38,7 +38,7 @@ public class FeeCategoryResource {
         );
 
         // Response
-        return Response.ok(resDTO)
+        return Response.ok(ApiResponse.ok(resDTO))
                 .build();
     }
 
