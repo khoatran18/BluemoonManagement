@@ -51,7 +51,9 @@ public class MockData {
                     "\"is_head\":" + isHead +
                     "}";
             post("/api/v1/residents", body);
+            Thread.sleep(100);
         }
+        Thread.sleep(5000);
 
         // 4. Fees (Tạo 20 loại phí phát sinh trong các tháng khác nhau)
         String[] months = {"2025-06", "2025-07", "2025-08"};
@@ -71,6 +73,7 @@ public class MockData {
                     "\"status\":\"" + status + "\"" +
                     "}";
             post("/api/v1/fees", body);
+            Thread.sleep(200);
         }
 
         // 5. Adjustments (Tạo 30 chính sách giảm trừ/tăng thêm)
@@ -86,6 +89,7 @@ public class MockData {
                     "\"expiry_date\":\"2025-12-31\"" +
                     "}";
             post("/api/v1/adjustments", body);
+            Thread.sleep(200);
         }
 
         // 6. Apartment Fee Status (Cập nhật trạng thái cho 50 căn hộ)
@@ -102,6 +106,7 @@ public class MockData {
                     "\"adjustments\":[{\"adjustment_id\":" + (apt % 30 == 0 ? 30 : apt % 30) + "}]" +
                     "}";
             put("/api/v1/apartment-fee-statuses/" + apt, body);
+            Thread.sleep(200);
         }
 
         System.out.println("✅ MOCK DATA GENERATION COMPLETED SUCCESSFULLY!");
@@ -120,7 +125,7 @@ public class MockData {
     private static void send(String method, String path, String json) throws IOException, InterruptedException {
         HttpRequest.Builder b = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + path))
-                .timeout(Duration.ofSeconds(10))
+                .timeout(Duration.ofSeconds(30))
                 .header("Content-Type", "application/json");
 
         if ("POST".equals(method)) b.POST(HttpRequest.BodyPublishers.ofString(json));

@@ -1,6 +1,17 @@
 # ProjectIT3180
 
 ## 1. Khởi tạo database
+
+
+### Với Supabase
+
+Vào Supabase, chọn connect bằng jdbc.\
+Điền vào 2 file **application.properties** trong *auth-service* và *resident_fee-service*:
+```angular2html
+quarkus.datasource.jdbc.url=jdbc:postgresql://xxxxxxxxxxxxxx
+```
+
+### Với Docker
 ```bash
 cd tools/docker
 docker compose -f docker_compose.yml up -d
@@ -11,6 +22,9 @@ docker compose -f docker_compose.yml down -v
 ```
 
 ## 2. Chạy project
+
+**Truy cập folder backend**
+
 ```bash
 ./mvnw clean package
 ```
