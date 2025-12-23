@@ -21,7 +21,7 @@ Khi muốn xóa:
 docker compose -f docker_compose.yml down -v
 ```
 
-## 2. Chạy project
+## 2. Build project
 
 **Truy cập folder backend**
 
@@ -37,3 +37,16 @@ Vào Terminal (trực tiếp trong IntelliJ hoặc PowerShell có thể gây l�
 ```bash
  java -Duser.timezone=Asia/Ho_Chi_Minh -jar D:\IntelliJ\HUST\IT3180\ProjectIT3180\src\backend\resident_fee-service\target\quarkus-app\quarkus-run.jar
  ```
+
+## 3. Chạy Project bằng Docker (Không cần bước 1, 2)
+
+### Với Docker
+```bash
+cd tools/docker
+docker compose -f docker_backend.yml up -d
+```
+Khi muốn xóa:
+```bash
+docker compose -f docker_backend.yml down -v
+```
+Truy cập ```localhost:8080```

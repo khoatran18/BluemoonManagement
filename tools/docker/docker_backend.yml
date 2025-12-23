@@ -1,0 +1,21 @@
+services:
+
+  backend:
+    image: khoa2k4/project-it3180:backend_resident_fee-service_1.0
+    restart: unless-stopped
+    networks:
+      - test-network
+#    network_mode: host
+    ports:
+      - "8080:8080"
+#    dns:
+#      - 8.8.8.8
+#      - 1.1.1.1
+#    environment:
+#      JAVA_OPTS: "-Djava.net.preferIPv4Stack=true"
+
+
+
+networks:
+  test-network:
+    driver: bridge
