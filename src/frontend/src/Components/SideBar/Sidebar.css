@@ -1,0 +1,203 @@
+/* ============================
+   Sidebar Container
+   ============================ */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
+}
+
+/* ============================
+   Logo Section
+   ============================ */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 21px; 
+  margin-bottom: 40px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.sidebar-logo img {
+  width: 30px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.sidebar-logo-text {
+  font-size: 26px;
+  font-weight: 500;
+  color: #2F7BEB;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: #5D6679;
+  font-weight: 500;
+}
+
+.sidebar-item {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.2s;
+  font-family: inherit;
+  color: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+}
+
+.sidebar-item:hover {
+  background: #f3f4f6;
+}
+
+.sidebar-item.active {
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* Icon inside item */
+.sidebar-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* ============================
+   Dropdown Section
+   ============================ */
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-dropdown-btn {
+  width: 100%;
+  height: 40px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+  font-family: inherit;
+  font-family: inherit;
+  color: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+}
+
+.sidebar-dropdown-btn:hover {
+  background: #f3f4f6;
+}
+
+.sidebar-dropdown-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-dropdown-icon {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-dropdown-icon.rotate {
+  transform: rotate(180deg);
+}
+
+/* ============================
+   Submenu
+   ============================ */
+/* Container */
+.sidebar-submenu {
+  margin-left: 32px;
+  margin-top: 6px;
+  max-height: 0;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  overflow: hidden;
+}
+
+.sidebar-submenu.open {
+  max-height: 300px;
+  opacity: 1;
+}
+
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.25s;
+  z-index: 1000;
+}
+
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px; 
+    height: 100vh;
+    z-index: 1002;
+    background: #fff;
+    transition: left 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    width: 220px;
+  }
+
+  .sidebar.open {
+    left: 0; 
+  }
+}
+
+

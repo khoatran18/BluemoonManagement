@@ -1,0 +1,84 @@
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+/* BUTTON LỌC */
+.filter-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid #d0d5dd;
+  background: white;
+  color: #344054;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background: #f7f9fc;
+}
+
+/* SEARCH BOX */
+.search-box {
+  border: 1px solid #d0d5dd;
+  padding: 6px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  width: 260px;
+}
+
+.search-box input {
+  border: none;
+  flex: 1;
+  padding-left: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.search-icon {
+  width: 16px;
+  opacity: 0.6;
+}
+
+/* FILTER PANEL */
+.filter-panel {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  background: white;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  width: 260px;
+  z-index: 20;
+}
+
+.panel-title {
+  font-size: 13px;
+  color: #475467;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.filter-option input {
+  accent-color: #1a73e8;
+}

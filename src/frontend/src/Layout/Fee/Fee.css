@@ -1,0 +1,72 @@
+.fee-container {
+    display: flex;
+    flex-direction: column;
+    padding-left: 40px;
+    padding-right: 40px;
+    margin: 35px;
+    gap: 16px;
+}
+
+.fee-menu {
+  width: 150px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fee-item {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 14px;
+  cursor: pointer;
+  background: #f2f4f6;
+  transition: 0.15s;
+}
+
+.fee-item.edit {
+  color: #1A73E8;
+}
+
+.fee-item.delete {
+  color: #D7263D;
+}
+
+.fee-item:hover {
+  background: #e6e8eb;
+}
+
+.icon {
+  font-size: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fee-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+
+.fee-spinner div {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 2s linear infinite;
+}

@@ -1,0 +1,19 @@
+.status-draft{
+    background-color: #FEF3C7;
+    color: #CD6200
+}
+
+.status-active{
+    background-color: #DCFCE7;
+    color: #1F9254
+}
+
+.status-closed{
+    background-color: #FCB0B0;
+    color: #A30D11
+}
+
+.status-archived{
+    background-color: #E9EDF5;
+    color: #667085
+}
