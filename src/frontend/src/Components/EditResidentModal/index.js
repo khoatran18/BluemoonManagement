@@ -1,0 +1,1 @@
+export { EditResidentModal } from "./EditResidentModal";

@@ -1,0 +1,25 @@
+.tag {
+    display: flex;
+    justify-content: center;
+    align-items: center;   
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    padding-left: 8px;
+    padding-right: 8px
+}
+
+.fee {
+    width: 94px;
+}
+
+.status {
+    width: 125px;
+}
+
+.parent {
+    display: inline-block;
+}
