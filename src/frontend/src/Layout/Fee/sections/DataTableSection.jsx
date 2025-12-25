@@ -5,6 +5,8 @@ import deleteIcon from "../../../assets/icon/fee/trash-filled.svg";
 import Table from "../../../Components/Table/Table";
 import Column from "../../../Components/Table/Column";
 import Tag from "../../../Components/Tag/Tag";
+import { getFees } from "../../../api/feeApi";
+import "../Fee.css";
 
 const typeMap = {
   obligatory: "Định kỳ",
@@ -44,25 +46,50 @@ export default function DataTableSection({ activeType, activeStatus, search }) {
 
   const statuses = ["active", "draft", "closed", "archived"];
 
-  const data = Array.from({ length: 50 }).map((_, i) => {
-    const feeType = feeTypes[i % feeTypes.length];
-    const status = statuses[i % statuses.length];
-    const value = 100000 + i * 50000;
+  const typeIdMap = {
+    obligatory: 1,
+    voluntary: 2,
+    impromptu: 3
+  };
 
-    return {
-      id: `FEE-${1000 + i}`,
-      name: `Khoản phí ${i + 1}`,
-      type: feeType.key,
-      value: value.toLocaleString("vi-VN") + "đ",
-      status
-    };
-  });
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [totalItems, setTotalItems] = useState(0);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
 
+  useEffect(() => {
+    const fetchFees = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = {
+          page,
+          limit
+        };
+        const response = await getFees(params);
+        setData(response.fees.map(fee => ({
+          id: fee.fee_id,
+          name: fee.fee_name,
+          type: Object.keys(typeIdMap).find(key => typeIdMap[key] === fee.fee_type_id) || 'unknown',
+          value: fee.fee_amount.toLocaleString("vi-VN") + "đ",
+          status: fee.status
+        })));
+        setTotalItems(response.total_items);
+      } catch (err) {
+        setError(err.message);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFees();
+  }, [page, limit]);
+
   const filteredData = useMemo(() => {
-     let result = [...data];
+    let result = [...data];
 
     if (activeType.length > 0) {
       result = result.filter(item => activeType.includes(item.type));
@@ -79,7 +106,7 @@ export default function DataTableSection({ activeType, activeStatus, search }) {
     }
 
     return result;
-  }, [activeType, activeStatus, search]);
+  }, [data, activeType, activeStatus, search]);
 
   useEffect(() => {
     setPage(1);
@@ -174,6 +201,13 @@ export default function DataTableSection({ activeType, activeStatus, search }) {
           )}
         />
       </Table>
+
+      {loading && (
+        <div className="fee-spinner">
+          <div></div>
+        </div>
+      )}
+      {error && <p>Error loading fees: {error}</p>}
 
 
       {menuPosition && (
