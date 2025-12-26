@@ -70,3 +70,17 @@
   height: 40px;
   animation: spin 2s linear infinite;
 }
+
+
+.base-table td.fee-name-column > div {
+  display: block;              
+  justify-content: unset;      
+  align-items: unset;
+  text-align: left;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  width: 100%;
+}

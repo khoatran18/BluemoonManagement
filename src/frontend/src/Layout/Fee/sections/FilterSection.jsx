@@ -1,21 +1,41 @@
-import { useState, useRef, useEffect} from "react";
+import { useState, useRef, useEffect } from "react";
 import filterIcon from "../../../assets/icon/fee/filter.svg";
 import searchIcon from "../../../assets/icon/fee/search.svg";
 import "./FilterSection.css";
+import AddButton from "../../../Components/Button/AddButton";
 
 export default function FilterSection({
-  activeType,
-  activeStatus,
-  search,
-  onChangeType,
-  onChangeStatus,
-  onSearch
+    activeType,
+    activeStatus,
+    search,
+    onChangeType,
+    onChangeStatus,
+    onSearch,
+    onAddFee
 }) {
 
     const [open, setOpen] = useState(false);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        if (!open) return;
+
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setOpen(false);
+            }
+        };
+
+        document.addEventListener("click", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
+        };
+    }, [open]);
 
     return (
-        <div className="filter-bar">
+        <div className="filter-bar" ref={containerRef}>
 
         <button 
             className="filter-btn" 
@@ -62,6 +82,9 @@ export default function FilterSection({
             />
             </div>
         )}
+                                <AddButton className="filter-add-btn" onClick={() => { if (typeof onAddFee === 'function') onAddFee(); else console.log('Add clicked'); }}>
+                                    THÊM PHÍ
+                                </AddButton>
         </div>
     );
 }

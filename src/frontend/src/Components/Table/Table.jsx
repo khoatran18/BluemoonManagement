@@ -6,6 +6,7 @@ import Pagination from "../Pagination/Pagination";
 export default function Table({
   children,
   data,
+  total,
   page,
   limit,
   onPageChange,
@@ -45,7 +46,7 @@ export default function Table({
   }, [data, sortConfig]);
 
   const start = (page - 1) * limit;
-  const currentData = sortedData.slice(start, start + limit);
+  const currentData = sortedData;
 
   return (
     <div>
@@ -57,7 +58,7 @@ export default function Table({
                 <th
                   key={col.dataIndex}
                   onClick={col.sortable ? () => handleSort(col.key) : undefined}
-                  className={col.sortable ? "sortable" : ""}
+                  className={`${col.sortable ? "sortable" : ""} ${col.className || ""}`}
                 >
                   {col.title}
                 </th>
@@ -68,12 +69,12 @@ export default function Table({
           <tbody>
             {currentData.map((row, index) => (
               <tr
-                key={start + index}
+                key={index}
                 onClick={() => onRowSelect?.(row)}
               >
                 {columns.map((col) => (
-                  <td key={col.dataIndex}>
-                    <div>
+                  <td key={col.dataIndex} className={col.className}>
+                    <div className={col.className}>
                       {col.render
                         ? col.render(row[col.dataIndex], row)
                         : row[col.dataIndex]}
@@ -87,7 +88,7 @@ export default function Table({
       </div>
 
       <Pagination
-        total={sortedData.length}
+        total={total}
         page={page}
         limit={limit}
         onPageChange={onPageChange}

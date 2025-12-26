@@ -45,7 +45,6 @@
   color: #1e293b;
 }
 
-/* Text ellipsis on desktop */
 .base-table tbody td > div {
   display: flex;
   justify-content: center;

@@ -1,28 +1,111 @@
 import './Fee.css'
-import { useState } from "react"
+import { useState, useRef } from "react"
 import FilterSection from "./sections/FilterSection"
 import DataTableSection from "./sections/DataTableSection"
+import AddFeeForm from "../../Components/AddFeeForm/AddFeeForm";
+import { Modal } from "../../Components/Modal/Modal";
+import { useToasts } from "../../Components/Toast/ToastContext";
+import { createFee, updateFee, getFeeDetails, getFeeTypes, getFeeCategories } from "../../api/feeApi";
 
 export default function Fee(){
     const [activeType, setActiveType] = useState([]);
     const [activeStatus, setActiveStatus] = useState([]);
     const [search, setSearch] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [initialData, setInitialData] = useState({});
+    const [feeTypes, setFeeTypes] = useState([]);
+    const [feeCategories, setFeeCategories] = useState([]);
+
+    const refreshRef = useRef(null);
+
+    const registerRefresh = (fn) => {
+        refreshRef.current = fn;
+    };
+
+    const openAdd = async () => {
+        setIsEditing(false);
+        setEditingId(null);
+        // load types/categories before opening
+        try {
+            const typesResp = await getFeeTypes();
+            const catsResp = await getFeeCategories();
+            setFeeTypes(typesResp || []);
+            setFeeCategories(catsResp || []);
+        } catch (err) {
+            console.error('Failed to load fee types/categories', err);
+        }
+        setInitialData({});
+        setIsModalOpen(true);
+    };
+
+    const openEdit = async (feeId) => {
+        setIsEditing(true);
+        setEditingId(feeId);
+        try {
+            const typesResp = await getFeeTypes();
+            const catsResp = await getFeeCategories();
+            setFeeTypes(typesResp || []);
+            setFeeCategories(catsResp || []);
+
+            const resp = await getFeeDetails(feeId);
+            let payload = resp;
+            if (payload && payload.data) payload = payload.data;
+            if (payload && payload.data) payload = payload.data;
+            setInitialData(payload || {});
+        } catch (err) {
+            console.error('Failed to load fee for edit', err);
+        }
+        setIsModalOpen(true);
+    };
+
+    const handleSubmit = async (form) => {
+        try {
+            if (isEditing && editingId) {
+                await updateFee(editingId, form);
+                showToast('Cập nhật phí thành công', 'success');
+            } else {
+                await createFee(form);
+                showToast('Tạo phí thành công', 'success');
+            }
+            setIsModalOpen(false);
+            if (refreshRef.current) await refreshRef.current();
+        } catch (err) {
+            console.error('Save fee error', err);
+            showToast('Lưu phí thất bại', 'error');
+        }
+    };
+
+        const { addToast } = useToasts();
+        const showToast = (message, variant = 'success', duration = 4000) => {
+            if (typeof addToast === 'function') addToast({ message, variant, duration });
+        };
     return (
         <div className="fee-container">
-                <FilterSection
-                    activeType={activeType}
-                    activeStatus={activeStatus}
-                    search={search}
-                    onChangeType={setActiveType}
-                    onChangeStatus={setActiveStatus}
-                    onSearch={setSearch}
-                />
+            <FilterSection
+                activeType={activeType}
+                activeStatus={activeStatus}
+                search={search}
+                onChangeType={setActiveType}
+                onChangeStatus={setActiveStatus}
+                onSearch={setSearch}
+                onAddFee={openAdd}
+            />
 
                 <DataTableSection 
                     activeType={activeType}
                     activeStatus={activeStatus}
-                    search={search}   
+                    search={search}
+                    onEditRequest={openEdit}
+                    registerRefresh={registerRefresh}
+                    onNotify={({message, variant = 'success', duration = 3000}) => showToast(message, variant, duration)}
                 />
+
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? 'Cập nhật phí' : 'Thêm phí mới'}>
+                <AddFeeForm initial={initialData} feeTypes={feeTypes} feeCategories={feeCategories} isEditing={isEditing} onCancel={() => setIsModalOpen(false)} onSubmit={handleSubmit} />
+            </Modal>
+            {/* Toasts rendered by ToastProvider */}
         </div>
     )
 }

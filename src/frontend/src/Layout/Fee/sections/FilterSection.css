@@ -46,6 +46,50 @@
   opacity: 0.6;
 }
 
+/* Add button alignment */
+.filter-add-btn {
+  margin-left: auto;
+}
+
+/* Styles for Add Resident button moved from inline classes */
+.filter-add-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9.5px 16px;
+  border-radius: 8px;
+  border: 1px solid #2563eb; /* blue-600 */
+  background: #2563eb;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  width: 192px; /* roughly w-48 */
+}
+
+.filter-add-btn:hover {
+  background: #1e40af; /* blue-700 */
+}
+
+.filter-add-icon {
+  width: 16px;
+  height: 16px;
+  color: #fff;
+  transition: transform 0.3s ease;
+}
+
+.filter-add-btn:hover .filter-add-icon {
+  transform: rotate(90deg) scale(1.1);
+}
+
+.filter-add-text {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* FILTER PANEL */
 .filter-panel {
   position: absolute;

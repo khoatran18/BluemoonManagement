@@ -1,0 +1,132 @@
+
+.toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 320px;
+  max-width: 460px;
+  padding: 14px 16px;
+
+  border-radius: 14px;
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+
+  z-index: 99999;
+  overflow: hidden;
+
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+/* ===== Animation ===== */
+.toast-enter {
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 260ms cubic-bezier(.2,.8,.2,1),
+              opacity 260ms ease;
+}
+
+.toast-exit {
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 200ms cubic-bezier(.4,0,.2,1),
+              opacity 200ms ease;
+}
+
+/* ===== Variants ===== */
+.toast-success {
+  border: 2px solid #22c55e;
+  background: #f0fdf4;
+}
+
+
+.toast-error {
+  border: 2px solid #ef4444;
+  background: #fef2f2;
+}
+
+/* ===== Icon ===== */
+.toast-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ===== Slide Animations ===== */
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+.toast-success .toast-icon {
+  background: #22c55e;
+  color: #fff;
+}
+
+.toast-error .toast-icon {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* ===== Content ===== */
+.toast-content {
+  flex: 1;
+}
+
+.toast-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.toast-message {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+/* ===== Close button ===== */
+.toast-close {
+  appearance: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 4px;
+
+  color: #64748b;
+}
+
+.toast-close:hover {
+  color: #0f172a;
+}

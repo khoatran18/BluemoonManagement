@@ -10,11 +10,16 @@ const iconMap = {
   delete: DeleteIcon,
 };
 
+
 export const ActionMenu = ({ recordId, actions = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
   const menuRef = useRef(null);
 
-  const handleActionClick = () => {
+  const handleActionClick = (e) => {
+    e.stopPropagation();
+    // Get mouse position for menu
+    setMenuPos({ x: e.clientX, y: e.clientY });
     setIsOpen(!isOpen);
   };
 
@@ -25,14 +30,13 @@ export const ActionMenu = ({ recordId, actions = [] }) => {
     setIsOpen(false);
   };
 
-  // Đóng menu khi click ra ngoài
+  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
-
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -43,15 +47,20 @@ export const ActionMenu = ({ recordId, actions = [] }) => {
     <div className="action-menu-container" ref={menuRef}>
       <div
         className="action-button"
-        onClick={(e) => {
-          e.stopPropagation();
-          handleActionClick();
-        }}
+        onClick={handleActionClick}
       >
         ⋮
       </div>
       {isOpen && (
-        <div className="action-dropdown">
+        <div
+          className="action-dropdown"
+          style={{
+            position: 'fixed',
+            left: menuPos.x + 4,
+            top: menuPos.y + 4,
+            zIndex: 9999
+          }}
+        >
           {actions.map((action, index) => (
             <div
               key={index}
