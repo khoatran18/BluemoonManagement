@@ -472,7 +472,7 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
 ### 6.2. Chỉnh sửa Adjustment
 
-* POST /api/v1/adjustments/adjustment_id (Admin)
+* PUT /api/v1/adjustments/adjustment_id (Admin)
 * Request body:
   ```json
   {
