@@ -261,7 +261,7 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
       "description": ""
     }
     ```
-* PUT /api/v1/fee-categories (Admin)
+* PUT /api/v1/fee-categories/{fee_category_id} (Admin)
 * Request:
     ```json
     {
