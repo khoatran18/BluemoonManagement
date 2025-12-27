@@ -10,10 +10,16 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path("/api/v1/apartments")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ApartmentResource {
+
+    private static final Logger log =
+            LoggerFactory.getLogger(ApartmentResource.class);
 
     @Inject
     ApartmentService apartmentService;
@@ -30,13 +36,18 @@ public class ApartmentResource {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("limit") @DefaultValue("10") int limit
     ) {
-        ApartmentListResponseDTO resDTO = apartmentService.getApartmentsByFilter(
-                building,
-                roomNumber,
-                headResidentId,
-                page,
-                limit
-        );
+
+        log.info("[Resident] [Resource] getApartmentsByFilter Start");
+        log.info("Input: building={}, roomNumber={}, headResidentId={}, page={}, limit={}",
+                building, roomNumber, headResidentId, page, limit);
+
+        ApartmentListResponseDTO resDTO =
+                apartmentService.getApartmentsByFilter(
+                        building, roomNumber, headResidentId, page, limit
+                );
+
+        log.info("[Resident] [Resource] getApartmentsByFilter End");
+        log.info("Output: {}", resDTO);
 
         return Response.ok(ApiResponse.ok(resDTO)).build();
     }
@@ -50,7 +61,16 @@ public class ApartmentResource {
     public Response getApartmentById(
             @PathParam("apartment_id") Long apartmentId
     ) {
-        ApartmentDetailsDTO resDTO = apartmentService.getApartmentById(apartmentId);
+
+        log.info("[Resident] [Resource] getApartmentById Start");
+        log.info("Input: apartmentId={}", apartmentId);
+
+        ApartmentDetailsDTO resDTO =
+                apartmentService.getApartmentById(apartmentId);
+
+        log.info("[Resident] [Resource] getApartmentById End");
+        log.info("Output: {}", resDTO);
+
         return Response.ok(ApiResponse.ok(resDTO)).build();
     }
 
@@ -59,7 +79,16 @@ public class ApartmentResource {
     public Response getApartmentSpecificAdjustments(
             @PathParam("apartment_id") Long apartmentId
     ) {
-        ApartmentSpecificAdjustmentsResponseDTO resDTO = apartmentService.getApartmentSpecificAdjustments(apartmentId);
+
+        log.info("[Resident] [Resource] getApartmentSpecificAdjustments Start");
+        log.info("Input: apartmentId={}", apartmentId);
+
+        ApartmentSpecificAdjustmentsResponseDTO resDTO =
+                apartmentService.getApartmentSpecificAdjustments(apartmentId);
+
+        log.info("[Resident] [Resource] getApartmentSpecificAdjustments End");
+        log.info("Output: {}", resDTO);
+
         return Response.ok(ApiResponse.ok(resDTO)).build();
     }
 
@@ -71,7 +100,14 @@ public class ApartmentResource {
     public Response createApartment(
             @Valid ApartmentCreateDTO dto
     ) {
+
+        log.info("[Resident] [Resource] createApartment Start");
+        log.info("Input: {}", dto);
+
         apartmentService.createApartment(dto);
+
+        log.info("[Resident] [Resource] createApartment End");
+        log.info("Output: None");
 
         return Response.status(Response.Status.CREATED)
                 .entity(ApiResponse.created(dto))
@@ -88,7 +124,14 @@ public class ApartmentResource {
             @PathParam("apartment_id") Long apartmentId,
             @Valid ApartmentUpdateDTO dto
     ) {
+
+        log.info("[Resident] [Resource] updateApartment Start");
+        log.info("Input: apartmentId={}, dto={}", apartmentId, dto);
+
         apartmentService.updateApartment(apartmentId, dto);
+
+        log.info("[Resident] [Resource] updateApartment End");
+        log.info("Output: {}", dto);
 
         return Response.ok(ApiResponse.ok(dto)).build();
     }
@@ -99,7 +142,15 @@ public class ApartmentResource {
             @PathParam("apartment_id") Long apartmentID,
             @Valid ApartmentSpecificAdjustmentsRequestDTO dto
     ) {
+
+        log.info("[Resident] [Resource] updateApartmentSpecificAdjustments Start");
+        log.info("Input: apartmentId={}, dto={}", apartmentID, dto);
+
         apartmentService.updateSpecificAdjustments(apartmentID, dto);
+
+        log.info("[Resident] [Resource] updateApartmentSpecificAdjustments End");
+        log.info("Output: {}", dto);
+
         return Response.ok(ApiResponse.ok(dto)).build();
     }
 
@@ -112,7 +163,14 @@ public class ApartmentResource {
     public Response deleteApartment(
             @PathParam("apartment_id") Long apartmentId
     ) {
+
+        log.info("[Resident] [Resource] deleteApartment Start");
+        log.info("Input: apartmentId={}", apartmentId);
+
         apartmentService.deleteApartment(apartmentId);
+
+        log.info("[Resident] [Resource] deleteApartment End");
+        log.info("Output: None");
 
         return Response.ok(ApiResponse.noContent("Deleted successfully")).build();
     }
