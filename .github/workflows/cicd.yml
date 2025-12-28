@@ -34,8 +34,8 @@ jobs:
       - name: Build & push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./tools/docker
-          file: ./tools/docker/docker_backend.yml
+          context: ./src/backend
+          file: ./src/backend/Dockerfile
           push: true
           tags: khoa2k4/project-it3180:backend_resident_fee-service_1.0
 
