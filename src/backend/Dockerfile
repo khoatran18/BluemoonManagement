@@ -8,7 +8,7 @@ WORKDIR /app
 
 COPY resident_fee-service/target/quarkus-app/ ./
 
-EXPOSE 8080
+EXPOSE 8080 
 
 CMD ["java", "-jar", "quarkus-run.jar"]
 #CMD ["sh", "-c", "java $JAVA_OPTS -jar quarkus-run.jar"]
