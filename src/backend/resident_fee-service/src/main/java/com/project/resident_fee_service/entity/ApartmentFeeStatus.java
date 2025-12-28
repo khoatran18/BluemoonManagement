@@ -49,16 +49,44 @@ public class ApartmentFeeStatus {
     @ManyToMany
     @JoinTable(
             name = "ApartmentFeeStatus_UnpaidFees",
-            joinColumns = @JoinColumn(name = "ApartmentID"),
-            inverseJoinColumns = @JoinColumn(name = "FeeID")
+            joinColumns = @JoinColumn(
+                    name = "ApartmentID",
+                    foreignKey = @ForeignKey(
+                            name = "fk_afs_unpaid_apartment",
+                            foreignKeyDefinition =
+                                    "FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID) ON DELETE CASCADE"
+                    )
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "FeeID",
+                    foreignKey = @ForeignKey(
+                            name = "fk_afs_unpaid_fee",
+                            foreignKeyDefinition =
+                                    "FOREIGN KEY (FeeID) REFERENCES Fee(FeeID) ON DELETE CASCADE"
+                    )
+            )
     )
     private Set<Fee> unpaidFeeList;
 
     @ManyToMany
     @JoinTable(
             name = "ApartmentFeeStatus_PaidFees",
-            joinColumns = @JoinColumn(name = "ApartmentID"),
-            inverseJoinColumns = @JoinColumn(name = "FeeID")
+            joinColumns = @JoinColumn(
+                    name = "ApartmentID",
+                    foreignKey = @ForeignKey(
+                            name = "fk_afs_paid_apartment",
+                            foreignKeyDefinition =
+                                    "FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID) ON DELETE CASCADE"
+                    )
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "FeeID",
+                    foreignKey = @ForeignKey(
+                            name = "fk_afs_paid_fee",
+                            foreignKeyDefinition =
+                                    "FOREIGN KEY (FeeID) REFERENCES Fee(FeeID) ON DELETE CASCADE"
+                    )
+            )
     )
     private Set<Fee> paidFeeList;
 

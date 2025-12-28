@@ -13,7 +13,6 @@ com\project\resident_fee_service\dto\ApartmentDTO$ApartmentSpecificAdjustmentsRe
 com\project\resident_fee_service\dto\ApartmentFeeStatusDTO$FeeStatusDTO$AdjustmentDetails.class
 com\project\resident_fee_service\entity\Apartment.class
 com\project\resident_fee_service\mapper\FeeTypeMapper.class
-com\project\resource\ApartmentFeeStatusResource.class
 com\project\resident_fee_service\dto\AdjustmentDTO$PostAdjustmentRequestDTO.class
 com\project\resident_fee_service\resource\AdjustmentResource.class
 com\project\resident_fee_service\service\FeeService.class
@@ -49,6 +48,7 @@ com\project\resident_fee_service\dto\ResidentDTO$ResidentListResponseDTO.class
 com\project\resident_fee_service\dto\FeeCategoryDTO$PostFeeCategoryRequestDTO.class
 com\project\resident_fee_service\dto\FeeCategoryDTO$GetFeeCategoriesResponseDTO.class
 com\project\resident_fee_service\entity\FeeType.class
+com\project\resident_fee_service\resource\ApartmentFeeStatusResource.class
 com\project\resident_fee_service\dto\FeeDTO$GetFeeResponseDTO.class
 com\project\resident_fee_service\service\AdjustmentService.class
 com\project\resident_fee_service\dto\ApartmentDTO$ApartmentSpecificAdjustmentsRequestDTO.class

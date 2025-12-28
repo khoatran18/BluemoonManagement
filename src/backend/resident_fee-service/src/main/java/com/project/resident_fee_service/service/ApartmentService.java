@@ -193,6 +193,14 @@ public class ApartmentService {
             if (entity == null)
                 throw new NotFoundException("Apartment not found with id: " + id);
 
+            // Set null apartment to old resident
+            List<Resident> oldResidents = entity.getResidents();
+            for (Resident r : oldResidents) {
+                r.setApartment(null);
+                r.setIsHead(false);
+            }
+
+            // Attach new residents to apartment
             Resident headResident = null;
             if (dto.headResidentId != null) {
                 headResident = residentRepository.findById(dto.headResidentId);
@@ -212,7 +220,6 @@ public class ApartmentService {
                         })
                         .toList();
             }
-
             if (headResident != null)
                 headResident.setIsHead(true);
 

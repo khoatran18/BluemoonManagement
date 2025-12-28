@@ -30,5 +30,12 @@ public class ApartmentMutationMapper {
         if (dto.residents != null) {
             entity.setResidents(residents);
         }
+
+        // Attach apartment to resident
+        if (residents != null) {
+            for (Resident r : residents) {
+                r.setApartment(entity);
+            }
+        }
     }
 }
