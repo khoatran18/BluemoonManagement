@@ -104,6 +104,19 @@
   z-index: 20;
 }
 
+.filter-panel-scrollable {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.btn-confirm {
+  background: #22c55e;
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 .panel-title {
   font-size: 13px;
   color: #475467;

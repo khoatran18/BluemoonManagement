@@ -24,20 +24,27 @@ export default function FilterSection({
     onChangeExpiryDate,
     onAddFee
 }) {
+
     const [open, setOpen] = useState(false);
     const containerRef = useRef(null);
+    // Local filter state
     const [localSearch, setLocalSearch] = useState(search || '');
+    const [localType, setLocalType] = useState(activeType || []);
+    const [localStatus, setLocalStatus] = useState(activeStatus || []);
+    const [localCategory, setLocalCategory] = useState(activeCategory || '');
+    const [localAmount, setLocalAmount] = useState(amount || '');
+    const [localApplicableMonth, setLocalApplicableMonth] = useState(applicableMonth || '');
+    const [localEffectiveDate, setLocalEffectiveDate] = useState(effectiveDate || '');
+    const [localExpiryDate, setLocalExpiryDate] = useState(expiryDate || '');
 
-    useEffect(() => {
-        setLocalSearch(search || '');
-    }, [search]);
-
-    useEffect(() => {
-        const id = setTimeout(() => {
-            if (typeof onSearch === 'function') onSearch(localSearch);
-        }, 300);
-        return () => clearTimeout(id);
-    }, [localSearch]);
+    useEffect(() => { setLocalSearch(search || ''); }, [search]);
+    useEffect(() => { setLocalType(activeType || []); }, [activeType]);
+    useEffect(() => { setLocalStatus(activeStatus || []); }, [activeStatus]);
+    useEffect(() => { setLocalCategory(activeCategory || ''); }, [activeCategory]);
+    useEffect(() => { setLocalAmount(amount || ''); }, [amount]);
+    useEffect(() => { setLocalApplicableMonth(applicableMonth || ''); }, [applicableMonth]);
+    useEffect(() => { setLocalEffectiveDate(effectiveDate || ''); }, [effectiveDate]);
+    useEffect(() => { setLocalExpiryDate(expiryDate || ''); }, [expiryDate]);
 
     useEffect(() => {
         if (!open) return;
@@ -53,14 +60,25 @@ export default function FilterSection({
     }, [open]);
 
     const handleReset = () => {
-        if (typeof onChangeType === 'function') onChangeType([]);
-        if (typeof onChangeStatus === 'function') onChangeStatus([]);
-        if (typeof onChangeCategory === 'function') onChangeCategory('');
-        if (typeof onChangeAmount === 'function') onChangeAmount('');
-        if (typeof onChangeApplicableMonth === 'function') onChangeApplicableMonth('');
-        if (typeof onChangeEffectiveDate === 'function') onChangeEffectiveDate('');
-        if (typeof onChangeExpiryDate === 'function') onChangeExpiryDate('');
-        if (typeof onSearch === 'function') onSearch('');
+        setLocalType([]);
+        setLocalStatus([]);
+        setLocalCategory('');
+        setLocalAmount('');
+        setLocalApplicableMonth('');
+        setLocalEffectiveDate('');
+        setLocalExpiryDate('');
+        setLocalSearch('');
+    };
+
+    const handleConfirm = () => {
+        if (typeof onChangeType === 'function') onChangeType(localType);
+        if (typeof onChangeStatus === 'function') onChangeStatus(localStatus);
+        if (typeof onChangeCategory === 'function') onChangeCategory(localCategory);
+        if (typeof onChangeAmount === 'function') onChangeAmount(localAmount);
+        if (typeof onChangeApplicableMonth === 'function') onChangeApplicableMonth(localApplicableMonth);
+        if (typeof onChangeEffectiveDate === 'function') onChangeEffectiveDate(localEffectiveDate);
+        if (typeof onChangeExpiryDate === 'function') onChangeExpiryDate(localExpiryDate);
+        if (typeof onSearch === 'function') onSearch(localSearch);
         setOpen(false);
     };
 
@@ -86,7 +104,7 @@ export default function FilterSection({
             </div>
 
             {open && (
-                <div className="filter-panel">
+                <div className="filter-panel filter-panel-scrollable">
                     <div className="panel-title">Loại phí</div>
                     <FilterGroup
                         options={[
@@ -94,39 +112,39 @@ export default function FilterSection({
                             { key: "impromptu", label: "Đột xuất" },
                             { key: "voluntary", label: "Tự nguyện" }
                         ]}
-                        active={activeType}
-                        onChange={onChangeType}
+                        active={localType}
+                        onChange={setLocalType}
                     />
 
                     <div className="panel-title">Danh mục</div>
-                    <CategorySelector active={activeCategory} onChange={onChangeCategory} />
+                    <CategorySelector active={localCategory} onChange={setLocalCategory} />
 
                     <div className="panel-title">Số tiền</div>
-                    <AmountFilter value={amount} onChange={onChangeAmount} />
+                    <AmountFilter value={localAmount} onChange={setLocalAmount} />
 
                     <div className="panel-title">Thời gian</div>
                     <div className="time-filters">
                         <label>
                             Tháng áp dụng
-                            <input type="month" value={applicableMonth || ''} onChange={(e) => onChangeApplicableMonth(e.target.value)} />
+                            <input type="month" value={localApplicableMonth || ''} onChange={(e) => setLocalApplicableMonth(e.target.value)} />
                         </label>
                         <label>
                             Ngày hiệu lực
                             <input
                                 type="date"
-                                value={effectiveDate || ''}
-                                onChange={(e) => onChangeEffectiveDate(e.target.value)}
-                                min={applicableMonth ? `${applicableMonth}-01` : undefined}
-                                max={applicableMonth ? (() => { const [y, m] = applicableMonth.split('-'); const last = new Date(Number(y), Number(m), 0).getDate(); return `${y}-${m}-${String(last).padStart(2,'0')}` })() : undefined}
+                                value={localEffectiveDate || ''}
+                                onChange={(e) => setLocalEffectiveDate(e.target.value)}
+                                min={localApplicableMonth ? `${localApplicableMonth}-01` : undefined}
+                                max={localApplicableMonth ? (() => { const [y, m] = localApplicableMonth.split('-'); const last = new Date(Number(y), Number(m), 0).getDate(); return `${y}-${m}-${String(last).padStart(2,'0')}` })() : undefined}
                             />
                         </label>
                         <label>
                             Ngày hết hạn
                             <input
                                 type="date"
-                                value={expiryDate || ''}
-                                onChange={(e) => onChangeExpiryDate(e.target.value)}
-                                min={effectiveDate ? (() => { const d = new Date(effectiveDate); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); })() : undefined}
+                                value={localExpiryDate || ''}
+                                onChange={(e) => setLocalExpiryDate(e.target.value)}
+                                min={localEffectiveDate ? (() => { const d = new Date(localEffectiveDate); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); })() : undefined}
                             />
                         </label>
                     </div>
@@ -134,17 +152,18 @@ export default function FilterSection({
                     <div className="panel-title">Trạng thái</div>
                     <FilterGroup
                         options={[
-                            { key: "draft", label: "Nháp" },
-                            { key: "active", label: "Đang hoạt động" },
-                            { key: "closed", label: "Đã đóng" },
-                            { key: "archived", label: "Lưu trữ" }
+                            { key: "DRAFT", label: "Nháp" },
+                            { key: "ACTIVE", label: "Đang hoạt động" },
+                            { key: "CLOSED", label: "Đã đóng" },
+                            { key: "ARCHIVED", label: "Lưu trữ" }
                         ]}
-                        active={activeStatus}
-                        onChange={onChangeStatus}
+                        active={localStatus}
+                        onChange={setLocalStatus}
                     />
                     <div className="filter-panel-actions">
                         <button type="button" className="btn-reset" onClick={handleReset}>Đặt lại</button>
                         <button type="button" className="btn-close" onClick={() => setOpen(false)}>Đóng</button>
+                        <button type="button" className="btn-confirm" onClick={handleConfirm}>Xác nhận</button>
                     </div>
                 </div>
             )}

@@ -41,7 +41,7 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(5);
 
   const fetchFees = async () => {
     setLoading(true);
@@ -52,11 +52,11 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
       if (activeType && activeType.length > 0) {
         const typeIds = activeType.map(t => typeIdMap[t.toLowerCase()]).filter(Boolean);
         if (typeIds.length === 1) params.fee_type_id = typeIds[0];
-        else if (typeIds.length > 1) params.fee_type_id = typeIds.join(',');
+        else if (typeIds.length > 1) params.fee_type_id = typeIds;
       }
 
       if (activeStatus && activeStatus.length > 0) {
-        params.status = activeStatus.join(',');
+        params.status = activeStatus;
       }
 
       if (fee_category_id) params.fee_category_id = fee_category_id;
@@ -159,34 +159,33 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
             setPage(1);
           }}
         >
-          <Column dataIndex="id" title="Mã phí" sortable />
-          <Column dataIndex="name" title="Tên khoản phí" sortable className="fee-name-column" />
-
+          <Column dataIndex="id" title="Mã phí" sortable key="id" />
+          <Column dataIndex="name" title="Tên khoản phí" sortable key="name" className="fee-name-column" />
           <Column
             dataIndex="type"
             title="Loại phí"
+            key="type"
             render={(type) => (
               <Tag variant="Fee" type={type}>
                 {typeMap[type] || "Khác"}
               </Tag>
             )}
           />
-
-          <Column dataIndex="value" title="Số tiền" sortable />
-
+          <Column dataIndex="value" title="Số tiền" sortable key="value" />
           <Column
             dataIndex="status"
             title="Trạng thái"
+            key="status"
             render={(status) => (
-              <Tag variant="Status" status={status.toLowerCase()}>
-                {statusMap[status.toLowerCase()] || "Khác"}
+              <Tag variant="Status" status={(status || "").toLowerCase()}>
+                {statusMap[(status || "").toLowerCase()] || status || ""}
               </Tag>
             )}
           />
-
           <Column
             dataIndex="actions"
             title="Thao tác"
+            key="actions"
             render={(_, record) => (
               <ActionMenu
                 recordId={record.id}
@@ -213,7 +212,7 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
                     },
                   },
                 ]}
-                />
+              />
             )}
           />
         </Table>
@@ -221,8 +220,6 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
 
       {error && <p>Error loading fees: {error}</p>}
 
-
-      {/* ActionMenu handles its own dropdown rendering; legacy menu code removed */}
       <DetailFeeModal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} fee={selectedFee} loading={detailLoading} />
       <DeleteConfirmModal
         isOpen={isDeleteOpen}
