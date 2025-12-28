@@ -1,14 +1,14 @@
 import React from "react";
 import "./DeleteConfirmModal.css";
 
-export const DeleteConfirmModal = ({ isOpen, onClose, resident, onConfirm }) => {
-  if (!isOpen || !resident) return null;
+export const DeleteConfirmModal = ({ isOpen, onClose, data, onConfirm, title }) => {
+  if (!isOpen || !data) return null;
 
   const handleConfirm = () => {
     if (onConfirm) {
-      onConfirm(resident.id);
+      onConfirm(data.id);
     }
-    onClose();
+    if (onClose) onClose();
   };
 
   return (
@@ -27,10 +27,10 @@ export const DeleteConfirmModal = ({ isOpen, onClose, resident, onConfirm }) => 
           </svg>
         </div>
 
-        <h2 className="delete-title">Xóa dân cư</h2>
+        <h2 className="delete-title">{title ? `Xóa ${title}` : "Xóa mục"}</h2>
         
         <p className="delete-message">
-          Bạn có chắc chắn muốn xóa dân cư <strong>{resident.name}</strong> (Mã: {resident.id}) không?
+          Bạn có chắc chắn muốn xóa {title ? title : "mục"} <strong>{data.name}</strong> (Mã: {data.id}) không?
         </p>
 
         <p className="delete-warning">

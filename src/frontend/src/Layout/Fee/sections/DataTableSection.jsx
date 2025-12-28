@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { ActionMenu } from "../../../Components/ActionMenu";
 import Table from "../../../Components/Table/Table";
 import Column from "../../../Components/Table/Column";
 import Tag from "../../../Components/Tag/Tag";
 import { getFees, getFeeDetails, deleteFee } from "../../../api/feeApi";
 import { DetailFeeModal } from "../../../Components/DetailFeeModal/DetailFeeModal";
+import { DeleteConfirmModal } from "../../../Components/DeleteConfirmModal";
 import "../Fee.css";
 
 const typeMap = {
@@ -21,7 +22,7 @@ const statusMap = {
 };
 
 
-export default function DataTableSection({ activeType, activeStatus, search, onEditRequest, registerRefresh, onNotify }) {
+export default function DataTableSection({ activeType, activeStatus, fee_category_id, fee_amount, applicable_month, effective_date, expiry_date, search, onEditRequest, registerRefresh, onNotify }) {
   const typeIdMap = {
     obligatory: 1,
     voluntary: 2,
@@ -36,29 +37,47 @@ export default function DataTableSection({ activeType, activeStatus, search, onE
   const [detailLoading, setDetailLoading] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedFee, setSelectedFee] = useState(null);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(10);
 
   const fetchFees = async () => {
     setLoading(true);
     setError(null);
     try {
-      const params = {
-        page,
-        limit
-      };
+      const params = { page, limit };
+
+      if (activeType && activeType.length > 0) {
+        const typeIds = activeType.map(t => typeIdMap[t.toLowerCase()]).filter(Boolean);
+        if (typeIds.length === 1) params.fee_type_id = typeIds[0];
+        else if (typeIds.length > 1) params.fee_type_id = typeIds.join(',');
+      }
+
+      if (activeStatus && activeStatus.length > 0) {
+        params.status = activeStatus.join(',');
+      }
+
+      if (fee_category_id) params.fee_category_id = fee_category_id;
+      if (fee_amount) params.fee_amount = Number(fee_amount);
+      if (applicable_month) params.applicable_month = applicable_month;
+      if (effective_date) params.effective_date = effective_date;
+      if (expiry_date) params.expiry_date = expiry_date;
+
+      if (search && search.trim() !== '') params.fee_name = search.trim();
+
       const response = await getFees(params);
-      setData(response.fees.map(fee => ({
+      setData((response.fees || []).map(fee => ({
         id: fee.fee_id,
         name: fee.fee_name,
         type: Object.keys(typeIdMap).find(key => typeIdMap[key] === fee.fee_type_id) || 'unknown',
-        value: fee.fee_amount.toLocaleString("vi-VN") + "đ",
+        value: (fee.fee_amount || 0).toLocaleString("vi-VN") + "đ",
         status: fee.status
       })));
-      setTotalItems(response.total_items);
+      setTotalItems(response.total_items || 0);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || String(err));
       setData([]);
     } finally {
       setLoading(false);
@@ -67,35 +86,12 @@ export default function DataTableSection({ activeType, activeStatus, search, onE
 
   useEffect(() => {
     fetchFees();
-
-    if (typeof registerRefresh === "function") {
-      registerRefresh(fetchFees);
-    }
-  }, [page, limit]);
-
-  const filteredData = useMemo(() => {
-    let result = [...data];
-
-    if (activeType.length > 0) {
-      result = result.filter(item => activeType.includes(item.type));
-    }
-
-    if (activeStatus.length > 0) {
-      result = result.filter(item => activeStatus.some(s => s.toLowerCase() === item.status.toLowerCase()));
-    }
-
-    if (search.trim() !== "") {
-      result = result.filter(item =>
-        item.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
-    return result;
-  }, [data, activeType, activeStatus, search]);
+    if (typeof registerRefresh === "function") registerRefresh(fetchFees);
+  }, [page, limit, activeType, activeStatus, search, fee_category_id, fee_amount, applicable_month, effective_date, expiry_date]);
 
   useEffect(() => {
     setPage(1);
-  }, [activeType, activeStatus, search]);
+  }, [activeType, activeStatus, search, fee_category_id, fee_amount, applicable_month, effective_date, expiry_date]);
 
   const handleView = (row) => {
     setIsDetailOpen(true);
@@ -129,10 +125,14 @@ export default function DataTableSection({ activeType, activeStatus, search, onE
   };
 
   const handleDelete = async (row) => {
+    if (!row) return;
+    setDeleteTarget({ id: row, name: null });
+    setIsDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async (id) => {
     try {
-      if (!row) return;
-      await deleteFee(row);
-      // refresh list after delete
+      await deleteFee(id);
       await fetchFees();
       if (typeof onNotify === 'function') onNotify({ message: 'Xóa phí thành công', variant: 'success', duration: 3000 });
     } catch (err) {
@@ -149,7 +149,7 @@ export default function DataTableSection({ activeType, activeStatus, search, onE
         </div>
       ) : (
         <Table
-          data={filteredData}
+          data={data}
           total={totalItems}
           page={page}
           limit={limit}
@@ -207,7 +207,10 @@ export default function DataTableSection({ activeType, activeStatus, search, onE
                     label: "Xóa",
                     icon: "delete",
                     type: "delete",
-                    onClick: () => handleDelete(record.id),
+                    onClick: () => {
+                      setDeleteTarget({ id: record.id, name: record.name });
+                      setIsDeleteOpen(true);
+                    },
                   },
                 ]}
                 />
@@ -221,6 +224,13 @@ export default function DataTableSection({ activeType, activeStatus, search, onE
 
       {/* ActionMenu handles its own dropdown rendering; legacy menu code removed */}
       <DetailFeeModal isOpen={isDetailOpen} onClose={() => setIsDetailOpen(false)} fee={selectedFee} loading={detailLoading} />
+      <DeleteConfirmModal
+        isOpen={isDeleteOpen}
+        onClose={() => { setIsDeleteOpen(false); setDeleteTarget(null); }}
+        data={deleteTarget}
+        title="phí"
+        onConfirm={(id) => handleConfirmDelete(id)}
+      />
     </div>
   );
 }
