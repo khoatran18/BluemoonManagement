@@ -6,60 +6,84 @@ import com.project.common_package.exception.InternalServerException;
 import com.project.common_package.exception.NotFoundException;
 import com.project.resident_fee_service.mapper.FeeTypeMapper;
 import com.project.resident_fee_service.repository.FeeTypeRepository;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 @ApplicationScoped
 public class FeeTypeService {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(FeeTypeService.class);
+
     @Inject
     FeeTypeRepository feeTypeRepository;
 
     FeeTypeMapper feeTypeMapper = new FeeTypeMapper();
 
-    ///////////////////////////// For Get method /////////////////////////////
+    /////////////////////////////
+    // GET LIST
+    /////////////////////////////
 
-    /**
-     * Handle logic for API getAllFeeTypes: retrieve database and convert to response DTO
-     */
     public FeeTypeDTO.GetFeeTypesResponseDTO getFeeTypesByFilter() {
 
-        // Prepare data for response
-        FeeTypeDTO.GetFeeTypesResponseDTO responseData = new FeeTypeDTO.GetFeeTypesResponseDTO();
+        log.info("[Fee] [Service] getFeeTypesByFilter Start");
+        log.info("Input: None");
 
         try {
-            // Retrieve database
-            List<FeeType> entityList = feeTypeRepository.getAll();
+            List<FeeType> entityList =
+                    feeTypeRepository.getAll();
 
-            // Prepare data for response
-            List<FeeTypeDTO.GetFeeTypesResponseItemDTO> dtoList = feeTypeMapper.GetFeeTypesResponseItemsEntityToDTO(entityList);
+            List<FeeTypeDTO.GetFeeTypesResponseItemDTO> dtoList =
+                    feeTypeMapper.GetFeeTypesResponseItemsEntityToDTO(entityList);
 
-            // Create data for response
+            FeeTypeDTO.GetFeeTypesResponseDTO responseData =
+                    new FeeTypeDTO.GetFeeTypesResponseDTO();
             responseData.FeeTypes = dtoList;
 
-            // Return data for response
+            log.info("[Fee] [Service] getFeeTypesByFilter End");
+            log.info("Output: {}", responseData);
+
             return responseData;
+
         } catch (Exception e) {
+            log.error("[Fee] [Service] getFeeTypesByFilter Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
 
-    /**
-     * Handle logic for API getFeeTypeById: retrieve database and convert to response DTO
-     */
+    /////////////////////////////
+    // GET DETAIL
+    /////////////////////////////
+
     public FeeTypeDTO.GetFeeTypeResponseDTO getFeeTypeById(Long feeTypeId) {
 
-        try {
-            // Retrieve database
-            FeeType feeType = feeTypeRepository.findById(feeTypeId);
-            if (feeType == null)
-                throw new NotFoundException("Fee Type not found with id: " + feeTypeId);
+        log.info("[Fee] [Service] getFeeTypeById Start");
+        log.info("Input: feeTypeId={}", feeTypeId);
 
-            // Return data for response
-            return feeTypeMapper.GetFeeTypeResponseEntityToDTO(feeType);
+        try {
+            FeeType feeType =
+                    feeTypeRepository.findById(feeTypeId);
+            if (feeType == null)
+                throw new NotFoundException(
+                        "Fee Type not found with id: " + feeTypeId
+                );
+
+            FeeTypeDTO.GetFeeTypeResponseDTO result =
+                    feeTypeMapper.GetFeeTypeResponseEntityToDTO(feeType);
+
+            log.info("[Fee] [Service] getFeeTypeById End");
+            log.info("Output: {}", result);
+
+            return result;
+
         } catch (Exception e) {
+            log.error("[Fee] [Service] getFeeTypeById Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }

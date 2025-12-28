@@ -10,9 +10,13 @@ import com.project.resident_fee_service.mapper.FeeMapper;
 import com.project.resident_fee_service.mapper.LocalDateMapper;
 import com.project.resident_fee_service.repository.ApartmentRepository;
 import com.project.resident_fee_service.repository.FeeRepository;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +26,9 @@ import java.util.List;
 @ApplicationScoped
 public class FeeService {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(FeeService.class);
+
     @Inject
     FeeRepository repository;
 
@@ -30,11 +37,10 @@ public class FeeService {
 
     FeeMapper feeMapper = new FeeMapper();
 
-    ///////////////////////////// For Get method /////////////////////////////
+    /////////////////////////////
+    // GET LIST
+    /////////////////////////////
 
-    /**
-     * Handle logic for API getAllFees: retrieve database and convert to response DTO
-     */
     public FeeDTO.GetFeesResponseDTO getFeesByFilter(
             Long feeTypeId,
             Long feeCategoryId,
@@ -48,147 +54,162 @@ public class FeeService {
             int limit
     ) {
 
-        // Init data for response
-        FeeDTO.GetFeesResponseDTO responseData = new FeeDTO.GetFeesResponseDTO();
-
-        // Valid and convert request params to repository params
-        int queryPage = Math.max(page, 1);
-        int queryLimit = Math.max(limit, 1);
-        LocalDate startDate = LocalDateMapper.StringToLocalDate(effectiveDate);
-        LocalDate endDate = LocalDateMapper.StringToLocalDate(expiryDate);
+        log.info("[Fee] [Service] getFeesByFilter Start");
+        log.info(
+                "Input: feeTypeId={}, feeCategoryId={}, feeName={}, feeAmount={}, applicableMonth={}, effectiveDate={}, expiryDate={}, status={}, page={}, limit={}",
+                feeTypeId, feeCategoryId, feeName, feeAmount,
+                applicableMonth, effectiveDate, expiryDate, status, page, limit
+        );
 
         try {
-            // Retrieve database
-            List<Fee> feeEntityList = repository.getByFilter(
-                    feeTypeId,
-                    feeCategoryId,
-                    feeName,
-                    feeAmount,
-                    applicableMonth,
-                    startDate,
-                    endDate,
-                    status,
-                    queryPage,
-                    queryLimit
-            );
-            long count = repository.countByFilter(
-                    feeTypeId,
-                    feeCategoryId,
-                    feeName,
-                    feeAmount,
-                    applicableMonth,
-                    startDate,
-                    endDate,
-                    status
-            );
+            int queryPage = Math.max(page, 1);
+            int queryLimit = Math.max(limit, 1);
+            LocalDate startDate = LocalDateMapper.StringToLocalDate(effectiveDate);
+            LocalDate endDate = LocalDateMapper.StringToLocalDate(expiryDate);
 
-            // Prepare data for response
-            List<FeeDTO.GetFeesResponseItemDTO> feesDto = feeMapper.GetFeesResponseItemsEntityToDTO(feeEntityList);
+            List<Fee> feeEntityList =
+                    repository.getByFilter(
+                            feeTypeId, feeCategoryId, feeName, feeAmount,
+                            applicableMonth, startDate, endDate,
+                            status, queryPage, queryLimit
+                    );
 
-            // Create data for response
+            long count =
+                    repository.countByFilter(
+                            feeTypeId, feeCategoryId, feeName, feeAmount,
+                            applicableMonth, startDate, endDate, status
+                    );
+
+            List<FeeDTO.GetFeesResponseItemDTO> feesDto =
+                    feeMapper.GetFeesResponseItemsEntityToDTO(feeEntityList);
+
+            FeeDTO.GetFeesResponseDTO responseData =
+                    new FeeDTO.GetFeesResponseDTO();
             responseData.Page = queryPage;
             responseData.Limit = queryLimit;
             responseData.TotalItems = count;
             responseData.Fees = feesDto;
 
-            // Return data for response
+            log.info("[Fee] [Service] getFeesByFilter End");
+            log.info("Output: {}", responseData);
+
             return responseData;
+
         } catch (Exception e) {
+            log.error("[Fee] [Service] getFeesByFilter Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
 
-    /**
-     * Handle logic for API getFeeById: retrieve database and convert to response DTO
-     */
+    /////////////////////////////
+    // GET DETAIL
+    /////////////////////////////
+
     public FeeDTO.GetFeeResponseDTO getFeeById(long feeId) {
 
+        log.info("[Fee] [Service] getFeeById Start");
+        log.info("Input: feeId={}", feeId);
+
         try {
-            // Retrieve database
             Fee fee = repository.findById(feeId);
             if (fee == null)
                 throw new NotFoundException("Fee not found with id: " + feeId);
 
-            // Return data for response
-            return feeMapper.GetFeeResponseEntityToDTO(fee);
+            FeeDTO.GetFeeResponseDTO result =
+                    feeMapper.GetFeeResponseEntityToDTO(fee);
+
+            log.info("[Fee] [Service] getFeeById End");
+            log.info("Output: {}", result);
+
+            return result;
+
         } catch (Exception e) {
+            log.error("[Fee] [Service] getFeeById Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
 
-    ///////////////////////////// For Post method /////////////////////////////
+    /////////////////////////////
+    // CREATE
+    /////////////////////////////
 
-    /**
-     * Handle logic for API createFee: convert request DTO to entity and persist to database
-     */
     @Transactional
     public void createFee(FeeDTO.PostFeeRequestDTO dto) {
 
-        // Convert to entity
-        Fee entity = feeMapper.PostFeeRequestDTOToEntity(dto);
+        log.info("[Fee] [Service] createFee Start");
+        log.info("Input: {}", dto);
 
         try {
-            // Persist to database
+            Fee entity = feeMapper.PostFeeRequestDTOToEntity(dto);
             repository.create(entity);
 
-            // Implement add Fee to all Apartment
             List<Apartment> apartments = apartmentRepository.getAll();
             for (Apartment apartment : apartments) {
-
                 ApartmentFeeStatus afs = apartment.getApartmentFeeStatus();
-                if (afs.getUnpaidFeeList() == null) {
+                if (afs.getUnpaidFeeList() == null)
                     afs.setUnpaidFeeList(new HashSet<>());
-                }
 
-                // Add fee into unpaidFeeList
                 afs.getUnpaidFeeList().add(entity);
             }
+
+            log.info("[Fee] [Service] createFee End");
+            log.info("Output: None");
+
         } catch (Exception e) {
+            log.error("[Fee] [Service] createFee Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
 
-    ///////////////////////////// For Put method /////////////////////////////
+    /////////////////////////////
+    // UPDATE
+    /////////////////////////////
 
-    /**
-     * Handle logic for API updateFeeById: convert request DTO to entity and update to database
-     */
     @Transactional
     public void updateFeeById(FeeDTO.PutFeeRequestDTO dto) {
 
+        log.info("[Fee] [Service] updateFeeById Start");
+        log.info("Input: {}", dto);
+
         try {
-            // Check existed
             Fee checkedEntity = repository.findById(dto.FeeId);
             if (checkedEntity == null)
                 throw new NotFoundException("Fee not found with id: " + dto.FeeId);
 
-            // Convert to entity
             Fee entity = feeMapper.PutFeeRequestDTOToEntity(dto);
-
-            // Update to database
             repository.update(entity);
+
+            log.info("[Fee] [Service] updateFeeById End");
+            log.info("Output: None");
+
         } catch (Exception e) {
+            log.error("[Fee] [Service] updateFeeById Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
 
-    ///////////////////////////// For Delete method /////////////////////////////
+    /////////////////////////////
+    // DELETE
+    /////////////////////////////
 
-    /**
-     * Handle logic for API deleteFeeById: delete record
-     */
     @Transactional
     public void deleteFeeById(Long feeId) {
 
+        log.info("[Fee] [Service] deleteFeeById Start");
+        log.info("Input: feeId={}", feeId);
+
         try {
-            // Check existed
             Fee checkedEntity = repository.findById(feeId);
             if (checkedEntity == null)
                 throw new NotFoundException("Fee delete not found with id: " + feeId);
 
-            // Delete in database
             repository.delete(checkedEntity);
+
+            log.info("[Fee] [Service] deleteFeeById End");
+            log.info("Output: None");
+
         } catch (Exception e) {
+            log.error("[Fee] [Service] deleteFeeById Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }

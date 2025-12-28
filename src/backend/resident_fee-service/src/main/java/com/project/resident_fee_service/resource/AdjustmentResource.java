@@ -4,11 +4,15 @@ import com.project.resident_fee_service.dto.AdjustmentDTO;
 import com.project.resident_fee_service.entity.Adjustment;
 import com.project.common_package.exception.ApiResponse;
 import com.project.resident_fee_service.service.AdjustmentService;
+
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 
@@ -17,15 +21,16 @@ import java.math.BigDecimal;
 @Produces(MediaType.APPLICATION_JSON)
 public class AdjustmentResource {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(AdjustmentResource.class);
+
     @Inject
     AdjustmentService adjustmentService;
 
-    ///////////////////////////// For Get method /////////////////////////////
+    /////////////////////////////
+    // GET LIST
+    /////////////////////////////
 
-    /**
-     * Retrieve a paginated list of Adjustments based on optional filter.
-     * Supports filtering by type, category, name, amount, date range, and status.
-     */
     @GET
     public Response getAdjustmentsByFilter(
             @QueryParam("fee_id") Long feeId,
@@ -37,32 +42,49 @@ public class AdjustmentResource {
             @QueryParam("limit") @DefaultValue("10") int limit
     ) {
 
-        // Call service function
-        AdjustmentDTO.GetAdjustmentsResponseDTO resDTO = adjustmentService.getAdjustmentsByFilter(
-                feeId,
-                adjustmentAmount,
-                adjustmentType,
-                effectiveDate,
-                expiryDate,
-                page,
-                limit
+        log.info("[Fee] [Resource] getAdjustmentsByFilter Start");
+        log.info(
+                "Input: feeId={}, adjustmentAmount={}, adjustmentType={}, effectiveDate={}, expiryDate={}, page={}, limit={}",
+                feeId, adjustmentAmount, adjustmentType,
+                effectiveDate, expiryDate, page, limit
         );
 
-        // Response
+        AdjustmentDTO.GetAdjustmentsResponseDTO resDTO =
+                adjustmentService.getAdjustmentsByFilter(
+                        feeId,
+                        adjustmentAmount,
+                        adjustmentType,
+                        effectiveDate,
+                        expiryDate,
+                        page,
+                        limit
+                );
+
+        log.info("[Fee] [Resource] getAdjustmentsByFilter End");
+        log.info("Output: {}", resDTO);
+
         return Response.ok(ApiResponse.ok(resDTO)).build();
     }
 
-    /**
-     * Retrieve a Adjustment record by AdjustmentId
-     */
+    /////////////////////////////
+    // GET DETAIL
+    /////////////////////////////
+
     @GET
     @Path("/{adjustment_id}")
-    public Response getAdjustmentById(@PathParam("adjustment_id") Long adjustmentId) {
+    public Response getAdjustmentById(
+            @PathParam("adjustment_id") Long adjustmentId
+    ) {
 
-        // Call service function
-        AdjustmentDTO.GetAdjustmentResponseDTO resDTO = adjustmentService.getAdjustmentById(adjustmentId);
+        log.info("[Fee] [Resource] getAdjustmentById Start");
+        log.info("Input: adjustmentId={}", adjustmentId);
 
-        // Response
+        AdjustmentDTO.GetAdjustmentResponseDTO resDTO =
+                adjustmentService.getAdjustmentById(adjustmentId);
+
+        log.info("[Fee] [Resource] getAdjustmentById End");
+        log.info("Output: {}", resDTO);
+
         return Response.ok(ApiResponse.ok(resDTO)).build();
     }
 
@@ -76,72 +98,92 @@ public class AdjustmentResource {
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("limit") @DefaultValue("10") int limit
     ) {
-        AdjustmentDTO.GetAdjustmentsResponseDTO resDTO = adjustmentService.getApartmentSpecificAdjustmentsByFilter(
-                adjustmentAmount,
-                adjustmentType,
-                effectiveDate,
-                expiryDate,
-                page,
-                limit
+
+        log.info("[Fee] [Resource] getApartmentSpecificAdjustments Start");
+        log.info(
+                "Input: adjustmentAmount={}, adjustmentType={}, effectiveDate={}, expiryDate={}, page={}, limit={}",
+                adjustmentAmount, adjustmentType,
+                effectiveDate, expiryDate, page, limit
         );
+
+        AdjustmentDTO.GetAdjustmentsResponseDTO resDTO =
+                adjustmentService.getApartmentSpecificAdjustmentsByFilter(
+                        adjustmentAmount,
+                        adjustmentType,
+                        effectiveDate,
+                        expiryDate,
+                        page,
+                        limit
+                );
+
+        log.info("[Fee] [Resource] getApartmentSpecificAdjustments End");
+        log.info("Output: {}", resDTO);
 
         return Response.ok(ApiResponse.ok(resDTO)).build();
     }
 
-    ///////////////////////////// For Post method /////////////////////////////
+    /////////////////////////////
+    // CREATE
+    /////////////////////////////
 
-    /**
-     * Create a new Adjustment record
-     */
     @POST
-    public Response createAdjustment(@Valid AdjustmentDTO.PostAdjustmentRequestDTO dto) {
+    public Response createAdjustment(
+            @Valid AdjustmentDTO.PostAdjustmentRequestDTO dto
+    ) {
 
-        // Call service function
+        log.info("[Fee] [Resource] createAdjustment Start");
+        log.info("Input: {}", dto);
+
         adjustmentService.createAdjustment(dto);
 
-        // Response
+        log.info("[Fee] [Resource] createAdjustment End");
+        log.info("Output: None");
+
         return Response.status(Response.Status.CREATED)
                 .entity(ApiResponse.created(dto))
                 .build();
     }
 
-    ///////////////////////////// For Put method /////////////////////////////
+    /////////////////////////////
+    // UPDATE
+    /////////////////////////////
 
-    /**
-     * Update an existed Adjustment record by AdjustmentId
-     */
     @PUT
     @Path("/{adjustment_id}")
     public Response updateAdjustmentById(
-
-            // Call service function
             @PathParam("adjustment_id") Long adjustmentId,
-
-            // Response
             @Valid AdjustmentDTO.PutAdjustmentRequestDTO dto
     ) {
 
-        // Call service function
+        log.info("[Fee] [Resource] updateAdjustmentById Start");
+        log.info("Input: adjustmentId={}, dto={}", adjustmentId, dto);
+
         adjustmentService.updateAdjustmentById(dto);
 
-        // Response
-        return Response.ok(ApiResponse.ok(dto))
-                .build();
+        log.info("[Fee] [Resource] updateAdjustmentById End");
+        log.info("Output: {}", dto);
+
+        return Response.ok(ApiResponse.ok(dto)).build();
     }
 
-    ///////////////////////////// For Delete method /////////////////////////////
+    /////////////////////////////
+    // DELETE
+    /////////////////////////////
 
-    /**
-     * Delete an existed Adjustment record by AdjustmentId
-     */
     @DELETE
     @Path("/{adjustment_id}")
-    public Response deleteAdjustmentById(@PathParam("adjustment_id") Long adjustmentId) {
+    public Response deleteAdjustmentById(
+            @PathParam("adjustment_id") Long adjustmentId
+    ) {
 
-        // Call service function
+        log.info("[Fee] [Resource] deleteAdjustmentById Start");
+        log.info("Input: adjustmentId={}", adjustmentId);
+
         adjustmentService.deleteAdjustmentById(adjustmentId);
 
-        // Response
+        log.info("[Fee] [Resource] deleteAdjustmentById End");
+        log.info("Output: None");
+
         return Response.ok(ApiResponse.noContent("Deleted successfully")).build();
     }
 }

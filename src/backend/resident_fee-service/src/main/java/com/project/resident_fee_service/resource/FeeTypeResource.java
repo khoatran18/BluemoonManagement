@@ -2,48 +2,64 @@ package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.FeeTypeDTO;
 import com.project.resident_fee_service.service.FeeTypeService;
+
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("api/v1/fee-types")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class FeeTypeResource {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(FeeTypeResource.class);
+
     @Inject
     FeeTypeService feeTypeService;
 
-    ///////////////////////////// For Get method /////////////////////////////
+    /////////////////////////////
+    // GET LIST
+    /////////////////////////////
 
-    /**
-     * Retrieve a paginated list of FeeTypes based on optional filter.
-     */
     @GET
     public Response getFeeTypesByFilter() {
 
-        // Call service function
-        FeeTypeDTO.GetFeeTypesResponseDTO resDTO = feeTypeService.getFeeTypesByFilter();
+        log.info("[Fee] [Resource] getFeeTypesByFilter Start");
+        log.info("Input: None");
 
-        // Response
-        return Response.ok(resDTO)
-                .build();
+        FeeTypeDTO.GetFeeTypesResponseDTO resDTO =
+                feeTypeService.getFeeTypesByFilter();
+
+        log.info("[Fee] [Resource] getFeeTypesByFilter End");
+        log.info("Output: {}", resDTO);
+
+        return Response.ok(resDTO).build();
     }
 
-    /**
-     * Retrieve a FeeType record by FeeId
-     */
+    /////////////////////////////
+    // GET DETAIL
+    /////////////////////////////
+
     @GET
     @Path("/{fee_type_id}")
-    public Response getFeeTypeById(@PathParam("fee_type_id") Long feeTypeId) {
+    public Response getFeeTypeById(
+            @PathParam("fee_type_id") Long feeTypeId
+    ) {
 
-        // Call service function
-        FeeTypeDTO.GetFeeTypeResponseDTO resDTO = feeTypeService.getFeeTypeById(feeTypeId);
+        log.info("[Fee] [Resource] getFeeTypeById Start");
+        log.info("Input: feeTypeId={}", feeTypeId);
 
-        // Response
-        return Response.ok(resDTO)
-                .build();
+        FeeTypeDTO.GetFeeTypeResponseDTO resDTO =
+                feeTypeService.getFeeTypeById(feeTypeId);
+
+        log.info("[Fee] [Resource] getFeeTypeById End");
+        log.info("Output: {}", resDTO);
+
+        return Response.ok(resDTO).build();
     }
-
 }
