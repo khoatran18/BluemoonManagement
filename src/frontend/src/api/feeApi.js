@@ -18,7 +18,10 @@ function findNestedArray(obj, key) {
 export const getFees = async (params = {}) => {
   try {
     const response = await axiosClient.get(`/fees`, {
-      params
+      params,
+      paramsSerializer: {
+        indexes: null
+      }
     });
     if (!response.data.success) {
       throw new Error(response.data.message);

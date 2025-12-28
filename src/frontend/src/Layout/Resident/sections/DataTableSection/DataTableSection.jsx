@@ -153,7 +153,8 @@ export const DataTableSection = ({ searchQuery = "" }) => {
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={handleDeleteClose}
-        resident={selectedResident}
+        data={selectedResident}
+        title="dân cư"
         onConfirm={handleDeleteConfirm}
       />
     </>

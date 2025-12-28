@@ -11,6 +11,11 @@ export default function Fee(){
     const [activeType, setActiveType] = useState([]);
     const [activeStatus, setActiveStatus] = useState([]);
     const [search, setSearch] = useState("");
+    const [activeCategory, setActiveCategory] = useState("");
+    const [filterAmount, setFilterAmount] = useState("");
+    const [filterApplicableMonth, setFilterApplicableMonth] = useState("");
+    const [filterEffectiveDate, setFilterEffectiveDate] = useState("");
+    const [filterExpiryDate, setFilterExpiryDate] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -87,15 +92,30 @@ export default function Fee(){
                 activeType={activeType}
                 activeStatus={activeStatus}
                 search={search}
+                activeCategory={activeCategory}
+                amount={filterAmount}
+                applicableMonth={filterApplicableMonth}
+                effectiveDate={filterEffectiveDate}
+                expiryDate={filterExpiryDate}
                 onChangeType={setActiveType}
                 onChangeStatus={setActiveStatus}
                 onSearch={setSearch}
+                onChangeCategory={setActiveCategory}
+                onChangeAmount={setFilterAmount}
+                onChangeApplicableMonth={setFilterApplicableMonth}
+                onChangeEffectiveDate={setFilterEffectiveDate}
+                onChangeExpiryDate={setFilterExpiryDate}
                 onAddFee={openAdd}
             />
 
                 <DataTableSection 
                     activeType={activeType}
-                    activeStatus={activeStatus}
+                        activeStatus={activeStatus}
+                        fee_category_id={activeCategory}
+                        fee_amount={filterAmount}
+                        applicable_month={filterApplicableMonth}
+                        effective_date={filterEffectiveDate}
+                        expiry_date={filterExpiryDate}
                     search={search}
                     onEditRequest={openEdit}
                     registerRefresh={registerRefresh}
