@@ -4,7 +4,7 @@ WORKDIR /build
 
 COPY . .
 
-RUN mvn -pl package -DskipTests
+RUN mvn package -DskipTests
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
