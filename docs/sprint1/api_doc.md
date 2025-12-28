@@ -1,7 +1,9 @@
 # API Contract – Hệ thống Quản lý Cư Dân & Chi Phí Chung Cư
 
 Phiên bản: 2.1 \
-Ngày cập nhật: 21/10/2025
+Ngày cập nhật: 21/10/2025 \
+
+**Tất cả dữ liệu: application/json**
 
 ## Tổng quan
 
@@ -128,13 +130,19 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 * Method: DELETE
 * URL: /api/v1/apartments/{apartment_id}
 * Role: Admin
-* Request:
 
-    ```json
-    {
-      "id": 1
-    }
-    ```
+[//]: # (* Request:)
+
+[//]: # ()
+[//]: # (    ```json)
+
+[//]: # (    {)
+
+[//]: # (      "id": 1)
+
+[//]: # (    })
+
+[//]: # (    ```)
 
 ---
 
@@ -276,6 +284,14 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
 ## 4. Phí (Fee)
 
+**Ví dụ về định dạng datetime:**
+```
+"applicable_month": "2025-06",
+"effective_date": "2025-06-01",
+"expiry_date": "2025-06-28",
+"status": "ACTIVE" (Còn "DRAFT", "CLOSED", "ARCHIVED")
+```
+
 ### 4.1. Tạo phí mới
 
 * POST /api/v1/fees (Admin)
@@ -291,7 +307,7 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
     "applicable_month": "2025-10",
     "effective_date": "",
     "expiry_date": "",
-    "status": "Active"
+    "status": "ACTIVE"
   }
   ```
 
@@ -366,7 +382,7 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
     "applicable_month": "2025-10",
     "effective_date": "",
     "expiry_date": "",
-    "status": "Active"
+    "status": "ACTIVE"
   }
   ```
 
@@ -398,7 +414,8 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
       "fee_type_name":  "Name",
       "fee_category_id":  2,
       "fee_category_name":  "Name",
-      "effective_date":  "...", "expiry_date":  "...",
+      "effective_date":  "...", 
+      "expiry_date":  "...",
       "fee_description":  "..."
     }
   ],
@@ -444,6 +461,7 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
     {"fee_id":  1},
     {"fee_id":  3}
   ],
+  // unpaid_fees cứ để [] trống thôi
   "unpaid_fees": [
     {"fee_id":  2}
   ]
@@ -453,6 +471,14 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 ---
 
 ## 6. Fee Adjustment
+
+**Ví dụ về định dạng:**
+```
+"adjustment_type": "decrease", (Còn "decrease")
+"reason": "Ưu đãi/Phụ phí đợt 10",
+"effective_date": "2025-06-01",
+"expiry_date": "2025-12-31"
+```
 
 ### 6.1. Tạo Adjustment
 
@@ -608,7 +634,7 @@ Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
 ### FeeStatus
 
-* Draft, Active, Closed, Archived
+* DRAFT, ACTIVE, CLOSED, ARCHIVED
 
 ### PaymentStatus
 

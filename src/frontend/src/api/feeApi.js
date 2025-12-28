@@ -43,10 +43,11 @@ export const createFee = async (params) => {
             expiry_date: params.expiry_date || null,
             status: params.status,
         });
-
+        console.log("Create success")
          return response.data;
     } catch (error) {
         console.error('Error creating fees:', error);
+        console.error(params)
         throw error;
     }
 };
