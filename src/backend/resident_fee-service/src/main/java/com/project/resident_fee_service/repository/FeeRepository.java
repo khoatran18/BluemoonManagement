@@ -26,14 +26,14 @@ public class FeeRepository implements PanacheRepository<Fee> {
     /**
      * Get Fee records with optional filer and pagination
      */
-    public List<Fee> getByFilter(Long feeTypeId,
+    public List<Fee> getByFilter(List<Long> feeTypeIds,
                                  Long feeCategoryId,
                                  String feeName,
                                  BigDecimal feeAmount,
                                  String applicableMonth,
                                  LocalDate effectiveDate,
                                  LocalDate expiryDate,
-                                 String status,
+                                 Fee.FeeStatus status,
                                  int page,
                                  int limit) {
 
@@ -42,17 +42,17 @@ public class FeeRepository implements PanacheRepository<Fee> {
         Map<String, Object> params = new HashMap<>();
 
         // Valid filters
-        if (feeTypeId != null) {
-            clauses.add("feeType.id = :feeTypeId");
-            params.put("feeTypeId", feeTypeId);
+        if (feeTypeIds != null && !feeTypeIds.isEmpty()) {
+            clauses.add("feeType.id IN :feeTypeIds");
+            params.put("feeTypeIds", feeTypeIds);
         }
         if (feeCategoryId != null) {
             clauses.add("feeCategory.id = :feeCategoryId");
             params.put("feeCategoryId", feeCategoryId);
         }
-        if (feeName != null && !feeName.isEmpty()) {
-            clauses.add("feeName = :feeName");
-            params.put("feeName", feeName);
+        if (feeName != null && !feeName.isBlank()) {
+            clauses.add("LOWER(feeName) LIKE :feeName");
+            params.put("feeName", "%" + feeName.toLowerCase() + "%");
         }
         if (feeAmount != null) {
             clauses.add("amount = :amount");
@@ -91,31 +91,31 @@ public class FeeRepository implements PanacheRepository<Fee> {
     /**
      * Count number of Fee records matching the filters
      */
-    public long countByFilter(Long feeTypeId,
+    public long countByFilter(List<Long> feeTypeIds,
                                  Long feeCategoryId,
                                  String feeName,
                                  BigDecimal feeAmount,
                                  String applicableMonth,
                                  LocalDate effectiveDate,
                                  LocalDate expiryDate,
-                                 String status) {
+                                 Fee.FeeStatus status) {
 
         // Prepare for query
         List<String> clauses = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
         // Valid filters
-        if (feeTypeId != null) {
-            clauses.add("feeType.id = :feeTypeId");
-            params.put("feeTypeId", feeTypeId);
+        if (feeTypeIds != null && !feeTypeIds.isEmpty()) {
+            clauses.add("feeType.id IN :feeTypeIds");
+            params.put("feeTypeIds", feeTypeIds);
         }
         if (feeCategoryId != null) {
             clauses.add("feeCategory.id = :feeCategoryId");
             params.put("feeCategoryId", feeCategoryId);
         }
-        if (feeName != null && !feeName.isEmpty()) {
-            clauses.add("feeName = :feeName");
-            params.put("feeName", feeName);
+        if (feeName != null && !feeName.isBlank()) {
+            clauses.add("LOWER(feeName) LIKE :feeName");
+            params.put("feeName", "%" + feeName.toLowerCase() + "%");
         }
         if (feeAmount != null) {
             clauses.add("amount = :amount");
