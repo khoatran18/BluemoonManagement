@@ -5,7 +5,7 @@ WORKDIR /build
 COPY pom.xml .
 COPY resident_fee-service ./resident_fee-service
 
-RUN mvn -pl resident_fee-service -am package -DskipTests
+RUN mvn -pl package -DskipTests
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
