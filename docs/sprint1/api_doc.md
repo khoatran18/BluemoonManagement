@@ -33,6 +33,11 @@ Response sẽ luôn gồm 4 trường:
 ```
 Các ví dụ Resposne bên dưới s mc định nằm trong trường data.
 
+Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ bên dưới)
+```
+/api/v1/fees?fee_type_id=1&fee_type_id=2
+```
+
 ---
 
 ## 1. Căn hộ (Apartment)

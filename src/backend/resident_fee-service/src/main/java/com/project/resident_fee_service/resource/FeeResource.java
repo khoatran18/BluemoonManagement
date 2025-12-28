@@ -2,6 +2,7 @@ package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.FeeDTO;
 import com.project.common_package.exception.ApiResponse;
+import com.project.resident_fee_service.entity.Fee;
 import com.project.resident_fee_service.service.FeeService;
 
 import jakarta.inject.Inject;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Path("/api/v1/fees")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -32,14 +34,14 @@ public class FeeResource {
 
     @GET
     public Response getFeesByFilter(
-            @QueryParam("fee_type_id") Long feeTypeId,
+            @QueryParam("fee_type_id") List<Long> feeTypeIds,
             @QueryParam("fee_category_id") Long feeCategoryId,
             @QueryParam("fee_name") String feeName,
             @QueryParam("fee_amount") BigDecimal feeAmount,
             @QueryParam("applicable_month") String applicableMonth,
             @QueryParam("effective_date") String effectiveDate,
             @QueryParam("expiry_date") String expiryDate,
-            @QueryParam("status") String status,
+            @QueryParam("status") Fee.FeeStatus status,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("limit") @DefaultValue("10") int limit
     ) {
@@ -47,13 +49,13 @@ public class FeeResource {
         log.info("[Fee] [Resource] getFeesByFilter Start");
         log.info(
                 "Input: feeTypeId={}, feeCategoryId={}, feeName={}, feeAmount={}, applicableMonth={}, effectiveDate={}, expiryDate={}, status={}, page={}, limit={}",
-                feeTypeId, feeCategoryId, feeName, feeAmount,
+                feeTypeIds, feeCategoryId, feeName, feeAmount,
                 applicableMonth, effectiveDate, expiryDate, status, page, limit
         );
 
         FeeDTO.GetFeesResponseDTO resDTO =
                 feeService.getFeesByFilter(
-                        feeTypeId, feeCategoryId, feeName, feeAmount,
+                        feeTypeIds, feeCategoryId, feeName, feeAmount,
                         applicableMonth, effectiveDate, expiryDate,
                         status, page, limit
                 );

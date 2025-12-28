@@ -42,14 +42,14 @@ public class FeeService {
     /////////////////////////////
 
     public FeeDTO.GetFeesResponseDTO getFeesByFilter(
-            Long feeTypeId,
+            List<Long> feeTypeIds,
             Long feeCategoryId,
             String feeName,
             BigDecimal feeAmount,
             String applicableMonth,
             String effectiveDate,
             String expiryDate,
-            String status,
+            Fee.FeeStatus status,
             int page,
             int limit
     ) {
@@ -57,7 +57,7 @@ public class FeeService {
         log.info("[Fee] [Service] getFeesByFilter Start");
         log.info(
                 "Input: feeTypeId={}, feeCategoryId={}, feeName={}, feeAmount={}, applicableMonth={}, effectiveDate={}, expiryDate={}, status={}, page={}, limit={}",
-                feeTypeId, feeCategoryId, feeName, feeAmount,
+                feeTypeIds, feeCategoryId, feeName, feeAmount,
                 applicableMonth, effectiveDate, expiryDate, status, page, limit
         );
 
@@ -69,14 +69,14 @@ public class FeeService {
 
             List<Fee> feeEntityList =
                     repository.getByFilter(
-                            feeTypeId, feeCategoryId, feeName, feeAmount,
+                            feeTypeIds, feeCategoryId, feeName, feeAmount,
                             applicableMonth, startDate, endDate,
                             status, queryPage, queryLimit
                     );
 
             long count =
                     repository.countByFilter(
-                            feeTypeId, feeCategoryId, feeName, feeAmount,
+                            feeTypeIds, feeCategoryId, feeName, feeAmount,
                             applicableMonth, startDate, endDate, status
                     );
 
