@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getResidents } from "../../../../api/residentApi";
+import { getResidents, deleteResident, editResident, createResident } from "../../../../api/residentApi";
 import Table from "../../../../Components/Table/Table"
 import Column from "../../../../Components/Table/Column";
 import { ActionMenu } from "../../../../Components/ActionMenu";
@@ -85,17 +85,30 @@ export const DataTableSection = ({ searchQuery = "" }) => {
     setSelectedResident(null);
   };
 
-  const handleDeleteConfirm = (residentId) => {
-    console.log(`Xóa cư dân: ${residentId}`);
-    setIsDeleteModalOpen(false);
-    setSelectedResident(null);
-    // Thêm logic xóa ở đây
+  const handleDeleteConfirm = async (residentId) => {
+    try {
+      await deleteResident(residentId);
+      setIsDeleteModalOpen(false);
+      setSelectedResident(null);
+      // Reset page và refresh danh sách sau khi xóa
+      setPage(1);
+      console.log(`Xóa cư dân ${residentId} thành công`);
+    } catch (err) {
+      console.error('Error deleting resident:', err);
+    }
   };
 
-  const handleEditSubmit = (formData) => {
-    console.log("Cập nhật cư dân:", formData);
-    setIsEditModalOpen(false);
-    setSelectedResident(null);
+  const handleEditSubmit = async (formData) => {
+    try {
+      await editResident(selectedResident.id, formData);
+      setIsEditModalOpen(false);
+      setSelectedResident(null);
+      // Refresh danh sách sau khi cập nhật
+      fetchData();
+      console.log("Cập nhật cư dân thành công:", formData);
+    } catch (err) {
+      console.error('Error updating resident:', err);
+    }
   };
 
   return (
@@ -185,7 +198,7 @@ export const DataTableSection = ({ searchQuery = "" }) => {
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={handleDeleteClose}
-        data={selectedResident}
+        data={selectedResident ? { id: selectedResident.id, name: selectedResident.full_name } : null}
         title="dân cư"
         onConfirm={handleDeleteConfirm}
       />

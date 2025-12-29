@@ -30,6 +30,7 @@ export const getApartmentDetail = async (apartmentId) => {
         throw error;
     }
 }
+
 export const createApartment = async (apartmentData) => {
   try {
     const response = await axiosClient.post('/apartments', {
@@ -43,14 +44,12 @@ export const createApartment = async (apartmentData) => {
   }
 };
 
-export const updateApartment = async (apartmentId, apartmentData) => {
+export const editApartment = async (apartmentId, apartmentData) => {
   try {
     const response = await axiosClient.put(`/apartments/${apartmentId}`, {
-      apartment_id: apartmentId,
       building: apartmentData.building,
       room_number: apartmentData.room_number,
       head_resident_id: apartmentData.head_resident_id || null,
-      residents: apartmentData.residents || [],
     });
     return response.data;
   } catch (error) {

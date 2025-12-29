@@ -17,9 +17,13 @@ export const getResidents = async (params = {}) => {
         throw error;
     }
 }
+
 export const getResidentDetail = async (residentId) => {
   try {
     const response = await axiosClient.get(`/residents/${residentId}`);
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
     return response.data.data;
   } catch (error) {
     console.error('Error fetching resident details:', error);
@@ -42,10 +46,9 @@ export const createResident = async (residentData) => {
   }
 };
 
-export const updateResident = async (residentId, residentData) => {
+export const editResident = async (residentId, residentData) => {
   try {
     const response = await axiosClient.put(`/residents/${residentId}`, {
-      resident_id: residentId,
       full_name: residentData.full_name,
       email: residentData.email || "",
       phone_number: residentData.phone_number || "",
