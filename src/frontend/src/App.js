@@ -6,6 +6,8 @@ import MainLayout from './Layout/MainLayout';
 import ApartmentManagement from './Layout/Apartment/ApartmentManagement.jsx';
 import ResidentManagement from './Layout/Resident/ResidentManagement.jsx';
 import Fee from './Layout/Fee/Fee';
+import FeeCollect from './Layout/FeeCollect/FeeCollect.jsx';
+import ApartmentFeeStatus from './Layout/FeeCollect/ApartmentFeeStatus.jsx';
 
 export default function App() {
   return (
@@ -17,6 +19,8 @@ export default function App() {
           <Route path="apartment" element={<ApartmentManagement />} />
           <Route path="resident" element={<ResidentManagement />} />
           <Route path="fee" element={<Fee />}/>
+          <Route path="fee-collection" element={<FeeCollect />}/>
+          <Route path="fee-collection/apartment/:id/status" element={<ApartmentFeeStatus />}/>
           <Route path="announcement" element={<ComingSoon />} />
           <Route path="pay" element={<ComingSoon />} />
         </Route>

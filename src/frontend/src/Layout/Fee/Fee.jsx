@@ -78,14 +78,14 @@ export default function Fee(){
             if (refreshRef.current) await refreshRef.current();
         } catch (err) {
             console.error('Save fee error', err);
-            showToast('Lưu phí thất bại', 'error');
+            showToast(err?.message || 'Lưu phí thất bại', 'error');
         }
     };
 
-        const { addToast } = useToasts();
-        const showToast = (message, variant = 'success', duration = 4000) => {
-            if (typeof addToast === 'function') addToast({ message, variant, duration });
-        };
+    const { addToast } = useToasts();
+    const showToast = (message, variant = 'success', duration = 4000) => {
+        if (typeof addToast === 'function') addToast({ message, variant, duration });
+    };
     return (
         <div className="fee-container">
             <FilterSection

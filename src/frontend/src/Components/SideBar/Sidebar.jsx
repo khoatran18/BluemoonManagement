@@ -56,26 +56,28 @@ const SidebarNav = {
     apartment: "apartment",
     resident: "resident"
   },
-  fee: "fee",
+   fee: {
+    management: "fee",         
+    collection: "fee-collection" 
+  },
   announcement: "announcement",
   pay: "pay"
 }
 
 const Sidebar = () => {
-  const [openMenu, setOpenMenu] = useState(false);
+  const [openApartmentMenu, setOpenApartmentMenu] = useState(false);
+  const [openFeeMenu, setOpenFeeMenu] = useState(false);
   const [activeItem, setActiveItem] = useState(SidebarNav.overview)
 
-  // 🔥 ADD: toggle sidebar when mobile
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <>
-      {/* 🔥 Toggle Button (mobile) */}
+     
       <button className="sidebar-toggle" onClick={() => setSidebarOpen(true)}>
         ☰
       </button>
 
-      {/* 🔥 Overlay */}
       <div
         className={`sidebar-overlay ${sidebarOpen ? "show" : ""}`}
         onClick={() => setSidebarOpen(false)}
@@ -99,8 +101,8 @@ const Sidebar = () => {
           <SidebarDropdown
             icon={sidebarApartment}
             label="Quản lý chung cư"
-            open={openMenu}
-            onToggle={() => setOpenMenu(!openMenu)}>
+            open={openApartmentMenu}
+            onToggle={() => setOpenApartmentMenu(!openApartmentMenu)}>
             <SidebarItem label="Căn hộ"
               to={`/${SidebarNav.apartment.apartment}`}
               active={activeItem === SidebarNav.apartment.apartment}
@@ -114,11 +116,23 @@ const Sidebar = () => {
             />
           </SidebarDropdown>
 
-          <SidebarItem icon={sidebarFee} label="Quản lý phí"
-            to={`/${SidebarNav.fee}`}
-            active={activeItem === SidebarNav.fee}
-            onClick={() => { setActiveItem(SidebarNav.fee); setSidebarOpen(false) }}
-          />
+          <SidebarDropdown
+            icon={sidebarFee}
+            label="Quản lý phí"
+            open={openFeeMenu}
+            onToggle={() => setOpenFeeMenu(!openFeeMenu)}>
+            <SidebarItem label="Danh sách phí"
+              to={`/${SidebarNav.fee.management}`}
+              active={activeItem === SidebarNav.fee.management}
+              onClick={() => { setActiveItem(SidebarNav.fee.management); setSidebarOpen(false) }}
+            />
+
+            <SidebarItem label="Thu phí"
+              to={`/${SidebarNav.fee.collection}`}
+              active={activeItem === SidebarNav.fee.collection}
+              onClick={() => { setActiveItem(SidebarNav.fee.collection); setSidebarOpen(false) }}
+            />
+          </SidebarDropdown>
 
           <SidebarItem icon={sidebarAnnouncement} label="Thông báo"
             to={`/${SidebarNav.announcement}`}

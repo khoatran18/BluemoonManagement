@@ -77,7 +77,7 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
       })));
       setTotalItems(response.total_items || 0);
     } catch (err) {
-      setError(err.message || String(err));
+      onNotify({ message: `Lấy phí thất bại\n${err.message}`, variant: 'error', duration: 4000 })
       setData([]);
     } finally {
       setLoading(false);

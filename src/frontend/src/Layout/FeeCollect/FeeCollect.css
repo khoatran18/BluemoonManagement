@@ -1,0 +1,313 @@
+.fee-collect-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.fee-collect-btn-primary {
+	white-space: nowrap;
+}
+
+.fee-collect-actions .primary-btn {
+	padding: 6px 10px;
+	font-size: 13px;
+	border-radius: 6px;
+}
+
+.fee-collect-btn-primary.primary-btn,
+.fee-collect-btn-secondary.primary-btn {
+	flex: 1 1 auto;
+	min-width: 92px;
+}
+
+@media (max-width: 640px) {
+	.fee-collect-btn-primary.primary-btn,
+	.fee-collect-btn-secondary.primary-btn {
+		flex: 1 1 100%;
+		width: 100%;
+	}
+}
+
+.fee-collect-btn-secondary.primary-btn {
+	background: #ffffff;
+	color: #111827;
+	box-shadow: none;
+	border: 1px solid #d1d5db;
+}
+
+.fee-collect-btn-secondary.primary-btn:hover {
+	background: #f3f4f6;
+}
+
+/* Hide icon spacing when icon is null */
+.fee-collect-btn-primary.primary-btn .icon,
+.fee-collect-btn-secondary.primary-btn .icon {
+	display: none;
+}
+
+/* Apartment fee status page (skeleton) */
+.fee-status-page {
+	gap: 16px;
+}
+
+.fee-status-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 16px;
+	background: #ffffff;
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+}
+
+.fee-status-title {
+	font-size: 18px;
+	font-weight: 600;
+	color: #111827;
+}
+
+.fee-status-subtitle {
+	font-size: 13px;
+	color: #111827;
+	opacity: 0.7;
+}
+
+.fee-status-summary {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	padding: 0 16px;
+}
+
+@media (max-width: 900px) {
+	.fee-status-summary {
+		grid-template-columns: 1fr;
+	}
+}
+
+.fee-status-card {
+	background: #ffffff;
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+	padding: 14px;
+}
+
+.fee-status-card-label {
+	font-size: 13px;
+	color: #111827;
+	opacity: 0.7;
+}
+
+.fee-status-card-value {
+	margin-top: 6px;
+	font-size: 20px;
+	font-weight: 700;
+	color: #111827;
+}
+
+.fee-status-card-sub {
+	margin-top: 4px;
+	font-size: 12px;
+	opacity: 0.7;
+}
+
+.fee-status-card-breakdown {
+	margin-top: 8px;
+	font-size: 12px;
+	color: #111827;
+	opacity: 0.9;
+}
+
+.fee-status-card-breakdown-row {
+	display: flex;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.fee-status-text--decrease {
+	color: #4FA100;
+	font-weight: 600;
+}
+
+.fee-status-text--increase {
+	color: #D7263D;
+	font-weight: 600;
+}
+
+.fee-status-card--overdue {
+	border-color: #D7263D;
+}
+
+.fee-status-card-value--overdue {
+	color: #D7263D;
+}
+
+.fee-status-section {
+	padding: 0 16px 16px;
+}
+
+.fee-status-section-title {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 12px 0;
+	color: #111827;
+}
+
+.fee-status-fee-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.fee-status-fee {
+	background: #ffffff;
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+	padding: 12px;
+}
+
+.fee-status-fee-main {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.fee-status-fee-title {
+	font-weight: 600;
+	color: #111827;
+}
+
+.fee-status-fee-title-wrap {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+
+.fee-status-fee-title-wrap .fee-status-fee-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.fee-status-fee-type-tag.tag.fee {
+	width: auto;
+}
+
+.fee-status-fee-type-fallback {
+	font-size: 13px;
+	color: #111827;
+	opacity: 0.7;
+	white-space: nowrap;
+}
+
+.fee-status-fee-amount {
+	font-weight: 700;
+	color: #111827;
+	white-space: nowrap;
+}
+
+.fee-status-fee--overdue {
+	border-color: #D7263D;
+}
+
+.fee-status-fee-amount--overdue {
+	color: #D7263D;
+}
+
+.fee-status-subsection-title {
+	margin-top: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #111827;
+	opacity: 0.85;
+}
+
+.fee-status-subsection-title--overdue {
+	color: #D7263D;
+	opacity: 1;
+}
+
+.fee-status-fee-meta {
+	margin-top: 4px;
+	font-size: 12px;
+	color: #111827;
+	opacity: 0.7;
+}
+
+.fee-status-dropdown {
+	margin-top: 10px;
+	border-top: 1px solid #d1d5db;
+	padding-top: 10px;
+}
+
+.fee-status-dropdown-summary {
+	cursor: pointer;
+	font-weight: 500;
+}
+
+.fee-status-dropdown-body {
+	margin-top: 10px;
+	background: #f3f4f6;
+	border-radius: 8px;
+	padding: 10px;
+}
+
+.fee-status-adjustment-group-title {
+	font-size: 12px;
+	font-weight: 600;
+	color: #111827;
+	opacity: 0.8;
+	margin: 6px 0;
+}
+
+.fee-status-adjustment {
+	background: #ffffff;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	padding: 10px;
+	margin-top: 8px;
+}
+
+.fee-status-adjustment-main {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.fee-status-adjustment-title {
+	font-weight: 600;
+	color: #111827;
+}
+
+.fee-status-adjustment-amount {
+	font-weight: 700;
+	white-space: nowrap;
+	color: #111827;
+}
+
+.fee-status-adjustment-amount--decrease {
+	color: #4FA100;
+}
+
+.fee-status-adjustment-amount--increase {
+	color: #D7263D;
+}
+
+.fee-status-adjustment-meta {
+	margin-top: 4px;
+	font-size: 12px;
+	opacity: 0.7;
+}
+
+.fee-status-empty,
+.fee-status-error {
+	padding: 12px 16px;
+	background: #ffffff;
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+}
+
