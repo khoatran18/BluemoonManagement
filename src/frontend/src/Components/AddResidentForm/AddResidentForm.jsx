@@ -3,13 +3,14 @@ import "./AddResidentForm.css";
 
 export const AddResidentForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
-    room: "",
-    building: "",
+    apartment_id: "",
+    full_name: "",
     email: "",
-    phone: "",
+    phone_number: "",
   });
+
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -17,77 +18,85 @@ export const AddResidentForm = ({ onSubmit, onCancel }) => {
       ...prev,
       [name]: value,
     }));
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (onSubmit) {
-      onSubmit(formData);
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.apartment_id.trim()) {
+      newErrors.apartment_id = "Mã căn hộ không được bỏ trống";
     }
-    setFormData({
-      id: "",
-      name: "",
-      room: "",
-      building: "",
-      email: "",
-      phone: "",
-    });
+    if (!formData.full_name.trim()) {
+      newErrors.full_name = "Tên cư dân không được bỏ trống";
+    }
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Email không hợp lệ";
+    }
+    return newErrors;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = validateForm();
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      if (onSubmit) {
+        await onSubmit(formData);
+      }
+      setFormData({
+        apartment_id: "",
+        full_name: "",
+        email: "",
+        phone_number: "",
+      });
+      setErrors({});
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <form className="add-resident-form" onSubmit={handleSubmit}>
       <div className="form-group">
-        <label htmlFor="id">Mã căn hộ</label>
+        <label htmlFor="apartment_id">Mã căn hộ</label>
         <input
           type="text"
-          id="id"
-          name="id"
-          value={formData.id}
+          id="apartment_id"
+          name="apartment_id"
+          value={formData.apartment_id}
           onChange={handleChange}
           placeholder="Nhập mã căn hộ"
-          required
+          disabled={isSubmitting}
         />
+        {errors.apartment_id && <span className="error-text">{errors.apartment_id}</span>}
       </div>
 
       <div className="form-group">
-        <label htmlFor="name">Tên cư dân</label>
+        <label htmlFor="full_name">Tên cư dân</label>
         <input
           type="text"
-          id="name"
-          name="name"
-          value={formData.name}
+          id="full_name"
+          name="full_name"
+          value={formData.full_name}
           onChange={handleChange}
           placeholder="Nhập tên cư dân"
-          required
+          disabled={isSubmitting}
         />
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="room">Số phòng</label>
-          <input
-            type="text"
-            id="room"
-            name="room"
-            value={formData.room}
-            onChange={handleChange}
-            placeholder="Nhập số phòng"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="building">Tòa nhà</label>
-          <input
-            type="text"
-            id="building"
-            name="building"
-            value={formData.building}
-            onChange={handleChange}
-            placeholder="Nhập tòa nhà"
-            required
-          />
-        </div>
+        {errors.full_name && <span className="error-text">{errors.full_name}</span>}
       </div>
 
       <div className="form-group">
@@ -99,18 +108,21 @@ export const AddResidentForm = ({ onSubmit, onCancel }) => {
           value={formData.email}
           onChange={handleChange}
           placeholder="Nhập email"
+          disabled={isSubmitting}
         />
+        {errors.email && <span className="error-text">{errors.email}</span>}
       </div>
 
       <div className="form-group">
-        <label htmlFor="phone">Số điện thoại</label>
+        <label htmlFor="phone_number">Số điện thoại</label>
         <input
           type="tel"
-          id="phone"
-          name="phone"
-          value={formData.phone}
+          id="phone_number"
+          name="phone_number"
+          value={formData.phone_number}
           onChange={handleChange}
           placeholder="Nhập số điện thoại"
+          disabled={isSubmitting}
         />
       </div>
 
@@ -119,14 +131,16 @@ export const AddResidentForm = ({ onSubmit, onCancel }) => {
           type="button"
           className="btn-cancel"
           onClick={onCancel}
+          disabled={isSubmitting}
         >
           Hủy
         </button>
         <button
           type="submit"
           className="btn-submit"
+          disabled={isSubmitting}
         >
-          Thêm cư dân
+          {isSubmitting ? "Đang thêm..." : "Thêm cư dân"}
         </button>
       </div>
     </form>

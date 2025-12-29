@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Modal } from "../../../../Components/Modal";
 import { AddResidentForm } from "../../../../Components/AddResidentForm";
 import { SuccessModal } from "../../../../Components/SuccessModal";
+import { createResident } from "../../../../api/residentApi";
 
-export const SearchBarSection = ({ onSearchChange }) => {
+export const SearchBarSection = ({ onSearchChange, onRefresh }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successData, setSuccessData] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSearchChange = (e) => {
     const query = e.target.value;
@@ -24,18 +26,38 @@ export const SearchBarSection = ({ onSearchChange }) => {
 
   const handleAddResidentClick = () => {
     setIsModalOpen(true);
+    setErrorMessage("");
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
+    setErrorMessage("");
   };
 
-  const handleAddResidentSubmit = (formData) => {
-    console.log("Thêm cư dân:", formData);
-    setSuccessData(formData);
-    setIsSuccessModalOpen(true);
-    setIsModalOpen(false);
-    // Thêm logic xử lý thêm cư dân ở đây
+  const handleAddResidentSubmit = async (formData) => {
+    try {
+      console.log("Submitting form data:", formData);
+      const response = await createResident(formData);
+      console.log("Response from server:", response);
+      
+      setSuccessData(formData);
+      setIsSuccessModalOpen(true);
+      setIsModalOpen(false);
+      setErrorMessage("");
+      console.log("Thêm cư dân thành công:", formData);
+      
+      // Notify parent component to refresh data
+      if (onSearchChange) {
+        onSearchChange("");
+      }
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (err) {
+      console.error('Error creating resident:', err);
+      const errorMsg = err.response?.data?.message || err.message || "Có lỗi xảy ra khi thêm cư dân";
+      setErrorMessage(errorMsg);
+    }
   };
 
   return (
@@ -116,6 +138,19 @@ export const SearchBarSection = ({ onSearchChange }) => {
         onClose={handleModalClose}
         title="Thêm dân cư mới"
       >
+        {errorMessage && (
+          <div className="error-banner" style={{
+            backgroundColor: "#fee2e2",
+            border: "1px solid #fecaca",
+            borderRadius: "6px",
+            padding: "12px 16px",
+            marginBottom: "16px",
+            color: "#dc2626",
+            fontSize: "14px"
+          }}>
+            {errorMessage}
+          </div>
+        )}
         <AddResidentForm
           onSubmit={handleAddResidentSubmit}
           onCancel={handleModalClose}

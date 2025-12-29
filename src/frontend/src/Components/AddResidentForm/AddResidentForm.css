@@ -35,6 +35,19 @@
   color: #94a3b8;
 }
 
+.error-text {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.form-group input:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -67,8 +80,13 @@
   border: 1px solid #e2e8f0;
 }
 
-.btn-cancel:hover {
+.btn-cancel:hover:not(:disabled) {
   background-color: #e2e8f0;
+}
+
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-submit {
@@ -76,10 +94,15 @@
   color: white;
 }
 
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
   background-color: #0284c7;
 }
 
-.btn-submit:active {
+.btn-submit:active:not(:disabled) {
   background-color: #0369a1;
+}
+
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }

@@ -20,3 +20,43 @@ export const getApartmentDetail = async (apartmentId) => {
             { label: 'getApartmentDetail' }
         );
 }
+
+export const createApartment = async (apartmentData) => {
+  return apiCall(
+    () =>
+      axiosClient.post('/apartments', {
+        building: apartmentData.building,
+        room_number: apartmentData.room_number,
+      }),
+    {
+      label: 'createApartment',
+      pick: (res) => res.data,
+    }
+  );
+};
+
+export const editApartment = async (apartmentId, apartmentData) => {
+  return apiCall(
+    () =>
+      axiosClient.put(`/apartments/${apartmentId}`, {
+        building: apartmentData.building,
+        room_number: apartmentData.room_number,
+        head_resident_id: apartmentData.head_resident_id || null,
+      }),
+    {
+      label: 'editApartment',
+      pick: (res) => res.data,
+    }
+  );
+};
+
+export const deleteApartment = async (apartmentId) => {
+  return apiCall(
+    () => axiosClient.delete(`/apartments/${apartmentId}`, { data: { id: apartmentId } }),
+    {
+      label: 'deleteApartment',
+      pick: (res) => res.data,
+    }
+  );
+};
+
