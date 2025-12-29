@@ -22,6 +22,8 @@ bin/
 # NetBeans
 nb-configuration.xml
 
+DockerfileLocal
+
 # Visual Studio Code
 .vscode
 .factorypath

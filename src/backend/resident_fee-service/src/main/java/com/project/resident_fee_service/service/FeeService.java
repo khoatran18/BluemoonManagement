@@ -13,6 +13,7 @@ import com.project.resident_fee_service.repository.FeeRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -28,6 +29,9 @@ public class FeeService {
 
     private static final Logger log =
             LoggerFactory.getLogger(FeeService.class);
+
+    @Inject
+    EntityManager entityManager;
 
     @Inject
     FeeRepository repository;
@@ -143,14 +147,26 @@ public class FeeService {
             Fee entity = feeMapper.PostFeeRequestDTOToEntity(dto);
             repository.create(entity);
 
-            List<Apartment> apartments = apartmentRepository.getAll();
-            for (Apartment apartment : apartments) {
-                ApartmentFeeStatus afs = apartment.getApartmentFeeStatus();
-                if (afs.getUnpaidFeeList() == null)
-                    afs.setUnpaidFeeList(new HashSet<>());
+            entityManager.flush();
 
-                afs.getUnpaidFeeList().add(entity);
-            }
+            String sql = """
+                   INSERT INTO ApartmentFeeStatus_UnpaidFees (ApartmentID, FeeID)
+                   SELECT afs.ApartmentID, :newFeeID
+                   FROM ApartmentFeeStatus afs
+                   """;
+
+            int rowsEffected = entityManager.createNativeQuery(sql)
+                    .setParameter("newFeeID", entity.getFeeId())
+                    .executeUpdate();
+
+//            List<Apartment> apartments = apartmentRepository.getAll();
+//            for (Apartment apartment : apartments) {
+//                ApartmentFeeStatus afs = apartment.getApartmentFeeStatus();
+//                if (afs.getUnpaidFeeList() == null)
+//                    afs.setUnpaidFeeList(new HashSet<>());
+//
+//                afs.getUnpaidFeeList().add(entity);
+//            }
 
             log.info("[Fee] [Service] createFee End");
             log.info("Output: None");
