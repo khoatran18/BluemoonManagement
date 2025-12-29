@@ -108,19 +108,19 @@ export default function Fee(){
                 onAddFee={openAdd}
             />
 
-                <DataTableSection 
-                    activeType={activeType}
-                        activeStatus={activeStatus}
-                        fee_category_id={activeCategory}
-                        fee_amount={filterAmount}
-                        applicable_month={filterApplicableMonth}
-                        effective_date={filterEffectiveDate}
-                        expiry_date={filterExpiryDate}
-                    search={search}
-                    onEditRequest={openEdit}
-                    registerRefresh={registerRefresh}
-                    onNotify={({message, variant = 'success', duration = 3000}) => showToast(message, variant, duration)}
-                />
+            <DataTableSection 
+                activeType={activeType}
+                activeStatus={activeStatus}
+                fee_category_id={activeCategory}
+                fee_amount={filterAmount}
+                applicable_month={filterApplicableMonth}
+                effective_date={filterEffectiveDate}
+                expiry_date={filterExpiryDate}
+                search={search}
+                onEditRequest={openEdit}
+                registerRefresh={registerRefresh}
+                onNotify={({message, variant = 'success', duration = 3000}) => showToast(message, variant, duration)}
+            />
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? 'Cập nhật phí' : 'Thêm phí mới'}>
                 <AddFeeForm initial={initialData} feeTypes={feeTypes} feeCategories={feeCategories} isEditing={isEditing} onCancel={() => setIsModalOpen(false)} onSubmit={handleSubmit} />

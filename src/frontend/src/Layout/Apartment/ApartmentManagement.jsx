@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ApartmentManagement.css';
-import { ApartmentSearchBarSection } from './sections/SearchBarSection/ApartmentSearchBarSection.jsx';
+import FilterSection from './sections/FilterSection';
 import { ApartmentDataTableSection } from './sections/DataTableSection/ApartmentDataTableSection.jsx';
 
 const ApartmentManagement = () => {
@@ -10,7 +10,7 @@ const ApartmentManagement = () => {
 
   return (
     <div className="apartment-management-container"> 
-       <ApartmentSearchBarSection onSearchChange={setSearchQuery} />
+       <FilterSection onSearchChange={setSearchQuery} />
        <ApartmentDataTableSection searchQuery={searchQuery} />
     </div>
   );

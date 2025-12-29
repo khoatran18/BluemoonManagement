@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../Apartment/ApartmentManagement.css';
 import './FeeCollect.css';
-import { FeeCollectSearchBarSection } from './section/SearchBarSection.jsx';
+import FilterSection from './section/FilterSection';
 import { FeeCollectDataTableSection } from './section/DataTableSection.jsx';
 
 const FEE_COLLECTION_TABLE_STATE_KEY = "fee-collection-table-state:v1";
@@ -27,7 +27,7 @@ const FeeCollect = () => {
 
 	return (
 		<div className="apartment-management-container"> 
-			 <FeeCollectSearchBarSection onSearchChange={setSearchQuery} />
+			 <FilterSection onSearchChange={setSearchQuery} />
 			 <FeeCollectDataTableSection searchQuery={searchQuery} />
 		</div>
 	);

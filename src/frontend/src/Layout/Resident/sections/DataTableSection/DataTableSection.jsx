@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getResidents, deleteResident, editResident, createResident } from "../../../../api/residentApi";
+import { getResidents, deleteResident, editResident, createResident, getResidentDetail } from "../../../../api/residentApi";
 import Table from "../../../../Components/Table/Table"
 import Column from "../../../../Components/Table/Column";
 import { ActionMenu } from "../../../../Components/ActionMenu";
@@ -8,8 +8,16 @@ import { EditResidentModal } from "../../../../Components/EditResidentModal";
 import { DeleteConfirmModal } from "../../../../Components/DeleteConfirmModal";
 import "../../../Fee/Fee.css";
 
-export const DataTableSection = ({ searchQuery = "" }) => {
+export const DataTableSection = ({
+  searchQuery = "",
+  apartmentId = "",
+  phoneNumber = "",
+  email = "",
+  refreshKey = 0,
+  onNotify,
+}) => {
   const [selectedResident, setSelectedResident] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -19,13 +27,18 @@ export const DataTableSection = ({ searchQuery = "" }) => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
-  // Optionally, you can fetch apartments for dropdowns, etc.
-  // const [apartments, setApartments] = useState([]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const params = { page, limit, ...(searchQuery ? { full_name: searchQuery } : {}) };
+      const params = {
+        page,
+        limit,
+        ...(searchQuery ? { full_name: searchQuery } : {}),
+        ...(apartmentId ? { apartment_id: apartmentId } : {}),
+        ...(phoneNumber ? { phone_number: phoneNumber } : {}),
+        ...(email ? { email } : {}),
+      };
       console.log("[ResidentDataTable] fetchResidents params:", params);
       const res = await getResidents(params);
       setData(
@@ -50,18 +63,97 @@ export const DataTableSection = ({ searchQuery = "" }) => {
   useEffect(() => {
     console.log("[ResidentDataTable] mounted/changed deps", { page, limit, searchQuery });
     fetchData();
-  }, [page, limit, searchQuery]);
+  }, [page, limit, searchQuery, apartmentId, phoneNumber, email, refreshKey]);
 
-  const handleViewDetails = (recordId) => {
-    const resident = data.find(r => r.id === recordId);
-    setSelectedResident(resident);
+  useEffect(() => {
+    // When filters/search change, go back to page 1.
+    setPage(1);
+  }, [searchQuery, apartmentId, phoneNumber, email, limit, refreshKey]);
+
+  const handleViewDetails = (residentId) => {
     setIsDetailModalOpen(true);
+    setSelectedResident(null);
+    setDetailLoading(true);
+
+    (async () => {
+      try {
+        const resp = await getResidentDetail(residentId);
+
+        let payload = resp;
+        if (payload && payload.data) payload = payload.data;
+        if (payload && payload.data) payload = payload.data;
+
+        const apartment = payload?.apartment || null;
+        const normalized = {
+          id: payload?.resident_id ?? payload?.id ?? residentId,
+          full_name: payload?.full_name ?? payload?.name ?? "",
+          name: payload?.full_name ?? payload?.name ?? "",
+          email: payload?.email ?? "",
+          phone_number: payload?.phone_number ?? payload?.phone ?? "",
+          phone: payload?.phone_number ?? payload?.phone ?? "",
+          apartment,
+          room: apartment?.room_number ?? payload?.room ?? "",
+          building: apartment?.building ?? payload?.building ?? "",
+          is_head: !!(payload?.is_head ?? payload?.isHead),
+        };
+
+        setSelectedResident(normalized);
+      } catch (err) {
+        console.error("Error fetching resident detail", err);
+        setSelectedResident(null);
+      } finally {
+        setDetailLoading(false);
+      }
+    })();
   };
+
 
   const handleEdit = (recordId) => {
     const resident = data.find(r => r.id === recordId);
-    setSelectedResident(resident);
+    const apartment = resident?.apartment || null;
+
+    // Open modal immediately with best-effort data, then enrich via detail API.
     setIsEditModalOpen(true);
+    setSelectedResident({
+      id: resident?.id ?? recordId,
+      full_name: resident?.full_name ?? "",
+      name: resident?.full_name ?? "",
+      email: resident?.email ?? "",
+      phone_number: resident?.phone_number ?? "",
+      phone: resident?.phone_number ?? "",
+      apartment,
+      room: apartment?.room_number ?? "",
+      building: apartment?.building ?? "",
+      is_head: !!resident?.is_head,
+    });
+
+    (async () => {
+      try {
+        const resp = await getResidentDetail(recordId);
+
+        let payload = resp;
+        if (payload && payload.data) payload = payload.data;
+        if (payload && payload.data) payload = payload.data;
+
+        const apartmentFromApi = payload?.apartment || apartment;
+        const normalized = {
+          id: payload?.resident_id ?? payload?.id ?? recordId,
+          full_name: payload?.full_name ?? payload?.name ?? resident?.full_name ?? "",
+          name: payload?.full_name ?? payload?.name ?? resident?.full_name ?? "",
+          email: payload?.email ?? resident?.email ?? "",
+          phone_number: payload?.phone_number ?? payload?.phone ?? resident?.phone_number ?? "",
+          phone: payload?.phone_number ?? payload?.phone ?? resident?.phone_number ?? "",
+          apartment: apartmentFromApi,
+          room: apartmentFromApi?.room_number ?? payload?.room ?? "",
+          building: apartmentFromApi?.building ?? payload?.building ?? "",
+          is_head: !!(payload?.is_head ?? payload?.isHead ?? resident?.is_head),
+        };
+
+        setSelectedResident(normalized);
+      } catch (err) {
+        console.error("Error fetching resident detail for edit", err);
+      }
+    })();
   };
 
   const handleDelete = (recordId) => {
@@ -90,11 +182,11 @@ export const DataTableSection = ({ searchQuery = "" }) => {
       await deleteResident(residentId);
       setIsDeleteModalOpen(false);
       setSelectedResident(null);
-      // Reset page và refresh danh sách sau khi xóa
-      setPage(1);
-      console.log(`Xóa cư dân ${residentId} thành công`);
+      fetchData()
+      onNotify({ message: 'Xóa cư dân thành công', variant: 'success', duration: 3000 });
     } catch (err) {
       console.error('Error deleting resident:', err);
+      onNotify({ message: 'Xóa cư dân thất bại', variant: 'error', duration: 4000 });
     }
   };
 
@@ -103,11 +195,11 @@ export const DataTableSection = ({ searchQuery = "" }) => {
       await editResident(selectedResident.id, formData);
       setIsEditModalOpen(false);
       setSelectedResident(null);
-      // Refresh danh sách sau khi cập nhật
+      onNotify({ message: 'Cập nhật cư dân thành công', variant: 'success', duration: 3000 });
       fetchData();
-      console.log("Cập nhật cư dân thành công:", formData);
     } catch (err) {
       console.error('Error updating resident:', err);
+      onNotify({ message: 'Cập nhật cư dân thất bại', variant: 'error', duration: 4000 });
     }
   };
 
@@ -186,6 +278,7 @@ export const DataTableSection = ({ searchQuery = "" }) => {
         isOpen={isDetailModalOpen}
         onClose={handleDetailClose}
         resident={selectedResident}
+        loading={detailLoading}
       />
 
       <EditResidentModal

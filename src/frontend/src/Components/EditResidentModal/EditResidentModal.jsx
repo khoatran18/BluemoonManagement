@@ -4,22 +4,18 @@ import "./EditResidentModal.css";
 export const EditResidentModal = ({ isOpen, onClose, resident, onSubmit }) => {
   const [formData, setFormData] = useState({
     id: "",
-    name: "",
-    room: "",
-    building: "",
+    full_name: "",
     email: "",
-    phone: "",
+    phone_number: "",
   });
 
   useEffect(() => {
     if (resident) {
       setFormData({
         id: resident.id || "",
-        name: resident.name || "",
-        room: resident.room || "",
-        building: resident.building || "A",
+        full_name: resident.full_name || resident.name || "",
         email: resident.email || "",
-        phone: resident.phone || "",
+        phone_number: resident.phone_number || resident.phone || "",
       });
     }
   }, [resident, isOpen]);
@@ -59,58 +55,30 @@ export const EditResidentModal = ({ isOpen, onClose, resident, onSubmit }) => {
         <form className="edit-form" onSubmit={handleSubmit}>
           <div className="form-body">
             <div className="form-group">
-              <label htmlFor="id">Mã căn hộ</label>
+              <label htmlFor="id">Mã cư dân</label>
               <input
                 type="text"
                 id="id"
                 name="id"
                 value={formData.id}
                 onChange={handleChange}
-                placeholder="Nhập mã căn hộ"
+                placeholder="Nhập mã cư dân"
                 required
                 disabled
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="name">Tên cư dân</label>
+              <label htmlFor="full_name">Tên cư dân</label>
               <input
                 type="text"
-                id="name"
-                name="name"
-                value={formData.name}
+                id="full_name"
+                name="full_name"
+                value={formData.full_name}
                 onChange={handleChange}
                 placeholder="Nhập tên cư dân"
                 required
               />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="room">Số phòng</label>
-                <input
-                  type="text"
-                  id="room"
-                  name="room"
-                  value={formData.room}
-                  onChange={handleChange}
-                  placeholder="Nhập số phòng"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="building">Tòa nhà</label>
-                <input
-                  type="text"
-                  id="building"
-                  name="building"
-                  value={formData.building}
-                  onChange={handleChange}
-                  placeholder="Nhập tòa nhà"
-                  required
-                />
-              </div>
             </div>
 
             <div className="form-group">
@@ -126,12 +94,12 @@ export const EditResidentModal = ({ isOpen, onClose, resident, onSubmit }) => {
             </div>
 
             <div className="form-group">
-              <label htmlFor="phone">Số điện thoại</label>
+              <label htmlFor="phone_number">Số điện thoại</label>
               <input
                 type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
+                id="phone_number"
+                name="phone_number"
+                value={formData.phone_number}
                 onChange={handleChange}
                 placeholder="Nhập số điện thoại"
               />
