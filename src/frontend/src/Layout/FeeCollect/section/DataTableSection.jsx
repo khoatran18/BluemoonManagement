@@ -114,10 +114,6 @@ export const FeeCollectDataTableSection = ({ searchQuery = "" }) => {
 		});
 	}, [searchQuery, page, limit, data, total]);
 
-	const handleCollectFee = (recordId) => {
-		console.log("Thu phí for apartment:", recordId);
-	};
-
 	const handleViewDetail = (recordId) => {
 		writeFeeCollectionTableState({
 			searchQuery,
@@ -170,13 +166,6 @@ export const FeeCollectDataTableSection = ({ searchQuery = "" }) => {
 						key="actions"
 						render={(_, record) => (
 							<div className="fee-collect-actions">
-								<Button
-									className="fee-collect-btn-primary"
-									icon={null}
-									onClick={() => handleCollectFee(record.id)}
-								>
-									Thu phí
-								</Button>
 								<Button
 									className="fee-collect-btn-secondary"
 									icon={null}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import "./Sidebar.css";
 import bluemoonLogo from "../../assets/logo/bluemoon_logo.svg";
 import sidebarAnnouncement from "../../assets/icon/sidebar/sidebar_announcement.svg";
@@ -65,11 +65,15 @@ const SidebarNav = {
 }
 
 const Sidebar = () => {
+  const location = useLocation();
   const [openApartmentMenu, setOpenApartmentMenu] = useState(false);
   const [openFeeMenu, setOpenFeeMenu] = useState(false);
-  const [activeItem, setActiveItem] = useState(SidebarNav.overview)
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const activeRouteKey = (location.pathname || "/").split("/")[1] || SidebarNav.overview;
+  const isApartmentRoute = Object.values(SidebarNav.apartment).includes(activeRouteKey);
+  const isFeeRoute = Object.values(SidebarNav.fee).includes(activeRouteKey);
 
   return (
     <>
@@ -94,56 +98,56 @@ const Sidebar = () => {
         <nav className="sidebar-nav">
           <SidebarItem icon={sidebarOverview} label="Tổng quan"
             to={`/${SidebarNav.overview}`}
-            active={activeItem === SidebarNav.overview}
-            onClick={() => { setActiveItem(SidebarNav.overview); setSidebarOpen(false) }}
+            active={activeRouteKey === SidebarNav.overview}
+            onClick={() => { setSidebarOpen(false) }}
           />
 
           <SidebarDropdown
             icon={sidebarApartment}
             label="Quản lý chung cư"
-            open={openApartmentMenu}
+            open={openApartmentMenu || isApartmentRoute}
             onToggle={() => setOpenApartmentMenu(!openApartmentMenu)}>
             <SidebarItem label="Căn hộ"
               to={`/${SidebarNav.apartment.apartment}`}
-              active={activeItem === SidebarNav.apartment.apartment}
-              onClick={() => { setActiveItem(SidebarNav.apartment.apartment); setSidebarOpen(false) }}
+              active={activeRouteKey === SidebarNav.apartment.apartment}
+              onClick={() => { setSidebarOpen(false) }}
             />
 
             <SidebarItem label="Cư dân"
               to={`/${SidebarNav.apartment.resident}`}
-              active={activeItem === SidebarNav.apartment.resident}
-              onClick={() => { setActiveItem(SidebarNav.apartment.resident); setSidebarOpen(false) }}
+              active={activeRouteKey === SidebarNav.apartment.resident}
+              onClick={() => { setSidebarOpen(false) }}
             />
           </SidebarDropdown>
 
           <SidebarDropdown
             icon={sidebarFee}
             label="Quản lý phí"
-            open={openFeeMenu}
+            open={openFeeMenu || isFeeRoute}
             onToggle={() => setOpenFeeMenu(!openFeeMenu)}>
             <SidebarItem label="Danh sách phí"
               to={`/${SidebarNav.fee.management}`}
-              active={activeItem === SidebarNav.fee.management}
-              onClick={() => { setActiveItem(SidebarNav.fee.management); setSidebarOpen(false) }}
+              active={activeRouteKey === SidebarNav.fee.management}
+              onClick={() => { setSidebarOpen(false) }}
             />
 
             <SidebarItem label="Thu phí"
               to={`/${SidebarNav.fee.collection}`}
-              active={activeItem === SidebarNav.fee.collection}
-              onClick={() => { setActiveItem(SidebarNav.fee.collection); setSidebarOpen(false) }}
+              active={activeRouteKey === SidebarNav.fee.collection}
+              onClick={() => { setSidebarOpen(false) }}
             />
           </SidebarDropdown>
 
           <SidebarItem icon={sidebarAnnouncement} label="Thông báo"
             to={`/${SidebarNav.announcement}`}
-            active={activeItem === SidebarNav.announcement}
-            onClick={() => { setActiveItem(SidebarNav.announcement); setSidebarOpen(false) }}
+            active={activeRouteKey === SidebarNav.announcement}
+            onClick={() => { setSidebarOpen(false) }}
           />
 
           <SidebarItem icon={sidebarPay} label="Thanh toán"
             to={`/${SidebarNav.pay}`}
-            active={activeItem === SidebarNav.pay}
-            onClick={() => { setActiveItem(SidebarNav.pay); setSidebarOpen(false) }}
+            active={activeRouteKey === SidebarNav.pay}
+            onClick={() => { setSidebarOpen(false) }}
           />
         </nav>
       </div>

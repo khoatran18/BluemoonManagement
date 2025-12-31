@@ -3,11 +3,8 @@ import "./AddApartmentForm.css";
 
 export const AddApartmentForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
-    id: "",
     building: "A",
-    room: "",
-    area: "",
-    status: "Trống",
+    room_number: "",
   });
 
   const handleChange = (e) => {
@@ -24,29 +21,13 @@ export const AddApartmentForm = ({ onSubmit, onCancel }) => {
       onSubmit(formData);
     }
     setFormData({
-      id: "",
       building: "A",
-      room: "",
-      area: "",
-      status: "Trống",
+      room_number: "",
     });
   };
 
   return (
     <form className="add-apartment-form" onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="id">Mã căn hộ</label>
-        <input
-          type="text"
-          id="id"
-          name="id"
-          value={formData.id}
-          onChange={handleChange}
-          placeholder="Nhập mã căn hộ"
-          required
-        />
-      </div>
-
       <div className="form-row">
         <div className="form-group">
           <label htmlFor="building">Tòa nhà</label>
@@ -67,42 +48,13 @@ export const AddApartmentForm = ({ onSubmit, onCancel }) => {
           <label htmlFor="room">Số phòng</label>
           <input
             type="text"
-            id="room"
-            name="room"
-            value={formData.room}
+            id="room_number"
+            name="room_number"
+            value={formData.room_number}
             onChange={handleChange}
             placeholder="Nhập số phòng"
             required
           />
-        </div>
-      </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label htmlFor="area">Diện tích</label>
-          <input
-            type="text"
-            id="area"
-            name="area"
-            value={formData.area}
-            onChange={handleChange}
-            placeholder="Nhập diện tích (m²)"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="status">Trạng thái</label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            required
-          >
-            <option value="Trống">Trống</option>
-            <option value="Có dân cư">Có dân cư</option>
-          </select>
         </div>
       </div>
 

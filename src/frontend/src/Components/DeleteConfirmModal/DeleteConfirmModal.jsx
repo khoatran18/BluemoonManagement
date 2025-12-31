@@ -4,6 +4,13 @@ import "./DeleteConfirmModal.css";
 export const DeleteConfirmModal = ({ isOpen, onClose, data, onConfirm, title }) => {
   if (!isOpen || !data) return null;
 
+  const displayName =
+    data?.name ||
+    data?.full_name ||
+    (data?.building && (data?.room || data?.room_number)
+      ? `${data.building} - ${data.room || data.room_number}`
+      : data?.room || data?.room_number || "");
+
   const handleConfirm = () => {
     if (onConfirm) {
       onConfirm(data.id);
@@ -30,7 +37,7 @@ export const DeleteConfirmModal = ({ isOpen, onClose, data, onConfirm, title }) 
         <h2 className="delete-title">{title ? `Xóa ${title}` : "Xóa mục"}</h2>
         
         <p className="delete-message">
-          Bạn có chắc chắn muốn xóa {title ? title : "mục"} <strong>{data.name}</strong> (Mã: {data.id}) không?
+          Bạn có chắc chắn muốn xóa {title ? title : "mục"} {displayName ? <strong>{displayName}</strong> : null} (Mã: {data.id}) không?
         </p>
 
         <p className="delete-warning">

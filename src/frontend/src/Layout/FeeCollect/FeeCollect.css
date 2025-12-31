@@ -46,6 +46,14 @@
 	display: none;
 }
 
+/* Allow showing icons on specific buttons */
+.fee-collect-btn-with-icon.primary-btn .icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-right: 6px;
+}
+
 /* Apartment fee status page (skeleton) */
 .fee-status-page {
 	gap: 16px;
@@ -62,6 +70,10 @@
 	border-radius: 10px;
 }
 
+.fee-status-header-actions {
+	justify-content: flex-end;
+}
+
 .fee-status-title {
 	font-size: 18px;
 	font-weight: 600;
@@ -76,7 +88,7 @@
 
 .fee-status-summary {
 	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 12px;
 	padding: 0 16px;
 }
@@ -87,11 +99,156 @@
 	}
 }
 
+.fee-status-top {
+	padding: 0 16px;
+}
+
+.fee-status-accounting-toggle {
+	margin: 0;
+	padding: 0;
+}
+
+.fee-status-accounting-toggle-summary {
+	cursor: pointer;
+	font-weight: 500;
+	margin: 12px 0;
+}
+
+.fee-status-adjustments {
+	padding: 0 16px;
+	margin-top: 12px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.fee-status-unpaid-total {
+	padding: 0 16px;
+	margin-top: 12px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+
+@media (max-width: 900px) {
+	.fee-status-unpaid-total {
+		grid-template-columns: 1fr;
+	}
+}
+
+.fee-status-card--voluntary {
+	background: #f3f4f6;
+	border-style: dashed;
+}
+
+.fee-status-divider {
+	margin: 16px 16px 0;
+	border: none;
+	border-top: 1px solid #d1d5db;
+}
+
 .fee-status-card {
 	background: #ffffff;
 	border: 1px solid #d1d5db;
 	border-radius: 10px;
 	padding: 14px;
+}
+
+.fee-status-total {
+	padding: 0 16px;
+	margin-top: 12px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.fee-status-accounting {
+	padding: 0 16px;
+	margin-top: 12px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+@media (max-width: 900px) {
+	.fee-status-total {
+		grid-template-columns: 1fr;
+	}
+	.fee-status-accounting {
+		grid-template-columns: 1fr;
+	}
+}
+
+.fee-status-card-label--with-control {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.fee-status-balance-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13px;
+	user-select: none;
+}
+
+.fee-status-balance-toggle input {
+	width: 16px;
+	height: 16px;
+}
+
+.fee-status-balance-toggle.is-disabled {
+	opacity: 0.6;
+}
+
+.fee-status-total-values {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.fee-status-total-old {
+	text-decoration: line-through;
+	opacity: 0.65;
+	font-weight: 600;
+}
+
+.fee-status-card--total {
+	border-color: #4FA100;
+	border-width: 2px;
+	background: #f0fdf4;
+	border-left-width: 6px;
+}
+
+.fee-status-card--total.is-balance-applied .fee-status-card-value--total {
+	font-size: 30px;
+	text-decoration: underline;
+	text-underline-offset: 4px;
+}
+
+.fee-status-card--total.is-balance-applied .fee-status-total-old {
+	font-weight: 600;
+	opacity: 0.55;
+}
+
+.fee-status-card-value--total {
+	font-size: 24px;
+	color: #4FA100;
+}
+
+.fee-status-card--remaining {
+	border-color: #f59e0b;
+	border-width: 2px;
+	background: #fff7ed;
+	border-left-width: 6px;
+}
+
+.fee-status-card-value--remaining {
+	font-size: 24px;
+	color: #d97706;
 }
 
 .fee-status-card-label {
@@ -153,6 +310,68 @@
 	font-weight: 600;
 	margin: 12px 0;
 	color: #111827;
+}
+
+.fee-status-list-toggle {
+	margin: 0 0 10px;
+}
+
+.fee-status-list-toggle-summary {
+	cursor: pointer;
+	font-weight: 500;
+}
+
+/* Per-category dropdowns */
+.fee-status-category {
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+	background: #ffffff;
+	padding: 10px;
+}
+
+.fee-status-category-summary {
+	cursor: pointer;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.fee-status-category-title {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.fee-status-category-meta {
+	font-size: 12px;
+	color: #111827;
+	opacity: 0.7;
+	white-space: nowrap;
+}
+
+.fee-status-category-body {
+	margin-top: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+@keyframes feeStatusDropdownIn {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.fee-status-category[open] .fee-status-category-body {
+	animation: feeStatusDropdownIn 180ms ease-out;
 }
 
 .fee-status-fee-list {

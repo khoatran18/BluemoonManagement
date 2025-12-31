@@ -7,15 +7,18 @@ import AddButton from "../../../Components/Button/AddButton";
 import { Modal } from "../../../Components/Modal";
 import { AddApartmentForm } from "../../../Components/AddApartmentForm";
 import { SuccessModal } from "../../../Components/SuccessModal";
+import { createApartment } from "../../../api/apartmentApi";
 
-export default function FilterSection({ onSearchChange }) {
+export default function FilterSection({ search = "", onSearchChange, onNotify, onRefresh }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
-  const [localSearch, setLocalSearch] = useState("");
+  const [localSearch, setLocalSearch] = useState(search || "");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successData, setSuccessData] = useState(null);
+
+  useEffect(() => setLocalSearch(search || ""), [search]);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -46,10 +49,23 @@ export default function FilterSection({ onSearchChange }) {
   const handleAddApartmentClick = () => setIsModalOpen(true);
   const handleModalClose = () => setIsModalOpen(false);
 
-  const handleAddApartmentSubmit = (formData) => {
-    setSuccessData(formData);
-    setIsSuccessModalOpen(true);
-    setIsModalOpen(false);
+  const handleAddApartmentSubmit = async (formData) => {
+    try {
+      await createApartment(formData);
+
+      setSuccessData(null);
+      setIsSuccessModalOpen(true);
+      setIsModalOpen(false);
+
+      if (typeof onNotify === "function") {
+        onNotify({ message: "Thêm căn hộ thành công!", variant: "success", duration: 3000 });
+      }
+      if (typeof onRefresh === "function") onRefresh();
+    } catch (err) {
+      if (typeof onNotify === "function") {
+        onNotify({ message: err?.message || "Thêm căn hộ thất bại", variant: "error", duration: 4000 });
+      }
+    }
   };
 
   return (

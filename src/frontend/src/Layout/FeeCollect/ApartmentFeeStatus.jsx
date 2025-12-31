@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Button from "../../Components/Button/Button";
 import Tag from "../../Components/Tag/Tag";
-import { getApartmentFeeStatus, peekApartmentFeeStatusCache } from "../../api/feeCollectApi";
+import { clearApartmentFeeStatusCache, getApartmentFeeStatus, peekApartmentFeeStatusCache } from "../../api/feeCollectApi";
 
 import "../Fee/Fee.css";
 import "./FeeCollect.css";
@@ -57,10 +57,25 @@ function adjustmentKind(adj) {
   return "unknown";
 }
 
+function groupFeesByCategory(fees) {
+  const map = new Map();
+  for (const fee of fees || []) {
+    const categoryId = fee?.fee_category_id;
+    const categoryName = fee?.fee_category_name;
+    const key = String(categoryId ?? categoryName ?? "unknown");
+    const label = categoryName || (categoryId !== undefined && categoryId !== null ? `Danh mục ${categoryId}` : "Danh mục");
+    if (!map.has(key)) {
+      map.set(key, { key, label, fees: [] });
+    }
+    map.get(key).fees.push(fee);
+  }
+  return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label, "vi"));
+}
+
 const feeTypeMap = {
   1: { key: "obligatory", label: "Định kỳ" },
-  2: { key: "voluntary", label: "Tự nguyện" },
-  3: { key: "impromptu", label: "Đột xuất" },
+  2: { key: "impromptu", label: "Đột xuất" },
+  3: { key: "voluntary", label: "Tự nguyện" },
 };
 
 export default function ApartmentFeeStatus() {
@@ -71,6 +86,31 @@ export default function ApartmentFeeStatus() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
+  const [feesVisible, setFeesVisible] = useState(true);
+  const [accountingVisible, setAccountingVisible] = useState(true);
+  const [useBalance, setUseBalance] = useState(false);
+
+  const fetchStatus = useCallback(
+    async ({ force = false } = {}) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        if (force) clearApartmentFeeStatusCache(id);
+        const resp = await getApartmentFeeStatus(id, { useCache: true, force });
+        setData(resp);
+        navigate(".", {
+          replace: true,
+          state: { ...(location?.state || {}), feeStatus: resp },
+        });
+      } catch (e) {
+        setError(e);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [id, navigate, location?.state]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -95,47 +135,46 @@ export default function ApartmentFeeStatus() {
       };
     }
 
-    async function fetchStatus() {
-      setLoading(true);
-      setError(null);
-      setData(null);
-
+    (async () => {
       try {
-        const resp = await getApartmentFeeStatus(id, { useCache: true });
-        if (!cancelled) {
-          setData(resp);
-          navigate(".", {
-            replace: true,
-            state: { ...(location?.state || {}), feeStatus: resp },
-          });
-        }
-      } catch (e) {
-        if (!cancelled) setError(e);
-      } finally {
-        if (!cancelled) setLoading(false);
+        await fetchStatus({ force: false });
+      } catch (_) {
+        // handled inside fetchStatus
       }
-    }
-
-    fetchStatus();
+    })();
 
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, fetchStatus]);
 
   const unpaidFees = data?.unpaid_fees || [];
   const adjustments = data?.adjustments || [];
   const extraAdjustments = data?.extra_adjustments || [];
 
-  const pastDueFees = useMemo(() => unpaidFees.filter((f) => isPastDue(f?.expiry_date)), [unpaidFees]);
+  const paidTotal = data?.total_paid;
+  const balance = data?.balance;
+  const balanceCredit = useMemo(() => toNumber(balance), [balance]);
+  const canUseBalance = balanceCredit > 0;
+
+  const voluntaryFees = useMemo(() => unpaidFees.filter((f) => String(f?.fee_type_id) === "3"), [unpaidFees]);
+  const nonVoluntaryUnpaidFees = useMemo(() => unpaidFees.filter((f) => String(f?.fee_type_id) !== "3"), [unpaidFees]);
+
+  const pastDueFees = useMemo(() => nonVoluntaryUnpaidFees.filter((f) => isPastDue(f?.expiry_date)), [nonVoluntaryUnpaidFees]);
   const currentMonthFees = useMemo(
-    () => unpaidFees.filter((f) => !isPastDue(f?.expiry_date) && isInCurrentMonth(f?.expiry_date)),
-    [unpaidFees]
+    () => nonVoluntaryUnpaidFees.filter((f) => !isPastDue(f?.expiry_date) && isInCurrentMonth(f?.expiry_date)),
+    [nonVoluntaryUnpaidFees]
+  );
+  const upcomingFees = useMemo(
+    () => nonVoluntaryUnpaidFees.filter((f) => !isPastDue(f?.expiry_date) && !isInCurrentMonth(f?.expiry_date)),
+    [nonVoluntaryUnpaidFees]
   );
 
   const totals = useMemo(() => {
-    const unpaidTotal = unpaidFees.reduce((sum, fee) => sum + toNumber(fee?.fee_amount), 0);
+    const unpaidTotal = nonVoluntaryUnpaidFees.reduce((sum, fee) => sum + toNumber(fee?.fee_amount), 0);
     const pastDueTotal = pastDueFees.reduce((sum, fee) => sum + toNumber(fee?.fee_amount), 0);
+    const currentMonthTotal = currentMonthFees.reduce((sum, fee) => sum + toNumber(fee?.fee_amount), 0);
+    const voluntaryTotal = voluntaryFees.reduce((sum, fee) => sum + toNumber(fee?.fee_amount), 0);
     const allAdjustments = [...adjustments, ...extraAdjustments];
     const adjustmentsTotal = allAdjustments.reduce((sum, adj) => sum + adjustmentSignedAmount(adj), 0);
 
@@ -158,12 +197,30 @@ export default function ApartmentFeeStatus() {
       unpaidTotal,
       pastDueTotal,
       pastDueCount: pastDueFees.length,
+      currentMonthTotal,
+      currentMonthCount: currentMonthFees.length,
+      voluntaryTotal,
+      voluntaryCount: voluntaryFees.length,
       adjustmentsTotal,
       increaseTotal,
       decreaseTotal,
       finalAmount,
     };
-  }, [unpaidFees, pastDueFees, adjustments, extraAdjustments]);
+  }, [nonVoluntaryUnpaidFees, voluntaryFees, pastDueFees, currentMonthFees, adjustments, extraAdjustments]);
+
+  useEffect(() => {
+    if (!canUseBalance && useBalance) setUseBalance(false);
+  }, [canUseBalance, useBalance]);
+
+  const finalAmountAfterBalance = useMemo(() => {
+    if (!useBalance || !canUseBalance) return toNumber(totals.finalAmount);
+    return Math.max(0, toNumber(totals.finalAmount) - balanceCredit);
+  }, [useBalance, canUseBalance, totals.finalAmount, balanceCredit]);
+
+  const remainingBalanceCredit = useMemo(() => {
+    if (useBalance && canUseBalance) return 0;
+    return balanceCredit;
+  }, [useBalance, canUseBalance, balanceCredit]);
 
   const renderAdjustmentRow = (adj, keyPrefix = "adj") => {
     const signed = adjustmentSignedAmount(adj);
@@ -243,6 +300,23 @@ export default function ApartmentFeeStatus() {
     );
   };
 
+  const renderCategoryDropdown = (categoryGroup, { overdue = false } = {}) => {
+    const total = categoryGroup.fees.reduce((sum, fee) => sum + toNumber(fee?.fee_amount), 0);
+    return (
+      <details className="fee-status-category" key={categoryGroup.key}>
+        <summary className="fee-status-category-summary">
+          <span className="fee-status-category-title">{categoryGroup.label}</span>
+          <span className="fee-status-category-meta">
+            {categoryGroup.fees.length} khoản · {formatCurrencyVND(total)}
+          </span>
+        </summary>
+        <div className="fee-status-category-body">
+          {categoryGroup.fees.map((fee) => renderFeeRow(fee, { overdue }))}
+        </div>
+      </details>
+    );
+  };
+
   return (
     <div className="apartment-management-container fee-status-page">
       <div className="fee-status-header">
@@ -251,9 +325,41 @@ export default function ApartmentFeeStatus() {
           <div className="fee-status-subtitle">Apartment ID: {id}</div>
         </div>
 
-        <Button className="fee-collect-btn-secondary" icon={null} onClick={() => navigate(-1)}>
-          Quay lại
-        </Button>
+        <div className="fee-collect-actions fee-status-header-actions">
+          <Button className="fee-collect-btn-secondary" icon={null} onClick={() => navigate(-1)}>
+            Quay lại
+          </Button>
+          <Button
+            className="fee-collect-btn-secondary fee-collect-btn-with-icon"
+            icon={
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M20 12a8 8 0 1 1-2.343-5.657"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M20 4v6h-6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
+            onClick={() => fetchStatus({ force: true })}
+          >
+            Tải lại
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -266,18 +372,53 @@ export default function ApartmentFeeStatus() {
         </div>
       ) : (
         <>
+          <div className="fee-status-top">
+            <details
+              className="fee-status-accounting-toggle"
+              open={accountingVisible}
+              onToggle={(e) => setAccountingVisible(Boolean(e?.currentTarget?.open))}
+            >
+              <summary className="fee-status-accounting-toggle-summary">
+                {accountingVisible ? "Ẩn" : "Thêm thông tin"}
+              </summary>
+            </details>
+
+            {accountingVisible ? (
+              <div className="fee-status-accounting">
+                <div className="fee-status-card">
+                  <div className="fee-status-card-label">Đã thanh toán</div>
+                  <div className="fee-status-card-value">{formatCurrencyVND(paidTotal)}</div>
+                </div>
+                <div className="fee-status-card">
+                  <div className="fee-status-card-label">Số dư</div>
+                  <div className="fee-status-card-value">{formatCurrencyVND(balance)}</div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
           <div className="fee-status-summary">
-            <div className="fee-status-card">
-              <div className="fee-status-card-label">Tổng phí chưa trả</div>
-              <div className="fee-status-card-value">{formatCurrencyVND(totals.unpaidTotal)}</div>
-            </div>
             <div className="fee-status-card fee-status-card--overdue">
               <div className="fee-status-card-label">Phí quá hạn</div>
-              <div className="fee-status-card-value fee-status-card-value--overdue">
-                {formatCurrencyVND(totals.pastDueTotal)}
-              </div>
+              <div className="fee-status-card-value fee-status-card-value--overdue">{formatCurrencyVND(totals.pastDueTotal)}</div>
               <div className="fee-status-card-sub">{totals.pastDueCount} khoản</div>
             </div>
+            <div className="fee-status-card">
+              <div className="fee-status-card-label">Phí cần trả tháng này</div>
+              <div className="fee-status-card-value">{formatCurrencyVND(totals.currentMonthTotal)}</div>
+              <div className="fee-status-card-sub">{totals.currentMonthCount} khoản</div>
+            </div>
+          </div>
+
+          <div className="fee-status-unpaid-total">
+            <div className="fee-status-card fee-status-card--voluntary">
+              <div className="fee-status-card-label">Khoản tự nguyện</div>
+              <div className="fee-status-card-value">{formatCurrencyVND(totals.voluntaryTotal)}</div>
+              <div className="fee-status-card-sub">{totals.voluntaryCount} khoản</div>
+            </div>
+          </div>
+
+          <div className="fee-status-adjustments">
             <div className="fee-status-card">
               <div className="fee-status-card-label">Tổng điều chỉnh</div>
               <div className="fee-status-card-value">{formatCurrencyVND(totals.adjustmentsTotal)}</div>
@@ -292,32 +433,91 @@ export default function ApartmentFeeStatus() {
                 </div>
               </div>
             </div>
-            <div className="fee-status-card">
-              <div className="fee-status-card-label">Thành tiền</div>
-              <div className="fee-status-card-value">{formatCurrencyVND(totals.finalAmount)}</div>
+          </div>
+
+          <hr className="fee-status-divider" />
+
+          <div className="fee-status-total">
+            <div
+              className={`fee-status-card fee-status-card--total ${useBalance && canUseBalance ? "is-balance-applied" : ""}`}
+            >
+              <div className="fee-status-card-label fee-status-card-label--with-control">
+                <span>Thành tiền</span>
+                <label className={`fee-status-balance-toggle ${!canUseBalance ? "is-disabled" : ""}`}>
+                  <input
+                    type="checkbox"
+                    checked={useBalance}
+                    disabled={!canUseBalance}
+                    onChange={(e) => setUseBalance(Boolean(e?.target?.checked))}
+                  />
+                  <span>Dùng số dư</span>
+                </label>
+              </div>
+
+              {useBalance && canUseBalance ? (
+                <div className="fee-status-total-values">
+                  <div className="fee-status-total-old">{formatCurrencyVND(totals.finalAmount)}</div>
+                  <div className="fee-status-card-value fee-status-card-value--total">{formatCurrencyVND(finalAmountAfterBalance)}</div>
+                </div>
+              ) : (
+                <div className="fee-status-card-value fee-status-card-value--total">{formatCurrencyVND(totals.finalAmount)}</div>
+              )}
+            </div>
+
+            <div className="fee-status-card fee-status-card--remaining">
+              <div className="fee-status-card-label">Số dư còn lại</div>
+              <div className="fee-status-card-value fee-status-card-value--remaining">{formatCurrencyVND(remainingBalanceCredit)}</div>
             </div>
           </div>
 
           <div className="fee-status-section">
             <div className="fee-status-section-title">Phí chưa trả</div>
 
-            {unpaidFees.length === 0 ? (
+            <details
+              className="fee-status-list-toggle"
+              open={feesVisible}
+              onToggle={(e) => setFeesVisible(Boolean(e?.currentTarget?.open))}
+            >
+              <summary className="fee-status-list-toggle-summary">
+                {feesVisible ? "Ẩn danh sách phí" : "Hiển thị danh sách phí"}
+              </summary>
+            </details>
+
+            {!feesVisible ? null : unpaidFees.length === 0 ? (
               <div className="fee-status-empty">Không có phí chưa trả.</div>
             ) : (
               <div className="fee-status-fee-list">
                 {pastDueFees.length > 0 ? (
                   <>
                     <div className="fee-status-subsection-title fee-status-subsection-title--overdue">Phí quá hạn</div>
-                    {pastDueFees.map((fee) => renderFeeRow(fee, { overdue: true }))}
+                    {groupFeesByCategory(pastDueFees).map((group) => renderCategoryDropdown(group, { overdue: true }))}
                   </>
                 ) : null}
 
                 <>
                   <div className="fee-status-subsection-title">Phí cần trả tháng này</div>
                   {currentMonthFees.length > 0 ? (
-                    currentMonthFees.map((fee) => renderFeeRow(fee))
+                    groupFeesByCategory(currentMonthFees).map((group) => renderCategoryDropdown(group))
                   ) : (
                     <div className="fee-status-empty">Không có phí cần trả trong tháng này.</div>
+                  )}
+                </>
+
+                <>
+                  <div className="fee-status-subsection-title">Phí chưa đến hạn</div>
+                  {upcomingFees.length > 0 ? (
+                    groupFeesByCategory(upcomingFees).map((group) => renderCategoryDropdown(group))
+                  ) : (
+                    <div className="fee-status-empty">Không có phí chưa đến hạn.</div>
+                  )}
+                </>
+
+                <>
+                  <div className="fee-status-subsection-title">Phí tự nguyện</div>
+                  {voluntaryFees.length > 0 ? (
+                    groupFeesByCategory(voluntaryFees).map((group) => renderCategoryDropdown(group))
+                  ) : (
+                    <div className="fee-status-empty">Không có phí tự nguyện.</div>
                   )}
                 </>
               </div>

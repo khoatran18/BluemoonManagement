@@ -19,6 +19,7 @@ export default function FilterSection({
   onPhoneNumberChange,
   onEmailChange,
   onRefresh,
+  onNotify,
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
@@ -100,12 +101,20 @@ export default function FilterSection({
       setIsModalOpen(false);
       setErrorMessage("");
 
+      if (typeof onNotify === "function") {
+        onNotify({ message: "Thêm cư dân thành công", variant: "success", duration: 3000 });
+      }
+
       if (typeof onSearchChange === "function") onSearchChange("");
       if (typeof onRefresh === "function") onRefresh();
     } catch (err) {
       console.error("Error creating resident:", err);
       const errorMsg = err?.response?.data?.message || err?.message || "Có lỗi xảy ra khi thêm cư dân";
       setErrorMessage(errorMsg);
+
+      if (typeof onNotify === "function") {
+        onNotify({ message: errorMsg, variant: "error", duration: 4000 });
+      }
     }
   };
 

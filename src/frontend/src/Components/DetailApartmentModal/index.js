@@ -1,0 +1,1 @@
+export { DetailApartmentModal } from "./DetailApartmentModal";

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getResidents, deleteResident, editResident, createResident, getResidentDetail } from "../../../../api/residentApi";
+import { getResidents, deleteResident, editResident, getResidentDetail } from "../../../../api/residentApi";
 import Table from "../../../../Components/Table/Table"
 import Column from "../../../../Components/Table/Column";
 import { ActionMenu } from "../../../../Components/ActionMenu";
@@ -7,6 +7,7 @@ import { DetailResidentModal } from "../../../../Components/DetailResidentModal"
 import { EditResidentModal } from "../../../../Components/EditResidentModal";
 import { DeleteConfirmModal } from "../../../../Components/DeleteConfirmModal";
 import "../../../Fee/Fee.css";
+import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const DataTableSection = ({
   searchQuery = "",
@@ -21,8 +22,8 @@ export const DataTableSection = ({
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
+  const [page, setPage] = usePersistentState('resident.table.page', 1);
+  const [limit, setLimit] = usePersistentState('resident.table.limit', 5);
 
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
@@ -183,10 +184,10 @@ export const DataTableSection = ({
       setIsDeleteModalOpen(false);
       setSelectedResident(null);
       fetchData()
-      onNotify({ message: 'Xóa cư dân thành công', variant: 'success', duration: 3000 });
+      if (typeof onNotify === 'function') onNotify({ message: 'Xóa cư dân thành công', variant: 'success', duration: 3000 });
     } catch (err) {
       console.error('Error deleting resident:', err);
-      onNotify({ message: 'Xóa cư dân thất bại', variant: 'error', duration: 4000 });
+      if (typeof onNotify === 'function') onNotify({ message: 'Xóa cư dân thất bại', variant: 'error', duration: 4000 });
     }
   };
 
@@ -195,11 +196,11 @@ export const DataTableSection = ({
       await editResident(selectedResident.id, formData);
       setIsEditModalOpen(false);
       setSelectedResident(null);
-      onNotify({ message: 'Cập nhật cư dân thành công', variant: 'success', duration: 3000 });
+      if (typeof onNotify === 'function') onNotify({ message: 'Cập nhật cư dân thành công', variant: 'success', duration: 3000 });
       fetchData();
     } catch (err) {
       console.error('Error updating resident:', err);
-      onNotify({ message: 'Cập nhật cư dân thất bại', variant: 'error', duration: 4000 });
+      if (typeof onNotify === 'function') onNotify({ message: 'Cập nhật cư dân thất bại', variant: 'error', duration: 4000 });
     }
   };
 

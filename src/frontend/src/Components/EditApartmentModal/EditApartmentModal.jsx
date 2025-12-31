@@ -5,9 +5,7 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
   const [formData, setFormData] = useState({
     id: "",
     building: "A",
-    room: "",
-    area: "",
-    status: "Trống",
+    room_number: "",
   });
 
   useEffect(() => {
@@ -15,9 +13,7 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
       setFormData({
         id: apartment.id || "",
         building: apartment.building || "A",
-        room: apartment.room || "",
-        area: apartment.area || "",
-        status: apartment.status || "Trống",
+        room_number: apartment.room_number || apartment.room || "",
       });
     }
   }, [apartment, isOpen]);
@@ -35,7 +31,6 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
     if (onSubmit) {
       onSubmit(formData);
     }
-    onClose();
   };
 
   if (!isOpen || !apartment) return null;
@@ -87,45 +82,16 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
               </div>
 
               <div className="form-group">
-                <label htmlFor="room">Số phòng</label>
+                <label htmlFor="room_number">Số phòng</label>
                 <input
                   type="text"
-                  id="room"
-                  name="room"
-                  value={formData.room}
+                  id="room_number"
+                  name="room_number"
+                  value={formData.room_number}
                   onChange={handleChange}
                   placeholder="Nhập số phòng"
                   required
                 />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="area">Diện tích</label>
-                <input
-                  type="text"
-                  id="area"
-                  name="area"
-                  value={formData.area}
-                  onChange={handleChange}
-                  placeholder="Nhập diện tích (m²)"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="status">Trạng thái</label>
-                <select
-                  id="status"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="Trống">Trống</option>
-                  <option value="Có dân cư">Có dân cư</option>
-                </select>
               </div>
             </div>
           </div>
