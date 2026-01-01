@@ -59,7 +59,7 @@ public class ApartmentService {
             int limit
     ) {
 
-        log.info("[Resident] [Service] getApartmentsByFilter Start");
+        log.info("[Apartment] [Service] getApartmentsByFilter Start");
         log.info("Input: building={}, roomNumber={}, headResidentId={}, page={}, limit={}",
                 building, roomNumber, headResidentId, page, limit);
 
@@ -83,13 +83,13 @@ public class ApartmentService {
                             queryPage, queryLimit, count, entityList
                     );
 
-            log.info("[Resident] [Service] getApartmentsByFilter End");
+            log.info("[Apartment] [Service] getApartmentsByFilter End");
             log.info("Output: {}", result);
 
             return result;
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] getApartmentsByFilter Error", e);
+            log.error("[Apartment] [Service] getApartmentsByFilter Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
@@ -100,7 +100,7 @@ public class ApartmentService {
 
     public ApartmentDetailsDTO getApartmentById(Long id) {
 
-        log.info("[Resident] [Service] getApartmentById Start");
+        log.info("[Apartment] [Service] getApartmentById Start");
         log.info("Input: apartmentId={}", id);
 
         try {
@@ -111,20 +111,20 @@ public class ApartmentService {
             ApartmentDetailsDTO result =
                     ApartmentDetailsMapper.toDTO(entity);
 
-            log.info("[Resident] [Service] getApartmentById End");
+            log.info("[Apartment] [Service] getApartmentById End");
             log.info("Output: {}", result);
 
             return result;
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] getApartmentById Error", e);
+            log.error("[Apartment] [Service] getApartmentById Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
 
     public ApartmentSpecificAdjustmentsResponseDTO getApartmentSpecificAdjustments(Long id) {
 
-        log.info("[Resident] [Service] getApartmentSpecificAdjustments Start");
+        log.info("[Apartment] [Service] getApartmentSpecificAdjustments Start");
         log.info("Input: apartmentId={}", id);
 
         try {
@@ -140,13 +140,13 @@ public class ApartmentService {
                     new ApartmentSpecificAdjustmentsResponseDTO();
             result.adjustments = adjustmentDTOs;
 
-            log.info("[Resident] [Service] getApartmentSpecificAdjustments End");
+            log.info("[Apartment] [Service] getApartmentSpecificAdjustments End");
             log.info("Output: {}", result);
 
             return result;
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] getApartmentSpecificAdjustments Error", e);
+            log.error("[Apartment] [Service] getApartmentSpecificAdjustments Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
@@ -158,7 +158,7 @@ public class ApartmentService {
     @Transactional
     public void createApartment(ApartmentCreateDTO dto) {
 
-        log.info("[Resident] [Service] createApartment Start");
+        log.info("[Apartment] [Service] createApartment Start");
         log.info("Input: {}", dto);
 
         try {
@@ -169,11 +169,11 @@ public class ApartmentService {
             apartmentFeeStatus.setApartment(entity);
             apartmentFeeStatusRepository.persist(apartmentFeeStatus);
 
-            log.info("[Resident] [Service] createApartment End");
+            log.info("[Apartment] [Service] createApartment End");
             log.info("Output: None");
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] createApartment Error", e);
+            log.error("[Apartment] [Service] createApartment Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
@@ -185,7 +185,7 @@ public class ApartmentService {
     @Transactional
     public void updateApartment(Long id, ApartmentUpdateDTO dto) {
 
-        log.info("[Resident] [Service] updateApartment Start");
+        log.info("[Apartment] [Service] updateApartment Start");
         log.info("Input: apartmentId={}, dto={}", id, dto);
 
         try {
@@ -227,7 +227,7 @@ public class ApartmentService {
                     entity, dto, headResident, resolvedResidents
             );
 
-            log.info("[Resident] [Service] updateApartment End");
+            log.info("[Apartment] [Service] updateApartment End");
             log.info("Output: None");
 
         } catch (Exception e) {
@@ -242,7 +242,7 @@ public class ApartmentService {
             ApartmentSpecificAdjustmentsRequestDTO adjustmentIds
     ) {
 
-        log.info("[Resident] [Service] updateSpecificAdjustments Start");
+        log.info("[Apartment] [Service] updateSpecificAdjustments Start");
         log.info("Input: apartmentId={}, dto={}", apartmentId, adjustmentIds);
 
         try {
@@ -258,11 +258,11 @@ public class ApartmentService {
 
             apartment.setAdjustments(adjustments);
 
-            log.info("[Resident] [Service] updateSpecificAdjustments End");
+            log.info("[Apartment] [Service] updateSpecificAdjustments End");
             log.info("Output: None");
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] updateSpecificAdjustments Error", e);
+            log.error("[Apartment] [Service] updateSpecificAdjustments Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
@@ -273,7 +273,7 @@ public class ApartmentService {
 
     @Transactional
     public void deleteApartment(Long apartmentId) {
-        log.info("[Resident] [Service] deleteApartment Start");
+        log.info("[Apartment] [Service] deleteApartment Start");
         log.info("Input: apartmentId={}", apartmentId);
 
         Apartment apartment = apartmentRepository.findById(apartmentId);
@@ -304,10 +304,10 @@ public class ApartmentService {
             // 5. Delete Apartment
             apartmentRepository.delete(apartment);
 
-            log.info("[Resident] [Service] deleteApartment End");
+            log.info("[Apartment] [Service] deleteApartment End");
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] deleteApartment Error", e);
+            log.error("[Apartment] [Service] deleteApartment Error", e);
 
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 throw new com.project.common_package.exception.ConflictException(
