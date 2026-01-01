@@ -9,7 +9,7 @@ import com.project.resident_fee_service.entity.Resident;
 import com.project.common_package.exception.InternalServerException;
 import com.project.common_package.exception.NotFoundException;
 import com.project.resident_fee_service.mapper.AdjustmentMapper;
-import com.project.resident_fee_serice.mapper.ApartmentDetailsMapper;
+import com.project.resident_fee_service.mapper.ApartmentDetailsMapper;
 import com.project.resident_fee_service.mapper.ApartmentListResponseMapper;
 import com.project.resident_fee_service.mapper.ApartmentMutationMapper;
 import com.project.resident_fee_service.repository.AdjustmentRepository;
