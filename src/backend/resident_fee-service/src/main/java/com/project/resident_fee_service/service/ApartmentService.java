@@ -19,7 +19,6 @@ import com.project.resident_fee_service.repository.ResidentRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -45,9 +44,6 @@ public class ApartmentService {
 
     @Inject
     ApartmentFeeStatusRepository apartmentFeeStatusRepository;
-
-    @Inject
-    EntityManager entityManager;
 
     AdjustmentMapper adjustmentMapper = new AdjustmentMapper();
 
@@ -277,34 +273,47 @@ public class ApartmentService {
 
     @Transactional
     public void deleteApartment(Long apartmentId) {
-
         log.info("[Resident] [Service] deleteApartment Start");
         log.info("Input: apartmentId={}", apartmentId);
 
+        Apartment apartment = apartmentRepository.findById(apartmentId);
+        if (apartment == null) {
+            throw new NotFoundException("Apartment not found with id: " + apartmentId);
+        }
+
         try {
-            Apartment entity = apartmentRepository.findById(apartmentId);
-            if (entity == null)
-                throw new NotFoundException("Apartment not found with id: " + apartmentId);
+            // 1. Unlink Residents
+            if (apartment.getResidents() != null) {
+                for (Resident resident : apartment.getResidents()) {
+                    resident.setApartment(null);
+                    resident.setIsHead(false); // They are no longer a head of this apartment
+                }
+                // Clear the list in the parent object to stop Hibernate from tracking them for deletion
+                apartment.getResidents().clear();
+            }
 
-//            apartmentRepository.delete(entity);
+            // 2. Break Circular Dependency (Head Resident)
+            apartment.setHeadResident(null);
 
-            // Delete in Apartment_PaidFee
-            entityManager.createNativeQuery("""
-                DELETE FROM Apartment_PaidFee
-                WHERE ApartmentID = :id
-            """).setParameter("id", apartmentId)
-                    .executeUpdate();
+            // 3. Clear Many-to-Many Adjustments
+            apartment.getAdjustments().clear();
 
-            entityManager.flush();
+            // 4. Flush changes so the unlinking happens in DB before the delete
+            apartmentRepository.flush();
 
-            apartmentRepository.delete(entity);
-
+            // 5. Delete Apartment
+            apartmentRepository.delete(apartment);
 
             log.info("[Resident] [Service] deleteApartment End");
-            log.info("Output: None");
 
         } catch (Exception e) {
             log.error("[Resident] [Service] deleteApartment Error", e);
+
+            if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+                throw new com.project.common_package.exception.ConflictException(
+                        "Cannot delete apartment due to existing data dependencies."
+                );
+            }
             throw new InternalServerException(e.getMessage());
         }
     }

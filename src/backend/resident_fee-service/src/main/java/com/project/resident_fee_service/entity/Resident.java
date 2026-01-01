@@ -42,7 +42,7 @@ public class Resident {
             nullable = true,
             foreignKey = @ForeignKey(
                     name = "fk_resident_apartment",
-                    foreignKeyDefinition = "FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID) ON DELETE CASCADE"
+                    foreignKeyDefinition = "FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID) ON DELETE SET NULL"
             )
     )
     private Apartment apartment;
