@@ -1,5 +1,6 @@
 package com.project.resident_fee_service.service;
 
+import com.project.common_package.exception.BusinessException;
 import com.project.resident_fee_service.dto.ApartmentFeeStatusDTO;
 import com.project.resident_fee_service.entity.Apartment;
 import com.project.resident_fee_service.entity.ApartmentFeeStatus;
@@ -19,6 +20,7 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -100,6 +102,20 @@ public class ApartmentFeeStatusService {
                 throw new NotFoundException(
                         "Apartment fee status not found for apartment id: " + apartmentId
                 );
+
+            // Valid new balance
+            BigDecimal oldBalance = entity.getBalance();
+            BigDecimal newBalance = dto.balance;
+
+            boolean isValidBalance = (
+                    (newBalance.signum()==0)
+                    ||
+                    ((oldBalance.signum() == newBalance.signum() && oldBalance.abs().compareTo(newBalance.abs()) >= 0))
+            );
+            if (!isValidBalance) {
+                log.info("[Fee] [Service] Error: error new balance when update");
+                throw new BusinessException("New balance is invalid");
+            }
 
             mapper.applyUpdateDTOToEntity(entity, dto);
             repository.updateStatus(entity);
