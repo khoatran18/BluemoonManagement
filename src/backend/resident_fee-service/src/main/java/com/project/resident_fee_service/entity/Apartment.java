@@ -40,16 +40,8 @@ public class Apartment {
     )
     private Resident headResident;
 
-    /**
-     * One Apartment has many Residents (occupants).
-     * mappedBy = "apartment" (Resident owns the FK ApartmentID).
-     * JPA cascade here to allow in-memory cascade when removing the apartment.
-     * DB-level ON DELETE CASCADE is defined on Resident.ApartmentID FK.
-     */
-//    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OneToMany(mappedBy = "apartment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "apartment", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Resident> residents;
-
     /**
      * Fee status rows for this apartment.
      * ApartmentFeeStatus will own the ApartmentID FK (with ON DELETE CASCADE).
