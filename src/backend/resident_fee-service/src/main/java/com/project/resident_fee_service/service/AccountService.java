@@ -125,13 +125,13 @@ public class AccountService {
         }
 
         // dto.Password = old password
-        if (!BcryptUtil.matches(dto.Password, account.getPassword())) {
+        if (!BcryptUtil.matches(dto.OldPassword, account.getPassword())) {
             log.error("[Account] [Service] changePassword Error: Incorrect current password");
             throw new UnauthorizedException("Incorrect current password");
         }
 
         // Hash new password
-        String newHashed = BcryptUtil.bcryptHash(dto.Password);
+        String newHashed = BcryptUtil.bcryptHash(dto.NewPassword);
         account.setPassword(newHashed);
 
         log.info("[Account] [Service] changePassword End");

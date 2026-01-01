@@ -60,8 +60,11 @@ public class AccountDTO {
         @JsonProperty("username")
         public String Username;
 
-        @JsonProperty("password")
-        public String Password;
+        @JsonProperty("old_password")
+        public String OldPassword;
+
+        @JsonProperty("new_password")
+        public String NewPassword;
     }
 
     ///////////////////////////// Refresh Token /////////////////////////////

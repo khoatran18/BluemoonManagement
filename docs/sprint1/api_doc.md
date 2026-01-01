@@ -22,6 +22,8 @@ Tất cả các API đều yêu cầu xác thực bằng Bearer Token:
 Headers: Authorization: Bearer {token}
 ```
 
+Tất cả các method POST, PUT, DELETE chỉ có Admin hoặc FeeCollector mới có thể sử dụng
+
 Response sẽ luôn gồm 4 trường:
 ```
 {
@@ -463,8 +465,14 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
   "balance": 20,
   (Fee bên dưới là thêm mới)
   "paid_fees": [
-    {"fee_id":  1},
-    {"fee_id":  3}
+    {
+      "fee_id":  4,
+      "pay_amount": 30
+    },
+    {
+      "fee_id": 12,
+      "pay_amount": 50
+    }
   ],
   // unpaid_fees cứ để [] trống thôi
   "unpaid_fees": [
@@ -800,7 +808,102 @@ GET /api/v1/reports/fee_common
 
 ---
 
-## 11. Enum & Trạng thái
+## 11. Account
+
+**Các Role:** Admin, Citizen, FeeCollector
+
+### 6.1. Đăng ký
+
+* POST /api/v1/auth_service/register
+* Request body:
+
+  ```json
+  {
+  "username": "new_resident",
+  "password": "password123",
+  "email": "resident@example.com", (email này là email của user tương ứng)
+  "identity_number": "987654321", (12 chữ số)
+  "role": "Citizen"
+  }
+  ```
+
+### 6.2. Đăng nhập
+(Mọi lỗi không thành công đều quy về sai username/password)
+* PUT /api/v1/auth_service/login
+* Request body:
+  ```json
+  {
+   "username": "admin_user",
+   "password": "hashed_password"
+  }
+  ```
+
+* Response:
+```json
+{
+  "username": "admin_user",
+  "email": "admin@example.com",
+  "identity_number": "123456789", (12 chữ số)
+  "role": "Admin",
+  "access_token": "eyJhbG...",
+  "refresh_token": "eyJhbG..."
+}
+```
+
+### 6.3. Thay đổi mật khẩu
+* GET /api/v1/auth_service/change-password
+
+* Request
+```json
+{
+  "username": "admin_user",
+  "old_password": "old",
+  "new_password": "new"
+}
+```
+
+* Response:
+```json
+{
+  "page": 1,
+  "limit": 10,
+  "total_items": 25,
+  "adjustments": [
+    {
+      "adjustment_id": 1,
+      "fee_id": 5,
+      "adjustment_amount": 50000,
+      "adjustment_type": "decrease",
+      "reason": "Giảm phí do sự cố",
+      "effective_date": "2025-10-15",
+      "expiry_date": "2025-10-15"
+    }
+  ]
+}
+```
+
+### 6.4. Refresh Token
+* GET /api/v1/adjustments/refresh
+* Request:
+
+```json
+{
+  "access_token": "old_expired_access_token",
+  "refresh_token": "current_valid_refresh_token"
+}
+```
+* Response:
+    ```json
+        {
+          "access_token": "new_access_token",
+          "refresh_token": "new_refresh_token"
+        }   
+    ```
+
+
+---
+
+## 12. Enum & Trạng thái
 
 ### FeeStatus
 
@@ -820,4 +923,4 @@ GET /api/v1/reports/fee_common
 
 ### RoleType
 
-* Admin, Collector, Resident
+* Admin, FeeCollector, Citizen
