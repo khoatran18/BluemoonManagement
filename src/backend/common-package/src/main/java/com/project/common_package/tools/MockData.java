@@ -129,7 +129,7 @@ public class MockData {
                     "\"total_paid\":" + (100000 * paidFee) + "," +
                     "\"balance\":" + (50000 * unpaidFee) + "," +
                     "\"paid_fees\":[{\"fee_id\":" + paidFee + "}, {\"fee_id\":" + (paidFee + 5) + "}]," +
-                    "\"unpaid_fees\":[{\"fee_id\":" + unpaidFee + "}, {\"fee_id\":" + (unpaidFee + 1) + "}]," +
+                    "\"unpaid_fees\":[]," +
                     "\"adjustments\":[{\"adjustment_id\":" + (apt % 30 == 0 ? 30 : apt % 30) + "}]" +
                     "}";
             put("/api/v1/apartment-fee-statuses/" + apt, body);

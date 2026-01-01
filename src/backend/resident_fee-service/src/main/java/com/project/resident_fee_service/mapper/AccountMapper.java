@@ -1,7 +1,7 @@
-package com.project.auth_service.mapper;
+package com.project.resident_fee_service.mapper;
 
-import com.project.auth_service.dto.AccountDTO;
-import com.project.auth_service.entity.Account;
+import com.project.resident_fee_service.dto.AccountDTO;
+import com.project.resident_fee_service.entity.Account;
 
 public class AccountMapper {
 

@@ -1,7 +1,7 @@
-package com.project.auth_service.dto;
+package com.project.resident_fee_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.auth_service.entity.Account;
+import com.project.resident_fee_service.entity.Account;
 
 public class AccountDTO {
 

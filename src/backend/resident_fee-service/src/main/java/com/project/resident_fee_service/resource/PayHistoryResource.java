@@ -1,9 +1,7 @@
 package com.project.resident_fee_service.resource;
 
 import com.project.common_package.exception.ApiResponse;
-import com.project.resident_fee_service.dto.FeeDTO;
 import com.project.resident_fee_service.dto.PayHistoryDTO;
-import com.project.resident_fee_service.entity.Fee;
 import com.project.resident_fee_service.service.PayHistoryService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;

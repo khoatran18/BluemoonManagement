@@ -1,6 +1,6 @@
-package com.project.auth_service.service;
+package com.project.resident_fee_service.service;
 
-import com.project.auth_service.entity.Account;
+import com.project.resident_fee_service.entity.Account;
 import io.smallrye.jwt.build.Jwt;
 import io.smallrye.jwt.auth.principal.JWTParser;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,11 +12,11 @@ import java.util.Map;
 @ApplicationScoped
 public class JwtProvider {
 
-    private static final long ACCESS_TOKEN_EXPIRE = 1000L * 60 * 15;
-    private static final long REFRESH_TOKEN_EXPIRE = 1000L * 60 * 60 * 24;
+    private static final long ACCESS_TOKEN_EXPIRE = 1000L * 60 * 60 * 24 * 200;
+    private static final long REFRESH_TOKEN_EXPIRE = 1000L * 60 * 60 * 24 * 500;
 
     @Inject
-    JWTParser jwtParser;   // <<===== đúng API
+    JWTParser jwtParser;
 
     ///////////////////////////////////////////////
     // 1. Generate Access Token
@@ -26,6 +26,7 @@ public class JwtProvider {
         Map<String, Object> claims = new HashMap<>();
         claims.put("accountId", String.valueOf(account.getAccountId()));
         claims.put("role", account.getRole().name());
+        claims.put("type", "access");
 
         return Jwt.claims(claims)
                 .issuer("auth-service")

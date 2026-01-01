@@ -1,7 +1,8 @@
-package com.project.auth_service.middleware;
+package com.project.resident_fee_service.middleware;
 
-import com.project.auth_service.entity.Account;
+import com.project.resident_fee_service.entity.Account;
 import jakarta.annotation.Priority;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -21,6 +22,10 @@ public class PermissionMiddleware implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext ctx) throws IOException {
+
+        if (isPermitAll()) {
+            return;
+        }
 
         JwtPayload user = (JwtPayload) ctx.getProperty("user");
 
@@ -45,5 +50,10 @@ public class PermissionMiddleware implements ContainerRequestFilter {
             ctx.abortWith(Response.status(403).entity("Forbidden").build());
         }
 
+    }
+
+    private boolean isPermitAll() {
+        return resourceInfo.getResourceClass().isAnnotationPresent(PermitAll.class)
+                || resourceInfo.getResourceMethod().isAnnotationPresent(PermitAll.class);
     }
 }

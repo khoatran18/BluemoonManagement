@@ -1,14 +1,12 @@
-package com.project.auth_service.middleware;
+package com.project.resident_fee_service.middleware;
 
-import com.project.auth_service.entity.Account;
+import com.project.resident_fee_service.entity.Account;
 import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-
-import java.io.IOException;
 
 @Provider
 @Priority(2)
@@ -20,8 +18,14 @@ public class TokenParserMiddleware implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext ctx) {
 
-        // Không có token thì để Permission middleware xử lý
-        if (jwt == null || jwt.getRawToken().isEmpty()) {
+        // Không có JWT → bỏ qua (public endpoint)
+        if (jwt == null) {
+            return;
+        }
+
+        String rawToken = jwt.getRawToken();
+
+        if (rawToken == null || rawToken.isBlank()) {
             return;
         }
 

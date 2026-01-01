@@ -1,4 +1,4 @@
-package com.project.auth_service.middleware;
+package com.project.resident_fee_service.middleware;
 
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.container.ContainerRequestContext;

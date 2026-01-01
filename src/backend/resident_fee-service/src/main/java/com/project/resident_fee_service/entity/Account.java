@@ -1,6 +1,5 @@
-package com.project.auth_service.entity;
+package com.project.resident_fee_service.entity;
 
-import com.project.resident_fee_service.entity.Resident;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
-package com.project.auth_service.repository;
+package com.project.resident_fee_service.repository;
 
-import com.project.auth_service.entity.Account;
+import com.project.resident_fee_service.entity.Account;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 

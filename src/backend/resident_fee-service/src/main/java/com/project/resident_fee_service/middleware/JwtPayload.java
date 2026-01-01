@@ -1,6 +1,6 @@
-package com.project.auth_service.middleware;
+package com.project.resident_fee_service.middleware;
 
-import com.project.auth_service.entity.Account;
+import com.project.resident_fee_service.entity.Account;
 
 public class JwtPayload {
 

@@ -2,6 +2,8 @@ package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.FeeCategoryDTO;
 import com.project.common_package.exception.ApiResponse;
+import com.project.resident_fee_service.entity.Account;
+import com.project.resident_fee_service.middleware.RoleAllowedEx;
 import com.project.resident_fee_service.service.FeeCategoryService;
 
 import jakarta.inject.Inject;
@@ -76,6 +78,7 @@ public class FeeCategoryResource {
     /////////////////////////////
 
     @POST
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response createFeeCategory(
             @Valid FeeCategoryDTO.PostFeeCategoryRequestDTO dto
     ) {
@@ -99,6 +102,7 @@ public class FeeCategoryResource {
 
     @PUT
     @Path("/{fee_category_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response updateFeeCategoryById(
             @PathParam("fee_category_id") Long feeCategoryId,
             @Valid FeeCategoryDTO.PutFeeCategoryRequestDTO dto
@@ -121,6 +125,7 @@ public class FeeCategoryResource {
 
     @DELETE
     @Path("/{fee_category_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response deleteFeeCategoryById(
             @PathParam("fee_category_id") Long feeCategoryId
     ) {
