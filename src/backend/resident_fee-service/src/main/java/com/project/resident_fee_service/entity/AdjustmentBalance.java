@@ -37,11 +37,8 @@ public class AdjustmentBalance {
     @Column(name = "NewBalance")
     private BigDecimal newBalance;
 
-    @Column(name = "PayDateTime")
-    private LocalDate payDateTime;
-
-    @Column(name = "AdjustmentTime")
-    private LocalDate adjustmentTime;
+//    @Column(name = "PayDateTime")
+//    private LocalDate payDateTime;
 
     @Column(name = "AdjustmentBalanceNote")
     private String adjustmentBalanceNote;

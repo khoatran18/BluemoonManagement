@@ -32,6 +32,9 @@ public class AdjustmentService {
     @Inject
     AdjustmentRepository repository;
 
+    @Inject
+    AdjustmentBalanceService adjustmentBalanceService;
+
     AdjustmentMapper adjustmentMapper = new AdjustmentMapper();
 
     /////////////////////////////
@@ -207,6 +210,7 @@ public class AdjustmentService {
 
             repository.create(entity);
 
+            // Update balance to apartment paid fee
             if (entity.getFee() != null) {
                 Fee fee = entity.getFee();
                 Set<Apartment> apartments = fee.getPaidApartmentList();
@@ -220,8 +224,18 @@ public class AdjustmentService {
                                     ? entity.getAdjustmentAmount()
                                     : entity.getAdjustmentAmount().negate();
 
+                    BigDecimal oldBalance = apartmentFeeStatus.getBalance();
+
                     apartmentFeeStatus.setBalance(
                             apartmentFeeStatus.getBalance().add(changeAmount)
+                    );
+
+                    adjustmentBalanceService.createAdjustmentBalanceLocalBackend(
+                            apartment.getApartmentId(),
+                            fee.getFeeId(),
+                            entity.getAdjustmentId(), oldBalance,
+                            apartmentFeeStatus.getBalance(),
+                            "Thay đổi phí"
                     );
                 }
             }
