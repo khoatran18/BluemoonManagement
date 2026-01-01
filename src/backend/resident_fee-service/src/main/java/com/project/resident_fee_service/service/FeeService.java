@@ -1,8 +1,6 @@
 package com.project.resident_fee_service.service;
 
 import com.project.resident_fee_service.dto.FeeDTO;
-import com.project.resident_fee_service.entity.Apartment;
-import com.project.resident_fee_service.entity.ApartmentFeeStatus;
 import com.project.resident_fee_service.entity.Fee;
 import com.project.common_package.exception.InternalServerException;
 import com.project.common_package.exception.NotFoundException;
@@ -21,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 
 @ApplicationScoped

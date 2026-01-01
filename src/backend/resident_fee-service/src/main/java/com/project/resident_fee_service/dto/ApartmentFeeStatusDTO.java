@@ -129,6 +129,9 @@ public class ApartmentFeeStatusDTO {
         public static class FeeRef {
             @JsonProperty("fee_id")
             public Long feeId;
+
+            @JsonProperty("pay_amount")
+            public BigDecimal payAmount;
         }
     }
 }
