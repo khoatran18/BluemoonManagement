@@ -19,6 +19,7 @@ import com.project.resident_fee_service.repository.ResidentRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -44,6 +45,9 @@ public class ApartmentService {
 
     @Inject
     ApartmentFeeStatusRepository apartmentFeeStatusRepository;
+
+    @Inject
+    EntityManager entityManager;
 
     AdjustmentMapper adjustmentMapper = new AdjustmentMapper();
 
@@ -282,7 +286,19 @@ public class ApartmentService {
             if (entity == null)
                 throw new NotFoundException("Apartment not found with id: " + apartmentId);
 
+//            apartmentRepository.delete(entity);
+
+            // Delete in Apartment_PaidFee
+            entityManager.createNativeQuery("""
+                DELETE FROM Apartment_PaidFee
+                WHERE ApartmentID = :id
+            """).setParameter("id", apartmentId)
+                    .executeUpdate();
+
+            entityManager.flush();
+
             apartmentRepository.delete(entity);
+
 
             log.info("[Resident] [Service] deleteApartment End");
             log.info("Output: None");
