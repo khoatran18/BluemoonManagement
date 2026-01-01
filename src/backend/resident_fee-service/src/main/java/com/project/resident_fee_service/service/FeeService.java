@@ -186,8 +186,16 @@ public class FeeService {
 
         try {
             Fee checkedEntity = repository.findById(dto.FeeId);
-            if (checkedEntity == null)
+            if (checkedEntity == null) {
                 throw new NotFoundException("Fee not found with id: " + dto.FeeId);
+            }
+            // Block modification if the Fee is CLOSED
+            if (checkedEntity.getStatus() == Fee.FeeStatus.CLOSED) {
+                log.warn("Attempt to modify a CLOSED fee. FeeID: {}", dto.FeeId);
+                throw new jakarta.ws.rs.ForbiddenException(
+                        "Cannot modify this Fee because it is already CLOSED."
+                );
+            }
 
             Fee entity = feeMapper.PutFeeRequestDTOToEntity(dto);
             repository.update(entity);
@@ -197,10 +205,12 @@ public class FeeService {
 
         } catch (Exception e) {
             log.error("[Fee] [Service] updateFeeById Error", e);
+            if (e instanceof jakarta.ws.rs.WebApplicationException) {
+                throw e;
+            }
             throw new InternalServerException(e.getMessage());
         }
     }
-
     /////////////////////////////
     // DELETE
     /////////////////////////////
