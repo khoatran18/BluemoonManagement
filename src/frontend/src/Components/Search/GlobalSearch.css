@@ -4,7 +4,9 @@
   background-color: #f3f4f6; /* Màu nền xám nhẹ */
   padding: 8px 12px;
   border-radius: 8px;
-  width: 300px; /* Độ rộng tùy chỉnh */
+  width: 100%;
+  max-width: 300px; /* Độ rộng tối đa */
+  flex: 1 1 220px;
 
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }

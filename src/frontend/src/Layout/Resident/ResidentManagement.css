@@ -8,3 +8,11 @@
   min-height: calc(100vh - 64px);
   font-family: "Inter", sans-serif;
 }
+
+@media (max-width: 640px) {
+  .resident-management-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    margin: 12px;
+  }
+}

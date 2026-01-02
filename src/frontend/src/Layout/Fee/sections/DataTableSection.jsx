@@ -4,8 +4,11 @@ import Table from "../../../Components/Table/Table";
 import Column from "../../../Components/Table/Column";
 import Tag from "../../../Components/Tag/Tag";
 import { getFees, getFeeDetails, deleteFee } from "../../../api/feeApi";
+import { createAdjustment, deleteAdjustment, getAdjustments, updateAdjustment } from "../../../api/adjustmentApi";
 import { DetailFeeModal } from "../../../Components/DetailFeeModal/DetailFeeModal";
 import { DeleteConfirmModal } from "../../../Components/DeleteConfirmModal";
+import { AdjustmentModal } from "../../../Components/AdjustmentModal/AdjustmentModal";
+import { FeeAdjustmentsModal } from "../../../Components/FeeAdjustmentsModal/FeeAdjustmentsModal";
 import "../Fee.css";
 
 const typeMap = {
@@ -39,6 +42,19 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
   const [selectedFee, setSelectedFee] = useState(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const [isFeeAdjustmentsOpen, setIsFeeAdjustmentsOpen] = useState(false);
+  const [feeAdjustmentsFee, setFeeAdjustmentsFee] = useState(null);
+  const [feeAdjustmentsLoading, setFeeAdjustmentsLoading] = useState(false);
+  const [feeAdjustments, setFeeAdjustments] = useState([]);
+
+  const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
+  const [adjustmentModalLoading, setAdjustmentModalLoading] = useState(false);
+  const [adjustmentModalFeeId, setAdjustmentModalFeeId] = useState(null);
+  const [editingAdjustment, setEditingAdjustment] = useState(null);
+
+  const [isDeleteAdjustmentOpen, setIsDeleteAdjustmentOpen] = useState(false);
+  const [deleteAdjustmentTarget, setDeleteAdjustmentTarget] = useState(null);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(5);
@@ -81,6 +97,75 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
       setData([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAdjustmentsForFee = async (feeId) => {
+    if (!feeId) return;
+    setFeeAdjustmentsLoading(true);
+    try {
+      const resp = await getAdjustments({ fee_id: feeId, page: 1, limit: 100 });
+      const list = resp?.adjustments || resp?.items || [];
+      setFeeAdjustments(Array.isArray(list) ? list : []);
+    } catch (err) {
+      setFeeAdjustments([]);
+      if (typeof onNotify === "function") {
+        onNotify({ message: `Lấy điều chỉnh thất bại\n${err.message}`, variant: "error", duration: 4000 });
+      }
+    } finally {
+      setFeeAdjustmentsLoading(false);
+    }
+  };
+
+  const openAdjustmentsModal = async (fee) => {
+    if (!fee?.id) return;
+    setFeeAdjustmentsFee({ fee_id: fee.id, fee_name: fee.name, status: fee.status });
+    setIsFeeAdjustmentsOpen(true);
+    await fetchAdjustmentsForFee(fee.id);
+  };
+
+  const openCreateAdjustment = (feeId) => {
+    setAdjustmentModalFeeId(feeId);
+    setEditingAdjustment(null);
+    setIsAdjustmentModalOpen(true);
+  };
+
+  const openEditAdjustment = (feeId, adj) => {
+    setAdjustmentModalFeeId(feeId);
+    setEditingAdjustment(adj);
+    setIsAdjustmentModalOpen(true);
+  };
+
+  const handleSubmitAdjustment = async (payload) => {
+    if (!adjustmentModalFeeId) return;
+    setAdjustmentModalLoading(true);
+    try {
+      if (editingAdjustment?.adjustment_id) {
+        await updateAdjustment(editingAdjustment.adjustment_id, payload);
+        if (typeof onNotify === "function") onNotify({ message: "Cập nhật điều chỉnh thành công", variant: "success", duration: 3000 });
+      } else {
+        await createAdjustment(payload);
+        if (typeof onNotify === "function") onNotify({ message: "Tạo điều chỉnh thành công", variant: "success", duration: 3000 });
+      }
+      await fetchAdjustmentsForFee(adjustmentModalFeeId);
+      setIsAdjustmentModalOpen(false);
+      setEditingAdjustment(null);
+    } catch (err) {
+      if (typeof onNotify === "function") onNotify({ message: `Lưu điều chỉnh thất bại\n${err.message}`, variant: "error", duration: 4000 });
+    } finally {
+      setAdjustmentModalLoading(false);
+    }
+  };
+
+  const handleConfirmDeleteAdjustment = async (adjustmentId) => {
+    try {
+      await deleteAdjustment(adjustmentId);
+      if (typeof onNotify === "function") onNotify({ message: "Xóa điều chỉnh thành công", variant: "success", duration: 3000 });
+      if (feeAdjustmentsFee?.fee_id) {
+        await fetchAdjustmentsForFee(feeAdjustmentsFee.fee_id);
+      }
+    } catch (err) {
+      if (typeof onNotify === "function") onNotify({ message: `Xóa điều chỉnh thất bại\n${err.message}`, variant: "error", duration: 4000 });
     }
   };
 
@@ -160,7 +245,31 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
           }}
         >
           <Column dataIndex="id" title="Mã phí" sortable key="id" />
-          <Column dataIndex="name" title="Tên khoản phí" sortable key="name" className="fee-name-column" />
+          <Column
+            dataIndex="name"
+            title="Tên khoản phí"
+            sortable
+            key="name"
+            className="fee-name-column"
+            render={(name, record) => {
+              return (
+                <div>
+                  <div className="fee-name-text" title={name}>{name}</div>
+
+                  <button
+                    type="button"
+                    className="fee-adjustments-toggle"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openAdjustmentsModal({ id: record?.id, name, status: record?.status });
+                    }}
+                  >
+                    Xem điều chỉnh
+                  </button>
+                </div>
+              );
+            }}
+          />
           <Column
             dataIndex="type"
             title="Loại phí"
@@ -227,6 +336,52 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
         data={deleteTarget}
         title="phí"
         onConfirm={(id) => handleConfirmDelete(id)}
+      />
+
+      <AdjustmentModal
+        isOpen={isAdjustmentModalOpen}
+        onClose={() => {
+          setIsAdjustmentModalOpen(false);
+          setEditingAdjustment(null);
+        }}
+        feeId={adjustmentModalFeeId}
+        initialAdjustment={editingAdjustment}
+        loading={adjustmentModalLoading}
+        onSubmit={handleSubmitAdjustment}
+      />
+
+      <FeeAdjustmentsModal
+        isOpen={isFeeAdjustmentsOpen}
+        onClose={() => setIsFeeAdjustmentsOpen(false)}
+        fee={feeAdjustmentsFee}
+        adjustments={feeAdjustments}
+        loading={feeAdjustmentsLoading}
+        onAdd={() => {
+          if (!feeAdjustmentsFee?.fee_id) return;
+          openCreateAdjustment(feeAdjustmentsFee.fee_id);
+        }}
+        onEdit={(adj) => {
+          if (!feeAdjustmentsFee?.fee_id) return;
+          openEditAdjustment(feeAdjustmentsFee.fee_id, adj);
+        }}
+        onDelete={(adj) => {
+          setDeleteAdjustmentTarget({
+            id: adj?.adjustment_id,
+            name: adj?.reason || `#${adj?.adjustment_id}`,
+          });
+          setIsDeleteAdjustmentOpen(true);
+        }}
+      />
+
+      <DeleteConfirmModal
+        isOpen={isDeleteAdjustmentOpen}
+        onClose={() => {
+          setIsDeleteAdjustmentOpen(false);
+          setDeleteAdjustmentTarget(null);
+        }}
+        data={deleteAdjustmentTarget}
+        title="điều chỉnh"
+        onConfirm={(id) => handleConfirmDeleteAdjustment(id)}
       />
     </div>
   );

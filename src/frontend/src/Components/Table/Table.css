@@ -1,5 +1,6 @@
 .table-wrapper {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
   background: white;
   font-family: "Inter", sans-serif;
@@ -10,6 +11,7 @@
 /* --- Base table style --- */
 .base-table {
   width: 100%;
+  min-width: 100%;
   border-collapse: separate;        
   border-spacing: 0;                
   border-radius: 8px;              
@@ -62,8 +64,14 @@
   background: #e2e8f0 !important;
 }
 
-/* --- Responsive for Mobile / Tablet --- */
-@media (max-width: 768px) {
+/* --- Responsive: allow horizontal scroll instead of squeezing columns --- */
+@media (max-width: 1024px) {
+  .base-table {
+    table-layout: auto;
+    width: max-content;
+    min-width: max(100%, 720px);
+  }
+
   .base-table thead th,
   .base-table tbody td {
     padding: 10px 12px;
@@ -73,6 +81,8 @@
   /* Cho phép text xuống dòng */
   .base-table tbody td > div {
     white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
     text-align: left;
     justify-content: flex-start;
   }

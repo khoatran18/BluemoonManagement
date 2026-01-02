@@ -8,8 +8,8 @@
   align-items: flex-start;
   gap: 12px;
 
-  min-width: 320px;
-  max-width: 460px;
+  min-width: 0;
+  width: min(460px, calc(100vw - 32px));
   padding: 14px 16px;
 
   border-radius: 14px;
@@ -24,6 +24,15 @@
 
   transform: translateX(120%);
   opacity: 0;
+}
+
+@media (max-width: 480px) {
+  .toast {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+  }
 }
 
 /* ===== Animation ===== */
