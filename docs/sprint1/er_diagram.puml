@@ -1,114 +1,137 @@
-@startuml name "db"
+@startuml
 !theme plain
 
 entity "Apartment" as Apartment {
-  + ApartmentID : INT <<PK>>
+  + ApartmentID: LONG <<PK>>
   --
-  Building : NVARCHAR(30)
-  RoomNumber : CHAR(6)
-  HeadResidentID : INT <<FK>>
-  CreatedAt : DATETIME
-  UpdatedAt : DATETIME
+  Building: String
+  RoomNumber: String
+  HeadResidentID: Long <<FK>>
+  CreatedAt: LocalDateTime
+  UpdatedAt: LocalDateTime
 }
 
 entity "Resident" as Resident {
-  + ResidentID : INT <<PK>>
+  + ResidentID: Long <<PK>>
   --
-  OwnerResidentID: INT <<FK>>
-  ApartmentID : INT <<FK>>
-  FullName : NVARCHAR(30)
-  PhoneNumber : CHAR(10)
-  Email : VARCHAR(40)
-  IsHead : BIT
-  CreatedAt : DATETIME
-  UpdatedAt : DATETIME
+  OwnerResidentID: Long <<FK>>
+  ApartmentID: Long <<FK>>
+  FullName: String
+  PhoneNumber: String
+  Email: String
+  IsHead: Boolean
+  CreatedAt: LocalDateTime
+  UpdatedAt: LocalDateTime
 }
 
 entity "FeeType" as FeeType {
-  + FeeTypeID : INT <<PK>>
+  + FeeTypeID: Long <<PK>>
   --
-  FeeTypeName : CHAR(10)
+  FeeTypeName: String
   --
   <<CHECK>> FeeTypeName IN ('Obligatory', 'Voluntary', 'Impromptu')
 }
 
 entity "FeeCategory" as FeeCategory {
-  + FeeCategoryID : INT <<PK>>
+  + FeeCategoryID: Long <<PK>>
   --
-  FeeTypeID : INT <<FK>>
-  FeeCategoryName : NVARCHAR(30)
-  FeeCategoryDescription: NVARCHAR(100)
+  FeeTypeID: Long <<FK>>
+  FeeCategoryName: String
+  FeeCategoryDescription: String
 }
 
 entity "Fee" as Fee {
-  + FeeID : INT <<PK>>
+  + FeeID: Long <<PK>>
   --
-  FeeTypeID : INT <<FK>>
-  FeeCategoryID : INT <<FK>>
-  FeeName : NVARCHAR(100)
-  FeeDescription: NVARCHAR(300)
-  FeeAmount : DECIMAL(12,2)
-  ApplicableMonth : CHAR(4)
-  EffectiveDate : DATE
-  ExpiryDate : DATE
-  Status : CHAR(8)
-  CreatedAt : DATETIME
-  UpdatedAt : DATETIME
+  FeeTypeID: Long <<FK>>
+  FeeCategoryID: Long <<FK>>
+  FeeName: String
+  FeeDescription: String
+  Amount: DECIMAL(12,2)
+  ApplicableMonth: String
+  StartDate: LocalDate
+  EndDate: LocalDate
+  Status: String
+  CreatedAt: LocalDateTime
+  UpdatedAt: LocalDateTime
   --
    <<CHECK>> Status IN ('Draft', 'Active', 'Closed', 'Archived')
 }
 
 
 entity "ApartmentFeeStatus" as ApartmentFeeStatus{
-  + AparmentID: INT <<PK, FK>>
+  + AparmentID: Long <<PK, FK>>
   --
-  UnpaidFeesList: SET<Fee>
-  PaidFeesList: SET<Fee>
-  AdjustmentsList: NULL SET<Adjustment>
-  ExtraAdjustmentsList: NULL SET<Adjustment>
-  TotalFee: DECIMAL(12, 2)
-  TotalPaid: DECIMAL(12, 2)
+  AmountPaid: DECIMAL(12,2)
   Balance: DECIMAL(12,2)
-  UpdatedAt: DATE
-  --
+  UpdatedAt: LocalDateTime
 }
 
 entity "Adjustment" as Adjustment{
-  + AdjustmentID: INT <<PK>>
+  + AdjustmentID: Long <<PK>>
   --
-  FeeID: NULL INT <<FK>>
+  FeeID: NULL Long <<FK>>
   AdjustmentAmount: DECIMAL(12, 2)
-  AdjustmentType: CHAR(10)
-  Reason: NVARCHAR(300)
-  EffectiveDate: DATETIME
-  ExpiryDate: DATETIME
+  AdjustmentType: String
+  Reason: String
+  StartDate: LocalDate
+  EndDate: LocalDate
   --
   <<CHECK>> AdjustmentType IN ('increase', 'decrease')
 }
 
-entity "ApartmentSpecificAdjustment" as ApartmentSpecificAdjustment{
-  + AparmentID: INT <<PK, FK>>
+entity "AdjustmentBalance" as AdjustmentBalance{
+  + AdjustmentBalanceID: Long <<PK>>
   --
-  AdjustmentID: INT <<FK>>
+  ApartmentID: Long
+  FeeID: Long
+  AdjustmentID: Long
+  OldBalance: BigDecimal
+  NewBalance: BigDecimal
+  AdjustmentBalanceNote: String
 }
+
+entity "PayHistory" as PayHistory{
+  + PayHistoryID: Long <<PK>>
+  --
+  ApartmentID: Long
+  FeeID: Long
+  PayDateTime: LocalDate
+  PayAmount: BigDecimal
+  PayNote: String
+}
+
+entity "Account" as Account{
+  + AccountID: Long <<PK>>
+  --
+  Username: String
+  Password: String
+  Email: String
+  IdentityNumber: String
+  Role: String
+  ResidentID: Long <<FK>>
+  --
+  <<CHECK>> Role IN ('Citizen', 'FeeCollector', 'Admin')
+}
+
 
 '--------------------------
 ' Relationships + Constraints
 '--------------------------
 
-Apartment ||--o{ Resident : "has occupants >\nON DELETE CASCADE"
+Apartment ||--o{ Resident : "has occupants >\nON DELETE SET NULL"
 Resident }o--|| Apartment : "belongs to >"
-Resident ||--o| Resident: "owner-tenant\nON DELETE SET NULL"
-Apartment ||--o| Resident : "head resident >\nON DELETE SET NULL"
+Resident |o--o{ Resident: "owner-tenant >\nON DELETE SET NULL"
+Resident ||--|| Apartment : "head resident >\nON DELETE SET NULL"
 
 FeeType ||--|{ Fee : "categorizes >\nON DELETE CASCADE"
-FeeType ||--o{ FeeCategory : "groups >\nON DELETE CASCADE"
-FeeCategory ||--o{ Fee : "sub-categorizes >\nON DELETE CASCADE"
+FeeType ||--|{ FeeCategory : "groups >\nON DELETE CASCADE"
+FeeCategory ||--|{ Fee : "sub-categorizes >\nON DELETE CASCADE"
 
-Apartment ||--o{ ApartmentFeeStatus : "has fee status >\nON DELETE CASCADE"
+Apartment ||--|| ApartmentFeeStatus : "has fee status >\nON DELETE CASCADE"
 Fee ||--o{ ApartmentFeeStatus : "status for >\nON DELETE RESTRICT"
 Fee ||--o{ Adjustment : "has adjustments >\nON DELETE CASCADE"
-Apartment ||--o{ ApartmentSpecificAdjustment : "ON DELETE CASCADE >"
-Adjustment ||--o{ ApartmentSpecificAdjustment : "ON DELETE CASCADE >"
+
+Account ||--|| Resident : "credentials for >"
 
 @enduml
