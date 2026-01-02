@@ -31,6 +31,7 @@ public class ApartmentResource {
     ////////////////////////////////////////
 
     @GET
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response getApartmentsByFilter(
             @QueryParam("building") String building,
             @QueryParam("room_number") String roomNumber,
@@ -99,7 +100,7 @@ public class ApartmentResource {
     ////////////////////////////////////////
 
     @POST
-    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response createApartment(
             @Valid ApartmentCreateDTO dto
     ) {
@@ -123,7 +124,7 @@ public class ApartmentResource {
 
     @PUT
     @Path("/{apartment_id}")
-    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response updateApartment(
             @PathParam("apartment_id") Long apartmentId,
             @Valid ApartmentUpdateDTO dto
@@ -142,7 +143,7 @@ public class ApartmentResource {
 
     @PUT
     @Path("/apartment_specific_adjustments/{apartment_id}")
-    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response updateApartmentSpecificAdjustments(
             @PathParam("apartment_id") Long apartmentID,
             @Valid ApartmentSpecificAdjustmentsRequestDTO dto
@@ -165,7 +166,7 @@ public class ApartmentResource {
 
     @DELETE
     @Path("/{apartment_id}")
-    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response deleteApartment(
             @PathParam("apartment_id") Long apartmentId
     ) {

@@ -35,6 +35,7 @@ public class FeeResource {
     /////////////////////////////
 
     @GET
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response getFeesByFilter(
             @QueryParam("fee_type_id") List<Long> feeTypeIds,
             @QueryParam("fee_category_id") Long feeCategoryId,
