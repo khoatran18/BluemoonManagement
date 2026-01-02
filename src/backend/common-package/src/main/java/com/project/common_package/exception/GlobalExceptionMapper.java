@@ -1,10 +1,13 @@
 package com.project.common_package.exception;
 
+import jakarta.annotation.Priority;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
 @Provider
+@Priority(Priorities.USER)
 public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
