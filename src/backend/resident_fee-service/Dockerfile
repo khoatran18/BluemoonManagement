@@ -2,9 +2,10 @@ FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /build
 
-COPY . .
+COPY pom.xml .
+COPY resident_fee-service ./resident_fee-service
 
-RUN mvn package -DskipTests
+RUN mvn -pl resident_fee-service -am package -DskipTests
 
 FROM eclipse-temurin:17-jre
 WORKDIR /app
