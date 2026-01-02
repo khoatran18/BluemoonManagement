@@ -41,7 +41,7 @@ public class AccountService {
     @Transactional
     public void register(AccountDTO.RegisterRequestDTO dto) {
 
-        log.info("[PayHistory] [Service] getPayHistoriesByFilter Start");
+        log.info("[Account] [Service] getPayHistoriesByFilter Start");
         log.info(
                 "Input: RegisterRequestDTO={}", dto
         );

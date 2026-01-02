@@ -812,7 +812,7 @@ GET /api/v1/reports/fee_common
 
 **Các Role:** Admin, Citizen, FeeCollector
 
-### 6.1. Đăng ký
+### 11.1. Đăng ký
 
 * POST /api/v1/auth_service/register
 * Request body:
@@ -827,7 +827,7 @@ GET /api/v1/reports/fee_common
   }
   ```
 
-### 6.2. Đăng nhập
+### 11.2. Đăng nhập
 (Mọi lỗi không thành công đều quy về sai username/password)
 * PUT /api/v1/auth_service/login
 * Request body:
@@ -862,27 +862,7 @@ GET /api/v1/reports/fee_common
 }
 ```
 
-* Response:
-```json
-{
-  "page": 1,
-  "limit": 10,
-  "total_items": 25,
-  "adjustments": [
-    {
-      "adjustment_id": 1,
-      "fee_id": 5,
-      "adjustment_amount": 50000,
-      "adjustment_type": "decrease",
-      "reason": "Giảm phí do sự cố",
-      "effective_date": "2025-10-15",
-      "expiry_date": "2025-10-15"
-    }
-  ]
-}
-```
-
-### 6.4. Refresh Token
+### 11.4. Refresh Token
 * GET /api/v1/adjustments/refresh
 * Request:
 
