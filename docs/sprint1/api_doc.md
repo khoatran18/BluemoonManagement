@@ -108,7 +108,12 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
   ```json
   {
     "building": "A",
-    "room_number": "101"
+    "room_number": "101",
+    "head_resident_id": 3,
+    "residents": [
+      {"id": 3},
+      {"id": 10}
+    ]
   }
   ```
 

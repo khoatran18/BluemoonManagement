@@ -38,4 +38,28 @@ public class ApartmentMutationMapper {
             }
         }
     }
+
+    public static void createApartmentResident(Apartment entity, ApartmentCreateDTO dto, Resident headResident, List<Resident> residents) {
+        if (entity == null || dto == null) return;
+        // apply updates only when DTO fields are non-null to avoid accidental overwrite
+        if (dto.building != null) {
+            entity.setBuilding(dto.building);
+        }
+        if (dto.roomNumber != null) {
+            entity.setRoomNumber(dto.roomNumber);
+        }
+        // headResident may be null intentionally (clear head)
+        entity.setHeadResident(headResident);
+
+        if (dto.residents != null) {
+            entity.setResidents(residents);
+        }
+
+        // Attach apartment to resident
+        if (residents != null) {
+            for (Resident r : residents) {
+                r.setApartment(entity);
+            }
+        }
+    }
 }

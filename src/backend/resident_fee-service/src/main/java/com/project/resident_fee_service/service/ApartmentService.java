@@ -162,12 +162,41 @@ public class ApartmentService {
         log.info("Input: {}", dto);
 
         try {
+            // Create apartment
             Apartment entity = ApartmentMutationMapper.toEntity(dto);
             apartmentRepository.persist(entity);
 
+            // Init ApartmentFeeStatus
             ApartmentFeeStatus apartmentFeeStatus = new ApartmentFeeStatus();
             apartmentFeeStatus.setApartment(entity);
             apartmentFeeStatusRepository.persist(apartmentFeeStatus);
+
+            // Attach residents to apartment
+            Resident headResident = null;
+            if (dto.headResidentId != null) {
+                headResident = residentRepository.findById(dto.headResidentId);
+                if (headResident == null)
+                    throw new NotFoundException("Head resident not found: " + dto.headResidentId);
+            }
+
+            List<Resident> resolvedResidents = null;
+            if (dto.residents != null) {
+                resolvedResidents = dto.residents.stream()
+                        .map(r -> {
+                            Resident found = residentRepository.findById(r.id);
+                            if (found == null)
+                                throw new NotFoundException("Resident not found with id: " + r.id);
+                            found.setIsHead(false);
+                            return found;
+                        })
+                        .toList();
+            }
+            if (headResident != null)
+                headResident.setIsHead(true);
+
+            ApartmentMutationMapper.createApartmentResident(
+                    entity, dto, headResident, resolvedResidents
+            );
 
             log.info("[Apartment] [Service] createApartment End");
             log.info("Output: None");
