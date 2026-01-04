@@ -2,7 +2,9 @@ package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.FeeDTO;
 import com.project.common_package.exception.ApiResponse;
+import com.project.resident_fee_service.entity.Account;
 import com.project.resident_fee_service.entity.Fee;
+import com.project.resident_fee_service.middleware.RoleAllowedEx;
 import com.project.resident_fee_service.service.FeeService;
 
 import jakarta.inject.Inject;
@@ -33,6 +35,7 @@ public class FeeResource {
     /////////////////////////////
 
     @GET
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response getFeesByFilter(
             @QueryParam("fee_type_id") List<Long> feeTypeIds,
             @QueryParam("fee_category_id") Long feeCategoryId,
@@ -93,6 +96,7 @@ public class FeeResource {
     /////////////////////////////
 
     @POST
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response createFee(
             @Valid FeeDTO.PostFeeRequestDTO dto
     ) {
@@ -116,6 +120,7 @@ public class FeeResource {
 
     @PUT
     @Path("/{fee_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response updateFeeById(
             @PathParam("fee_id") Long feeId,
             @Valid FeeDTO.PutFeeRequestDTO dto
@@ -138,6 +143,7 @@ public class FeeResource {
 
     @DELETE
     @Path("/{fee_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response deleteFeeById(
             @PathParam("fee_id") Long feeId
     ) {

@@ -1,62 +1,132 @@
-# backend
+# Công nghệ sử dụng và kiến trúc hệ thống Backend
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## 1. Giới thiệu
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+Dự án áp dụng mô hình 3 lớp (Resource – Service – Repository) và sử dụng **PanacheRepository** để truy cập cơ sở dữ
+liệu.  
+Các tầng được tách biệt thông qua **DTO** và **Mapper**. \
+Ví dụ cụ thể xem trong module `test-service`.
 
-## Running the application in dev mode
+---
 
-You can run your application in dev mode that enables live coding using:
+## 2. Công nghệ sử dụng
 
-```shell script
-./mvnw quarkus:dev
+| Thành phần    | Công nghệ                         |
+|---------------|-----------------------------------|
+| Ngôn ngữ      | Java 17                           |
+| Framework     | Quarkus 3.x                       |
+| ORM           | Hibernate ORM (PanacheRepository) |
+| Cơ sở dữ liệu | PostgreSQL                        |
+| Build tool    | Maven                             |
+| API           | REST (Jakarta REST)               |
+
+---
+
+## 3. Cấu trúc thư mục dự án
+
+```markdown
+src/main/java/com/project/
+│
+├── resource/ # Lớp REST API (nhận request, trả response)
+│
+├── service/ # Lớp xử lý nghiệp vụ, quản lý transaction
+│
+├── repository/ # Lớp truy cập dữ liệu (PanacheRepository)
+│
+├── entity/ # Các thực thể ORM ánh xạ sang bảng SQL
+│
+├── dto/ # Đối tượng truyền dữ liệu giữa resource và service
+│
+├── mapper/ # Chuyển đổi Entity ↔ DTO
+│
+├── exception/ # Xử lý ngoại lệ tập trung
+│
+├── config/ # Cấu hình ứng dụng
+│
+└── util/ # Các tiện ích dùng chung
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+- Khi Client gửi JSON Request đến Resource, JSON tự parse sang DTO (Sử dụng Jackson - xem code trong package dto).
+- Resource chuyển DTO xuống Service.
+- Service nhận, xử lý, gọi các hàm trong Repository.
+- Nếu có lỗi, service throw error, nếu pass hết thì return DTO cho resource.
+- Resource gom lại, trả ApiResponse cho client.
 
-## Packaging and running the application
+--> Resource nhận JSON Request và trả ApiResponse \
+--> Service giao tiếp qua lại với Resource thông qua DTO \
+--> Mapper biến đổi Entity và DTO qua lại với nhau
 
-The application can be packaged using:
 
-```shell script
-./mvnw package
+## 4. Dòng dữ liệu
+
+```markdown
+Client (JSON Request)
+        ↓ (json)
+Resource (parse JSON → DTO)
+        ↓ (DTO)
+Service (xử lý nghiệp vụ, gọi repository, mapper, throw exception nếu cần)
+        ↓ 
+Repository (làm việc trực tiếp với database qua Entity)
+        ↓
+Entity (ánh xạ bảng dữ liệu)
+        ↓
+Service (chuyển Entity → DTO)
+        ↓ (DTO)
+Resource (đóng gói response với ApiResponse)
+        ↓
+GlobalExceptionMapper (nếu có lỗi)
+        ↓
+Client (JSON Response)
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+## 5. Quy ước đặt tên
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+### Class
 
-If you want to build an _über-jar_, execute the following command:
+| Thành phần         | Quy ước                                | Ví dụ                                     |
+|--------------------|----------------------------------------|-------------------------------------------|
+| **Entity**         | PascalCase                             | `Fee`, `Apartment`                        |
+| **DTO**            | PascalCase + hậu tố `DTO`              | `ResidentRequestDTO`, `FeeResponseDTO`    |
+| **Repository**     | PascalCase + hậu tố `Repository`       | `ResidentRepository`                      |
+| **Mapper**         | PascalCase + hậu tố `Mapper`           | `ResidentMapper`                          |
+| **Resource**       | PascalCase + hậu tố `Resource`         | `ResidentResource`                        |
+| **Service**        | PascalCase + hậu tố `Service`          | `ResidentService`                         |
+| **Event**          | PascalCase + hậu tố `Event`            | `ResidentCreatedEvent`, `FeeUpdatedEvent` |
+| **Constant class** | PascalCase + hậu tố `Constants`        | `AppConstants`, `ErrorMessagesConstants`  |
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+### Biến
 
-## Creating a native executable
+| Thành phần               | Quy ước                                                                   | Ví dụ                                                        |
+|--------------------------|---------------------------------------------------------------------------|--------------------------------------------------------------|
+| **Biến thường**          | camelCase                                                                 | `fullName`, `emailAddress`                                   |
+| **Biến hằng (constant)** | UPPER_SNAKE_CASE + `static final`                                         | `MAX_RETRY_COUNT`, `DEFAULT_PAGE_SIZE`                       |
+| **Biến boolean**         | bắt đầu bằng `is`, `has`, `can`, `should`                                 | `isActive`, `hasPermission`, `canCreate`                     |
+| **Biến trong DTO**       | camelCase, trùng với JSON key (hoặc dùng `@JsonbProperty`)                | `fullName` ↔ `full_name`                                     |
+| **Biến trong Entity**    | camelCase, phản ánh đúng cột DB (dùng `@Column(name="...")` khi khác tên) | `createdAt`, `updatedAt`                                     |
+| **Biến trong Resource**  | đặt tên DTO theo `xxxRequest`, `xxxResponse`                              | `ResidentRequestDTO request`, `ResidentResponseDTO response` |
+| **Biến trong Service**   | giữ nguyên tên `entity`, `dto`, `result`, `repository`                    | `apartmentRepository`, `residentEntity`                      |
+| **Biến trong Mapper**    | dùng `dto` và `entity` để phân biệt rõ ràng                               | `toEntity(dto)`, `toDTO(entity)`                             |
 
-You can create a native executable using:
 
-```shell script
-./mvnw package -Dnative
-```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+### Hàm
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+| Thành phần                   | Quy ước                                   | Ví dụ                                                                        |
+|------------------------------|-------------------------------------------|------------------------------------------------------------------------------|
+| **Hàm thường**               | camelCase, động từ + danh từ              | `createResident()`, `getAllApartments()`, `calculateMonthlyFee()`            |
+| **Getter / Setter**          | `getXxx()` / `setXxx()`                   | `getEmail()`, `setPhoneNumber()`                                             |
+| **Hàm boolean**              | bắt đầu bằng `is`, `has`, `can`, `should` | `isDeleted()`, `hasAccess()`, `canUpdate()`                                  |
+| **Hàm Repository (Panache)** | đặt theo hành động truy vấn               | `findByEmail()`, `findByApartmentId()`, `deleteByResidentId()`               |
+| **Hàm Resource (REST)**      | trùng với HTTP action                     | `getResidents()`, `createResident()`, `updateResident()`, `deleteResident()` |
+| **Hàm Service**              | trùng với tên hàm của Resource            | `getResidents()`, `createResident()`, `updateResident()`, `deleteResident()` |
+| **Hàm Mapper**               | `toEntity()` / `toDTO()`                  | `toEntity(dto)`, `toDTO(entity)`                                             |
 
-You can then execute your native executable with: `./target/backend-1.0.0-SNAPSHOT-runner`
+## 6. Triển khai Test
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+Tạo package resource, service, repository, triển khai Test cho toàn bộ các tầng tương ứng.
+- Với resource: Test hết các hàm 
+- Với service: chỉ test hàm nặng business logic, còn lại (với các luồng gọi thẳng resource -> service -> repository một lượt, không cần tổng hợp) thì không cần test
+- Với repository: chỉ test hàm phức tạp, các hàm đơn giản như CRUD hay đã có trong PanacheRepository thì không cần.
 
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+Với mỗi phần Test cần 2 file đuôi Test và IT, chỉ Test trong file Test, file đuôi IT kế thừa Test là được.

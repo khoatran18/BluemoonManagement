@@ -6,7 +6,15 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Resident")
+@Table(
+        name = "Resident",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_resident_email",
+                        columnNames = "Email"
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,7 +50,7 @@ public class Resident {
             nullable = true,
             foreignKey = @ForeignKey(
                     name = "fk_resident_apartment",
-                    foreignKeyDefinition = "FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID) ON DELETE CASCADE"
+                    foreignKeyDefinition = "FOREIGN KEY (ApartmentID) REFERENCES Apartment(ApartmentID) ON DELETE SET NULL"
             )
     )
     private Apartment apartment;

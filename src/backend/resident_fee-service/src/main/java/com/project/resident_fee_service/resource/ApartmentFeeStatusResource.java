@@ -2,6 +2,8 @@ package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.ApartmentFeeStatusDTO;
 import com.project.common_package.exception.ApiResponse;
+import com.project.resident_fee_service.entity.Account;
+import com.project.resident_fee_service.middleware.RoleAllowedEx;
 import com.project.resident_fee_service.service.ApartmentFeeStatusService;
 
 import jakarta.inject.Inject;
@@ -52,6 +54,7 @@ public class ApartmentFeeStatusResource {
 
     @PUT
     @Path("/{apartment_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response updateStatusByApartmentId(
             @PathParam("apartment_id") Long apartmentId,
             @Valid ApartmentFeeStatusDTO.FeeStatusUpdateDTO dto

@@ -2,6 +2,8 @@ package com.project.resident_fee_service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import java.util.Set;
+
 public class ApartmentDTO {
 
     public static class ApartmentListResponseDTO {
@@ -93,6 +95,16 @@ public class ApartmentDTO {
 
         @JsonProperty("room_number")
         public String roomNumber;
+
+        @JsonProperty("head_resident_id")
+        public Long headResidentId;
+
+        @JsonProperty("residents")
+        public List<ApartmentUpdateDTO.ResidentInfo> residents;
+        public static class ResidentInfo {
+            @JsonProperty("id")
+            public Long id;
+        }
     }
 
     public static class ApartmentSpecificAdjustmentsRequestDTO {

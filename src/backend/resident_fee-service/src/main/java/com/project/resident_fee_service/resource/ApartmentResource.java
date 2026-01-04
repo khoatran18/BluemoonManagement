@@ -2,6 +2,8 @@ package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.ApartmentDTO.*;
 import com.project.common_package.exception.ApiResponse;
+import com.project.resident_fee_service.entity.Account;
+import com.project.resident_fee_service.middleware.RoleAllowedEx;
 import com.project.resident_fee_service.service.ApartmentService;
 
 import jakarta.inject.Inject;
@@ -29,6 +31,7 @@ public class ApartmentResource {
     ////////////////////////////////////////
 
     @GET
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response getApartmentsByFilter(
             @QueryParam("building") String building,
             @QueryParam("room_number") String roomNumber,
@@ -97,6 +100,7 @@ public class ApartmentResource {
     ////////////////////////////////////////
 
     @POST
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response createApartment(
             @Valid ApartmentCreateDTO dto
     ) {
@@ -120,6 +124,7 @@ public class ApartmentResource {
 
     @PUT
     @Path("/{apartment_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response updateApartment(
             @PathParam("apartment_id") Long apartmentId,
             @Valid ApartmentUpdateDTO dto
@@ -138,6 +143,7 @@ public class ApartmentResource {
 
     @PUT
     @Path("/apartment_specific_adjustments/{apartment_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response updateApartmentSpecificAdjustments(
             @PathParam("apartment_id") Long apartmentID,
             @Valid ApartmentSpecificAdjustmentsRequestDTO dto
@@ -160,6 +166,7 @@ public class ApartmentResource {
 
     @DELETE
     @Path("/{apartment_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response deleteApartment(
             @PathParam("apartment_id") Long apartmentId
     ) {

@@ -1,8 +1,10 @@
 package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.AdjustmentDTO;
+import com.project.resident_fee_service.entity.Account;
 import com.project.resident_fee_service.entity.Adjustment;
 import com.project.common_package.exception.ApiResponse;
+import com.project.resident_fee_service.middleware.RoleAllowedEx;
 import com.project.resident_fee_service.service.AdjustmentService;
 
 import jakarta.inject.Inject;
@@ -127,6 +129,7 @@ public class AdjustmentResource {
     /////////////////////////////
 
     @POST
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response createAdjustment(
             @Valid AdjustmentDTO.PostAdjustmentRequestDTO dto
     ) {
@@ -150,6 +153,7 @@ public class AdjustmentResource {
 
     @PUT
     @Path("/{adjustment_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response updateAdjustmentById(
             @PathParam("adjustment_id") Long adjustmentId,
             @Valid AdjustmentDTO.PutAdjustmentRequestDTO dto
@@ -172,6 +176,7 @@ public class AdjustmentResource {
 
     @DELETE
     @Path("/{adjustment_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response deleteAdjustmentById(
             @PathParam("adjustment_id") Long adjustmentId
     ) {

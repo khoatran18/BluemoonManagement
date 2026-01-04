@@ -2,6 +2,8 @@ package com.project.resident_fee_service.resource;
 
 import com.project.resident_fee_service.dto.ResidentDTO.*;
 import com.project.common_package.exception.ApiResponse;
+import com.project.resident_fee_service.entity.Account;
+import com.project.resident_fee_service.middleware.RoleAllowedEx;
 import com.project.resident_fee_service.service.ResidentService;
 
 import jakarta.inject.Inject;
@@ -29,6 +31,7 @@ public class ResidentResource {
     ////////////////////////////////////////
 
     @GET
+    @RoleAllowedEx({Account.RoleEnum.Admin, Account.RoleEnum.FeeCollector})
     public Response getResidentsByFilter(
             @QueryParam("apartment_id") Long apartmentId,
             @QueryParam("full_name") String fullName,
@@ -80,6 +83,7 @@ public class ResidentResource {
     ////////////////////////////////////////
 
     @POST
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response createResident(
             @Valid ResidentCreateDTO dto
     ) {
@@ -103,6 +107,7 @@ public class ResidentResource {
 
     @PUT
     @Path("/{resident_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response updateResident(
             @PathParam("resident_id") Long residentId,
             @Valid ResidentUpdateDTO dto
@@ -125,6 +130,7 @@ public class ResidentResource {
 
     @DELETE
     @Path("/{resident_id}")
+    @RoleAllowedEx({Account.RoleEnum.Admin})
     public Response deleteResident(
             @PathParam("resident_id") Long residentId
     ) {

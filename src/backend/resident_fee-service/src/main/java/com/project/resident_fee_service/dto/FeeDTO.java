@@ -64,7 +64,7 @@ public class FeeDTO {
     }
 
     /**
-     * Response wrapper for getting a Fee records.
+     * Response wrapper for getting a Fee record.
      */
     public static class GetFeeResponseDTO {
         @JsonProperty("fee_id")

@@ -59,7 +59,7 @@ public class ApartmentService {
             int limit
     ) {
 
-        log.info("[Resident] [Service] getApartmentsByFilter Start");
+        log.info("[Apartment] [Service] getApartmentsByFilter Start");
         log.info("Input: building={}, roomNumber={}, headResidentId={}, page={}, limit={}",
                 building, roomNumber, headResidentId, page, limit);
 
@@ -83,13 +83,13 @@ public class ApartmentService {
                             queryPage, queryLimit, count, entityList
                     );
 
-            log.info("[Resident] [Service] getApartmentsByFilter End");
+            log.info("[Apartment] [Service] getApartmentsByFilter End");
             log.info("Output: {}", result);
 
             return result;
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] getApartmentsByFilter Error", e);
+            log.error("[Apartment] [Service] getApartmentsByFilter Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
@@ -100,7 +100,7 @@ public class ApartmentService {
 
     public ApartmentDetailsDTO getApartmentById(Long id) {
 
-        log.info("[Resident] [Service] getApartmentById Start");
+        log.info("[Apartment] [Service] getApartmentById Start");
         log.info("Input: apartmentId={}", id);
 
         try {
@@ -111,20 +111,20 @@ public class ApartmentService {
             ApartmentDetailsDTO result =
                     ApartmentDetailsMapper.toDTO(entity);
 
-            log.info("[Resident] [Service] getApartmentById End");
+            log.info("[Apartment] [Service] getApartmentById End");
             log.info("Output: {}", result);
 
             return result;
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] getApartmentById Error", e);
+            log.error("[Apartment] [Service] getApartmentById Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
 
     public ApartmentSpecificAdjustmentsResponseDTO getApartmentSpecificAdjustments(Long id) {
 
-        log.info("[Resident] [Service] getApartmentSpecificAdjustments Start");
+        log.info("[Apartment] [Service] getApartmentSpecificAdjustments Start");
         log.info("Input: apartmentId={}", id);
 
         try {
@@ -140,13 +140,13 @@ public class ApartmentService {
                     new ApartmentSpecificAdjustmentsResponseDTO();
             result.adjustments = adjustmentDTOs;
 
-            log.info("[Resident] [Service] getApartmentSpecificAdjustments End");
+            log.info("[Apartment] [Service] getApartmentSpecificAdjustments End");
             log.info("Output: {}", result);
 
             return result;
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] getApartmentSpecificAdjustments Error", e);
+            log.error("[Apartment] [Service] getApartmentSpecificAdjustments Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
@@ -158,22 +158,51 @@ public class ApartmentService {
     @Transactional
     public void createApartment(ApartmentCreateDTO dto) {
 
-        log.info("[Resident] [Service] createApartment Start");
+        log.info("[Apartment] [Service] createApartment Start");
         log.info("Input: {}", dto);
 
         try {
+            // Create apartment
             Apartment entity = ApartmentMutationMapper.toEntity(dto);
             apartmentRepository.persist(entity);
 
+            // Init ApartmentFeeStatus
             ApartmentFeeStatus apartmentFeeStatus = new ApartmentFeeStatus();
             apartmentFeeStatus.setApartment(entity);
             apartmentFeeStatusRepository.persist(apartmentFeeStatus);
 
-            log.info("[Resident] [Service] createApartment End");
+            // Attach residents to apartment
+            Resident headResident = null;
+            if (dto.headResidentId != null) {
+                headResident = residentRepository.findById(dto.headResidentId);
+                if (headResident == null)
+                    throw new NotFoundException("Head resident not found: " + dto.headResidentId);
+            }
+
+            List<Resident> resolvedResidents = null;
+            if (dto.residents != null) {
+                resolvedResidents = dto.residents.stream()
+                        .map(r -> {
+                            Resident found = residentRepository.findById(r.id);
+                            if (found == null)
+                                throw new NotFoundException("Resident not found with id: " + r.id);
+                            found.setIsHead(false);
+                            return found;
+                        })
+                        .toList();
+            }
+            if (headResident != null)
+                headResident.setIsHead(true);
+
+            ApartmentMutationMapper.createApartmentResident(
+                    entity, dto, headResident, resolvedResidents
+            );
+
+            log.info("[Apartment] [Service] createApartment End");
             log.info("Output: None");
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] createApartment Error", e);
+            log.error("[Apartment] [Service] createApartment Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
@@ -185,7 +214,7 @@ public class ApartmentService {
     @Transactional
     public void updateApartment(Long id, ApartmentUpdateDTO dto) {
 
-        log.info("[Resident] [Service] updateApartment Start");
+        log.info("[Apartment] [Service] updateApartment Start");
         log.info("Input: apartmentId={}, dto={}", id, dto);
 
         try {
@@ -227,7 +256,7 @@ public class ApartmentService {
                     entity, dto, headResident, resolvedResidents
             );
 
-            log.info("[Resident] [Service] updateApartment End");
+            log.info("[Apartment] [Service] updateApartment End");
             log.info("Output: None");
 
         } catch (Exception e) {
@@ -242,7 +271,7 @@ public class ApartmentService {
             ApartmentSpecificAdjustmentsRequestDTO adjustmentIds
     ) {
 
-        log.info("[Resident] [Service] updateSpecificAdjustments Start");
+        log.info("[Apartment] [Service] updateSpecificAdjustments Start");
         log.info("Input: apartmentId={}, dto={}", apartmentId, adjustmentIds);
 
         try {
@@ -258,11 +287,11 @@ public class ApartmentService {
 
             apartment.setAdjustments(adjustments);
 
-            log.info("[Resident] [Service] updateSpecificAdjustments End");
+            log.info("[Apartment] [Service] updateSpecificAdjustments End");
             log.info("Output: None");
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] updateSpecificAdjustments Error", e);
+            log.error("[Apartment] [Service] updateSpecificAdjustments Error", e);
             throw new InternalServerException(e.getMessage());
         }
     }
@@ -273,22 +302,47 @@ public class ApartmentService {
 
     @Transactional
     public void deleteApartment(Long apartmentId) {
-
-        log.info("[Resident] [Service] deleteApartment Start");
+        log.info("[Apartment] [Service] deleteApartment Start");
         log.info("Input: apartmentId={}", apartmentId);
 
+        Apartment apartment = apartmentRepository.findById(apartmentId);
+        if (apartment == null) {
+            throw new NotFoundException("Apartment not found with id: " + apartmentId);
+        }
+
         try {
-            Apartment entity = apartmentRepository.findById(apartmentId);
-            if (entity == null)
-                throw new NotFoundException("Apartment not found with id: " + apartmentId);
+            // 1. Unlink Residents
+            if (apartment.getResidents() != null) {
+                for (Resident resident : apartment.getResidents()) {
+                    resident.setApartment(null);
+                    resident.setIsHead(false); // They are no longer a head of this apartment
+                }
+                // Clear the list in the parent object to stop Hibernate from tracking them for deletion
+                apartment.getResidents().clear();
+            }
 
-            apartmentRepository.delete(entity);
+            // 2. Break Circular Dependency (Head Resident)
+            apartment.setHeadResident(null);
 
-            log.info("[Resident] [Service] deleteApartment End");
-            log.info("Output: None");
+            // 3. Clear Many-to-Many Adjustments
+            apartment.getAdjustments().clear();
+
+            // 4. Flush changes so the unlinking happens in DB before the delete
+            apartmentRepository.flush();
+
+            // 5. Delete Apartment
+            apartmentRepository.delete(apartment);
+
+            log.info("[Apartment] [Service] deleteApartment End");
 
         } catch (Exception e) {
-            log.error("[Resident] [Service] deleteApartment Error", e);
+            log.error("[Apartment] [Service] deleteApartment Error", e);
+
+            if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+                throw new com.project.common_package.exception.ConflictException(
+                        "Cannot delete apartment due to existing data dependencies."
+                );
+            }
             throw new InternalServerException(e.getMessage());
         }
     }

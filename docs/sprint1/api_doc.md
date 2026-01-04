@@ -22,6 +22,8 @@ Tất cả các API đều yêu cầu xác thực bằng Bearer Token:
 Headers: Authorization: Bearer {token}
 ```
 
+Tất cả các method POST, PUT, DELETE chỉ có Admin hoặc FeeCollector mới có thể sử dụng
+
 Response sẽ luôn gồm 4 trường:
 ```
 {
@@ -106,7 +108,12 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
   ```json
   {
     "building": "A",
-    "room_number": "101"
+    "room_number": "101",
+    "head_resident_id": 3,
+    "residents": [
+      {"id": 3},
+      {"id": 10}
+    ]
   }
   ```
 
@@ -463,8 +470,14 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
   "balance": 20,
   (Fee bên dưới là thêm mới)
   "paid_fees": [
-    {"fee_id":  1},
-    {"fee_id":  3}
+    {
+      "fee_id":  4,
+      "pay_amount": 30
+    },
+    {
+      "fee_id": 12,
+      "pay_amount": 50
+    }
   ],
   // unpaid_fees cứ để [] trống thôi
   "unpaid_fees": [
@@ -634,8 +647,248 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
 
 
 ---
+## 8. Lịch sử giao dịch
 
-## 8. Enum & Trạng thái
+### 8.1. Lấy danh sách PayHistory
+GET /api/v1/pay-histories
+
+* Query:
+  * page: optional (default=10)
+  * limit: optional (default=1)
+  * apartment_id: number (optional)
+  * fee_id: number (optional)
+
+* Response:
+```json
+{
+  "page": 1,
+  "limit": 10,
+  "total_items": 2,
+  "pay_histories": [
+      {
+          "pay_history_id": 5,
+          "apartment_id": 51,
+          "fee_id": 4,
+          "fee_name": "Phí Vệ Sinh tháng 2025-07",
+          "fee_type_name": "OBLIGATORY",
+          "fee_category_name": "Phí Vệ Sinh",
+          "pay_datetime": "2026-01-01",
+          "pay_amount": 30.00,
+          "pay_note": "Hoàn thành phí"
+      },
+      {
+          "pay_history_id": 6,
+          "apartment_id": 51,
+          "fee_id": 12,
+          "fee_name": "Phí Gửi Xe Máy tháng 2025-06",
+          "fee_type_name": "OBLIGATORY",
+          "fee_category_name": "Phí Gửi Xe Máy",
+          "pay_datetime": "2026-01-01",
+          "pay_amount": 50.00,
+          "pay_note": "Hoàn thành phí"
+      }
+  ]
+}
+```
+
+### 8.2. GET PayHistory theo PayHistoryID
+GET /api/v1/adjustments/pay-histories/{pay_history_id}
+
+* Response:
+```json
+{
+  "pay_history_id": 6,
+  "apartment_id": 51,
+  "fee_id": 12,
+  "fee_name": "Phí Gửi Xe Máy tháng 2025-06",
+  "fee_type_name": "OBLIGATORY",
+  "fee_category_name": "Phí Gửi Xe Máy",
+  "pay_datetime": "2026-01-01",
+  "pay_amount": 50.00,
+  "pay_note": "Hoàn thành phí"
+}
+```
+---
+
+## 9. Lịch sử thay đổi balance (Do adjustment)
+
+### 9.1. Lấy danh sách AdjustmentBalance
+GET /api/v1/adjustment-balances
+
+* Query:
+  * page: optional (default=10)
+  * limit: optional (default=1)
+  * apartment_id: number (optional)
+  * fee_id: number (optional)
+  * adjustment_id: number (optional)
+
+* Response:
+```json
+{
+  "page": 1,
+  "limit": 10,
+  "total_items": 16,
+  "adjustment_balances": [
+    {
+      "adjustment_balance_id": 1,
+      "apartment_id": 9,
+      "fee_id": 6,
+      "adjustment_id": 33,
+      "fee_name": "Tiền Nước tháng 2025-06",
+      "adjustment_reason": "Tăng phí do ba sàn quá đà",
+      "old_balance": 150000.00,
+      "new_balance": 100000.00,
+      "fee_start_datetime": "2025-06-01",
+      "adjustment_start_datetime": "2025-10-15",
+      "adjustment_balance_note": "Thay đổi phí"
+    },
+    {
+      "adjustment_balance_id": 2,
+      "apartment_id": 3,
+      "fee_id": 6,
+      "adjustment_id": 33,
+      "fee_name": "Tiền Nước tháng 2025-06",
+      "adjustment_reason": "Tăng phí do ba sàn quá đà",
+      "old_balance": 150000.00,
+      "new_balance": 100000.00,
+      "fee_start_datetime": "2025-06-01",
+      "adjustment_start_datetime": "2025-10-15",
+      "adjustment_balance_note": "Thay đổi phí"
+    }
+  ]
+}
+```
+---
+
+### 9.2. Lấy AdjustmentBalance theo AdjustmentBalanceID
+GET /api/v1/adjustments/adjustment-balances/{adjustment_balance_id}
+
+* Response:
+```json
+{
+  "adjustment_balance_id": 1,
+  "apartment_id": 9,
+  "fee_id": 6,
+  "adjustment_id": 33,
+  "fee_name": "Tiền Nước tháng 2025-06",
+  "adjustment_reason": "Tăng phí do ba sàn quá đà",
+  "old_balance": 150000.00,
+  "new_balance": 100000.00,
+  "fee_start_datetime": "2025-06-01",
+  "adjustment_start_datetime": "2025-10-15",
+  "adjustment_balance_note": "Thay đổi phí"
+}
+```
+
+---
+
+## 10. Report API
+
+### 10.1. Lấy report apartment
+GET /api/v1/reports/apartment_common
+
+* Response:
+```json
+{
+  "resident_total": 140,
+  "room_total": 51,
+  "building_total": 2
+}
+```
+---
+
+### 10.2. Lấy report fee
+GET /api/v1/reports/fee_common
+
+* Response:
+```json
+{
+  "total_paid_fee_amount": 160.00,
+  "active_fee_count": 23,
+  "draft_fee_count": 0,
+  "closed_fee_count": 6,
+  "archived_fee_count": 0
+}
+```
+
+---
+
+## 11. Account
+
+**Các Role:** Admin, Citizen, FeeCollector
+
+### 11.1. Đăng ký
+
+* POST /api/v1/auth_service/register
+* Request body:
+
+  ```json
+  {
+  "username": "new_resident",
+  "password": "password123",
+  "email": "resident@example.com", (email này là email của user tương ứng)
+  "identity_number": "987654321", (12 chữ số)
+  "role": "Citizen"
+  }
+  ```
+
+### 11.2. Đăng nhập
+(Mọi lỗi không thành công đều quy về sai username/password)
+* PUT /api/v1/auth_service/login
+* Request body:
+  ```json
+  {
+   "username": "admin_user",
+   "password": "hashed_password"
+  }
+  ```
+
+* Response:
+```json
+{
+  "username": "admin_user",
+  "email": "admin@example.com",
+  "identity_number": "123456789", (12 chữ số)
+  "role": "Admin",
+  "access_token": "eyJhbG...",
+  "refresh_token": "eyJhbG..."
+}
+```
+
+### 6.3. Thay đổi mật khẩu
+* GET /api/v1/auth_service/change-password
+
+* Request
+```json
+{
+  "username": "admin_user",
+  "old_password": "old",
+  "new_password": "new"
+}
+```
+
+### 11.4. Refresh Token
+* GET /api/v1/adjustments/refresh
+* Request:
+
+```json
+{
+  "access_token": "old_expired_access_token",
+  "refresh_token": "current_valid_refresh_token"
+}
+```
+* Response:
+    ```json
+        {
+          "access_token": "new_access_token",
+          "refresh_token": "new_refresh_token"
+        }   
+    ```
+
+
+---
+
+## 12. Enum & Trạng thái
 
 ### FeeStatus
 
@@ -655,4 +908,4 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
 
 ### RoleType
 
-* Admin, Collector, Resident
+* Admin, FeeCollector, Citizen
