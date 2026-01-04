@@ -1,6 +1,7 @@
 import Sidebar from "../Components/SideBar/Sidebar";
 import Header from "../Components/Header/Header"; // 1. Import Header
 import { Outlet, useLocation } from "react-router-dom"; // 2. Import useLocation
+import Footer from "../Components/Footer/Footer";
 
 export default function MainLayout() {
   const location = useLocation();
@@ -34,6 +35,8 @@ export default function MainLayout() {
         }}>
           <Outlet />
         </div>
+
+        <Footer />
 
       </div>
     </div>

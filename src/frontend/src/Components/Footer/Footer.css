@@ -1,0 +1,10 @@
+.app-footer {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #5d6679;
+  font-size: 13px;
+}

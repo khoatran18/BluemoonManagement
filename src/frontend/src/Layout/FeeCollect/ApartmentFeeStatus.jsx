@@ -326,7 +326,28 @@ export default function ApartmentFeeStatus() {
         </div>
 
         <div className="fee-collect-actions fee-status-header-actions">
-          <Button className="fee-collect-btn-secondary" icon={null} onClick={() => navigate(-1)}>
+          <Button
+            className="fee-collect-btn-secondary fee-collect-btn-with-icon"
+            icon={
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M15 18l-6-6 6-6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
+            onClick={() => navigate(-1)}
+          >
             Quay lại
           </Button>
           <Button
@@ -358,6 +379,43 @@ export default function ApartmentFeeStatus() {
             onClick={() => fetchStatus({ force: true })}
           >
             Tải lại
+          </Button>
+          <Button
+            className="fee-collect-btn-primary fee-collect-btn-with-icon"
+            icon={
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6 6h15l-1.5 9h-13z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M6 6l-2-2H2"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M7 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm12 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+                  fill="currentColor"
+                />
+              </svg>
+            }
+            onClick={() =>
+              navigate(`/fee-collection/apartment/${id}/collect`, {
+                state: { apartmentId: id, feeStatus: data || location?.state?.feeStatus || null },
+              })
+            }
+          >
+            Thu phí
           </Button>
         </div>
       </div>

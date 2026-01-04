@@ -34,3 +34,17 @@ export const getApartmentFeeStatus = async (apartmentId, options = {}) => {
   if (useCache) apartmentFeeStatusCache.set(key, data);
   return data;
 };
+
+export const updateApartmentFeeStatus = async (apartmentId, payload) => {
+  if (apartmentId === undefined || apartmentId === null || apartmentId === "") {
+    throw new Error("apartmentId is required");
+  }
+
+  const data = await apiCall(() => axiosClient.put(`/apartment-fee-statuses/${apartmentId}`, payload), {
+    label: "updateApartmentFeeStatus",
+  });
+
+  // Invalidate cache since server-side status changed
+  clearApartmentFeeStatusCache(apartmentId);
+  return data;
+};
