@@ -140,3 +140,18 @@ export const getFeeCategories = async (params = {}) => {
 
   return [];
 };
+
+export const createFeeCategory = async (params) => {
+  return apiCall(
+    () =>
+      axiosClient.post('/fee-categories', {
+        fee_type_id: params.fee_type_id,
+        name: params.name,
+        description: params.description || '',
+      }),
+    {
+      label: 'createFeeCategory',
+      pick: (res) => res.data,
+    }
+  );
+};

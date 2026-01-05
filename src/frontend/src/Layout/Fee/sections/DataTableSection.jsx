@@ -3,7 +3,8 @@ import { ActionMenu } from "../../../Components/ActionMenu";
 import Table from "../../../Components/Table/Table";
 import Column from "../../../Components/Table/Column";
 import Tag from "../../../Components/Tag/Tag";
-import { getFees, getFeeDetails, deleteFee } from "../../../api/feeApi";
+import LoadingSpinner from "../../../Components/LoadingSpinner/LoadingSpinner";
+import { getFees, getFeeDetails, deleteFee, updateFee } from "../../../api/feeApi";
 import { createAdjustment, deleteAdjustment, getAdjustments, updateAdjustment } from "../../../api/adjustmentApi";
 import { DetailFeeModal } from "../../../Components/DetailFeeModal/DetailFeeModal";
 import { DeleteConfirmModal } from "../../../Components/DeleteConfirmModal";
@@ -52,6 +53,7 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
   const [adjustmentModalLoading, setAdjustmentModalLoading] = useState(false);
   const [adjustmentModalFeeId, setAdjustmentModalFeeId] = useState(null);
   const [editingAdjustment, setEditingAdjustment] = useState(null);
+  const [adjustmentModalFeeRange, setAdjustmentModalFeeRange] = useState({ effective_date: null, expiry_date: null });
 
   const [isDeleteAdjustmentOpen, setIsDeleteAdjustmentOpen] = useState(false);
   const [deleteAdjustmentTarget, setDeleteAdjustmentTarget] = useState(null);
@@ -119,7 +121,24 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
 
   const openAdjustmentsModal = async (fee) => {
     if (!fee?.id) return;
-    setFeeAdjustmentsFee({ fee_id: fee.id, fee_name: fee.name, status: fee.status });
+
+    let detail = null;
+    try {
+      const resp = await getFeeDetails(fee.id);
+      detail = resp;
+      if (detail && detail.data) detail = detail.data;
+      if (detail && detail.data) detail = detail.data;
+    } catch (err) {
+      detail = null;
+    }
+
+    setFeeAdjustmentsFee({
+      fee_id: fee.id,
+      fee_name: fee.name,
+      status: fee.status,
+      effective_date: detail?.effective_date || null,
+      expiry_date: detail?.expiry_date || null,
+    });
     setIsFeeAdjustmentsOpen(true);
     await fetchAdjustmentsForFee(fee.id);
   };
@@ -127,12 +146,28 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
   const openCreateAdjustment = (feeId) => {
     setAdjustmentModalFeeId(feeId);
     setEditingAdjustment(null);
+    if (feeAdjustmentsFee?.fee_id && String(feeAdjustmentsFee.fee_id) === String(feeId)) {
+      setAdjustmentModalFeeRange({
+        effective_date: feeAdjustmentsFee?.effective_date || null,
+        expiry_date: feeAdjustmentsFee?.expiry_date || null,
+      });
+    } else {
+      setAdjustmentModalFeeRange({ effective_date: null, expiry_date: null });
+    }
     setIsAdjustmentModalOpen(true);
   };
 
   const openEditAdjustment = (feeId, adj) => {
     setAdjustmentModalFeeId(feeId);
     setEditingAdjustment(adj);
+    if (feeAdjustmentsFee?.fee_id && String(feeAdjustmentsFee.fee_id) === String(feeId)) {
+      setAdjustmentModalFeeRange({
+        effective_date: feeAdjustmentsFee?.effective_date || null,
+        expiry_date: feeAdjustmentsFee?.expiry_date || null,
+      });
+    } else {
+      setAdjustmentModalFeeRange({ effective_date: null, expiry_date: null });
+    }
     setIsAdjustmentModalOpen(true);
   };
 
@@ -226,12 +261,52 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
     }
   };
 
+  const handleChangeFeeStatus = async (feeId, nextStatus) => {
+    if (!feeId || !nextStatus) return;
+    try {
+      const resp = await getFeeDetails(feeId);
+      let details = resp;
+      if (details && details.data) details = details.data;
+      if (details && details.data) details = details.data;
+
+      const current = (details?.status || details?.fee_status || "").toString().toUpperCase();
+      const desired = nextStatus.toString().toUpperCase();
+
+      if (current && current === desired) {
+        if (typeof onNotify === "function") {
+          onNotify({ message: "Trạng thái đã là giá trị này", variant: "info", duration: 2500 });
+        }
+        return;
+      }
+
+      const payload = {
+        fee_type_id: details?.fee_type_id,
+        fee_category_id: details?.fee_category_id,
+        fee_name: details?.fee_name,
+        fee_description: details?.fee_description,
+        fee_amount: details?.fee_amount,
+        applicable_month: details?.applicable_month,
+        effective_date: details?.effective_date,
+        expiry_date: details?.expiry_date,
+        status: desired,
+      };
+
+      await updateFee(feeId, payload);
+      await fetchFees();
+      if (typeof onNotify === "function") {
+        onNotify({ message: "Cập nhật trạng thái phí thành công", variant: "success", duration: 3000 });
+      }
+    } catch (err) {
+      if (typeof onNotify === "function") {
+        onNotify({ message: `Cập nhật trạng thái thất bại\n${err.message}`, variant: "error", duration: 4000 });
+      }
+    }
+  };
+
   return (
     <div className="fee-data-table">
       {loading ? (
-        <div className="fee-spinner">
-          <div></div>
-        </div>
+        <LoadingSpinner />
       ) : (
         <Table
           data={data}
@@ -296,32 +371,47 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
             title="Thao tác"
             key="actions"
             render={(_, record) => (
-              <ActionMenu
-                recordId={record.id}
-                actions={[
-                  {
-                    label: "Xem",
-                    icon: "view",
-                    type: "view",
-                    onClick: () => handleView(record.id)
-                  },
-                  {
-                    label: "Sửa",
-                    icon: "edit",
-                    type: "edit",
-                    onClick: () => handleEdit(record.id),
-                  },
-                  {
-                    label: "Xóa",
-                    icon: "delete",
-                    type: "delete",
-                    onClick: () => {
-                      setDeleteTarget({ id: record.id, name: record.name });
-                      setIsDeleteOpen(true);
+              <div className="fee-actions-cell">
+                {String(record?.status || "").toLowerCase() !== "closed" && (
+                  <button
+                    type="button"
+                    className="fee-close-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChangeFeeStatus(record.id, "CLOSED");
+                    }}
+                  >
+                    Đóng phí
+                  </button>
+                )}
+
+                <ActionMenu
+                  recordId={record.id}
+                  actions={[
+                    {
+                      label: "Xem",
+                      icon: "view",
+                      type: "view",
+                      onClick: () => handleView(record.id)
                     },
-                  },
-                ]}
-              />
+                    {
+                      label: "Sửa",
+                      icon: "edit",
+                      type: "edit",
+                      onClick: () => handleEdit(record.id),
+                    },
+                    {
+                      label: "Xóa",
+                      icon: "delete",
+                      type: "delete",
+                      onClick: () => {
+                        setDeleteTarget({ id: record.id, name: record.name });
+                        setIsDeleteOpen(true);
+                      },
+                    },
+                  ]}
+                />
+              </div>
             )}
           />
         </Table>
@@ -343,8 +433,11 @@ export default function DataTableSection({ activeType, activeStatus, fee_categor
         onClose={() => {
           setIsAdjustmentModalOpen(false);
           setEditingAdjustment(null);
+          setAdjustmentModalFeeRange({ effective_date: null, expiry_date: null });
         }}
         feeId={adjustmentModalFeeId}
+        feeEffectiveDate={adjustmentModalFeeRange?.effective_date}
+        feeExpiryDate={adjustmentModalFeeRange?.expiry_date}
         initialAdjustment={editingAdjustment}
         loading={adjustmentModalLoading}
         onSubmit={handleSubmitAdjustment}

@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Button from "../../Components/Button/Button";
 import Tag from "../../Components/Tag/Tag";
-import { clearApartmentFeeStatusCache, getApartmentFeeStatus, peekApartmentFeeStatusCache } from "../../api/feeCollectApi";
-
-import "../Fee/Fee.css";
+import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
+import { getApartmentFeeStatus } from "../../api/feeCollectApi";
+import { PaymentHistoriesModal } from "../../Components/PaymentHistoriesModal/PaymentHistoriesModal";
 import "./FeeCollect.css";
 import "../Apartment/ApartmentManagement.css";
+
+const EMPTY_ARRAY = Object.freeze([]);
 
 function toNumber(value) {
   const num = Number(value);
@@ -90,67 +92,41 @@ export default function ApartmentFeeStatus() {
   const [accountingVisible, setAccountingVisible] = useState(true);
   const [useBalance, setUseBalance] = useState(false);
 
+  const [isPayHistoriesOpen, setIsPayHistoriesOpen] = useState(false);
+
   const fetchStatus = useCallback(
-    async ({ force = false } = {}) => {
+    async () => {
       setLoading(true);
       setError(null);
 
       try {
-        if (force) clearApartmentFeeStatusCache(id);
-        const resp = await getApartmentFeeStatus(id, { useCache: true, force });
+        const resp = await getApartmentFeeStatus(id);
         setData(resp);
-        navigate(".", {
-          replace: true,
-          state: { ...(location?.state || {}), feeStatus: resp },
-        });
       } catch (e) {
         setError(e);
       } finally {
         setLoading(false);
       }
     },
-    [id, navigate, location?.state]
+    [id]
   );
 
   useEffect(() => {
-    let cancelled = false;
-
-    const stateData = location?.state?.feeStatus;
-    if (stateData && String(stateData?.apartment_id) === String(id)) {
-      setData(stateData);
-      setError(null);
-      setLoading(false);
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    const cached = peekApartmentFeeStatusCache(id);
-    if (cached) {
-      setData(cached);
-      setError(null);
-      setLoading(false);
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    (async () => {
-      try {
-        await fetchStatus({ force: false });
-      } catch (_) {
-        // handled inside fetchStatus
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    fetchStatus();
   }, [id, fetchStatus]);
 
-  const unpaidFees = data?.unpaid_fees || [];
-  const adjustments = data?.adjustments || [];
-  const extraAdjustments = data?.extra_adjustments || [];
+  const unpaidFees = useMemo(
+    () => (Array.isArray(data?.unpaid_fees) ? data.unpaid_fees : EMPTY_ARRAY),
+    [data]
+  );
+  const adjustments = useMemo(
+    () => (Array.isArray(data?.adjustments) ? data.adjustments : EMPTY_ARRAY),
+    [data]
+  );
+  const extraAdjustments = useMemo(
+    () => (Array.isArray(data?.extra_adjustments) ? data.extra_adjustments : EMPTY_ARRAY),
+    [data]
+  );
 
   const paidTotal = data?.total_paid;
   const balance = data?.balance;
@@ -350,6 +326,13 @@ export default function ApartmentFeeStatus() {
           >
             Quay lại
           </Button>
+
+          <Button
+            className="fee-collect-btn-secondary"
+            onClick={() => setIsPayHistoriesOpen(true)}
+          >
+            Lịch sử thanh toán
+          </Button>
           <Button
             className="fee-collect-btn-secondary fee-collect-btn-with-icon"
             icon={
@@ -420,10 +403,14 @@ export default function ApartmentFeeStatus() {
         </div>
       </div>
 
+      <PaymentHistoriesModal
+        isOpen={isPayHistoriesOpen}
+        onClose={() => setIsPayHistoriesOpen(false)}
+        apartmentId={id}
+      />
+
       {loading ? (
-        <div className="fee-spinner">
-          <div></div>
-        </div>
+        <LoadingSpinner />
       ) : error ? (
         <div className="fee-status-error">
           Không tải được dữ liệu: {String(error?.message || error)}

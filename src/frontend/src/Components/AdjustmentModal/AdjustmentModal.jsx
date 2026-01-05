@@ -10,6 +10,8 @@ export const AdjustmentModal = ({
   isOpen,
   onClose,
   feeId,
+  feeEffectiveDate,
+  feeExpiryDate,
   initialAdjustment,
   onSubmit,
   loading = false,
@@ -40,8 +42,42 @@ export const AdjustmentModal = ({
 
   if (!isOpen) return null;
 
+  const normalizeDate = (d) => {
+    const s = String(d || "").trim();
+    return s ? s : "";
+  };
+
+  const inRange = (date, min, max) => {
+    const v = normalizeDate(date);
+    if (!v) return true;
+    const minV = normalizeDate(min);
+    const maxV = normalizeDate(max);
+    if (minV && v < minV) return false;
+    if (maxV && v > maxV) return false;
+    return true;
+  };
+
+  const maxDate = (a, b) => {
+    const A = normalizeDate(a);
+    const B = normalizeDate(b);
+    if (!A) return B;
+    if (!B) return A;
+    return A > B ? A : B;
+  };
+
   const handleChange = (key) => (e) => {
-    setForm((prev) => ({ ...prev, [key]: e.target.value }));
+    const value = e.target.value;
+    if (key === "effective_date") {
+      setForm((prev) => {
+        const next = { ...prev, effective_date: value };
+        if (next.expiry_date && value && next.expiry_date < value) {
+          next.expiry_date = "";
+        }
+        return next;
+      });
+      return;
+    }
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -50,6 +86,20 @@ export const AdjustmentModal = ({
 
     const amount = Number(form.adjustment_amount);
     if (!Number.isFinite(amount)) return;
+
+    // Date constraints: adjustment dates must stay within the parent fee's date range.
+    if (!inRange(form.effective_date, feeEffectiveDate, feeExpiryDate)) {
+      alert("Ngày hiệu lực của điều chỉnh phải nằm trong khoảng ngày hiệu lực/ngày hết hạn của khoản phí.");
+      return;
+    }
+    if (!inRange(form.expiry_date, feeEffectiveDate, feeExpiryDate)) {
+      alert("Ngày hết hạn của điều chỉnh phải nằm trong khoảng ngày hiệu lực/ngày hết hạn của khoản phí.");
+      return;
+    }
+    if (form.effective_date && form.expiry_date && form.expiry_date < form.effective_date) {
+      alert("Ngày hết hạn phải sau hoặc bằng Ngày hiệu lực.");
+      return;
+    }
 
     const payload = {
       fee_id: feeId,
@@ -107,11 +157,23 @@ export const AdjustmentModal = ({
           <div className="adjustment-grid">
             <div className="adjustment-row">
               <label>Ngày hiệu lực</label>
-              <input type="date" value={form.effective_date} onChange={handleChange("effective_date")} />
+              <input
+                type="date"
+                value={form.effective_date}
+                onChange={handleChange("effective_date")}
+                min={normalizeDate(feeEffectiveDate) || undefined}
+                max={normalizeDate(feeExpiryDate) || undefined}
+              />
             </div>
             <div className="adjustment-row">
               <label>Ngày hết hạn</label>
-              <input type="date" value={form.expiry_date} onChange={handleChange("expiry_date")} />
+              <input
+                type="date"
+                value={form.expiry_date}
+                onChange={handleChange("expiry_date")}
+                min={maxDate(feeEffectiveDate, form.effective_date) || undefined}
+                max={normalizeDate(feeExpiryDate) || undefined}
+              />
             </div>
           </div>
 

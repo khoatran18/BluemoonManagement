@@ -29,7 +29,7 @@ export default function App() {
           }
         >
           <Route index element={<Overview />} />  
-          <Route path="overview" element={<ComingSoon />} />
+          <Route path="overview" element={<Overview />} />
           <Route path="apartment" element={<ApartmentManagement />} />
           <Route path="resident" element={<ResidentManagement />} />
           <Route path="fee" element={<Fee />}/>

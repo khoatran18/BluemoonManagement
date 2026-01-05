@@ -1,0 +1,90 @@
+.pay-history-state {
+  padding: 8px;
+  white-space: pre-line;
+}
+
+.pay-history-state--error {
+  white-space: pre-line;
+}
+
+.pay-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pay-history-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.pay-history-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pay-history-card__top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.pay-history-card__status {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pay-history-card__title {
+  font-weight: 700;
+  color: #1e293b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 420px;
+}
+
+.pay-history-card__amount {
+  font-weight: 800;
+  color: #1e293b;
+  white-space: nowrap;
+}
+
+.pay-history-card__meta {
+  display: grid;
+  gap: 6px;
+}
+
+.pay-history-card__meta-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pay-history-card__label {
+  color: #64748b;
+}
+
+.pay-history-card__value {
+  color: #1e293b;
+  text-align: right;
+}
+
+.pay-history-card__note {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+  color: #334155;
+  white-space: pre-line;
+}
+
+@media (max-width: 640px) {
+  .pay-history-card__title {
+    max-width: 220px;
+  }
+}

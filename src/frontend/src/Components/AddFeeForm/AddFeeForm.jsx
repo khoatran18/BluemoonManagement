@@ -1,6 +1,29 @@
 import React, { useState, useEffect } from "react";
 import "./AddFeeForm.css";
 
+const FEE_TYPE_LABEL_VI = {
+  OBLIGATORY: "Định kỳ",
+  VOLUNTARY: "Tự nguyện",
+  IMPROMPTU: "Đột xuất",
+};
+
+const getFeeTypeLabelVi = (feeType) => {
+  const raw = String(
+    feeType?.code ?? feeType?.key ?? feeType?.name ?? feeType?.fee_type_name ?? ""
+  ).trim();
+  if (!raw) return "";
+
+  const upper = raw.toUpperCase();
+  if (FEE_TYPE_LABEL_VI[upper]) return FEE_TYPE_LABEL_VI[upper];
+
+  const lower = raw.toLowerCase();
+  if (lower === "obligatory") return FEE_TYPE_LABEL_VI.OBLIGATORY;
+  if (lower === "voluntary") return FEE_TYPE_LABEL_VI.VOLUNTARY;
+  if (lower === "impromptu") return FEE_TYPE_LABEL_VI.IMPROMPTU;
+
+  return raw;
+};
+
 export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], onSubmit, onCancel, isEditing = false }) => {
   const [formData, setFormData] = useState({
     fee_type_id: initial.fee_type_id || (feeTypes[0] && feeTypes[0].id) || "",
@@ -77,25 +100,28 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
       }
 
       if (name === "effective_date") {
-        // enforce effective date inside chosen month
-        if (monthRange.start) {
+        // For create mode, enforce effective date inside chosen month.
+        // For edit mode, dates are optional and not constrained by month range.
+        if (!isEditing && monthRange.start) {
           if (value < monthRange.start || value > monthRange.end) {
             // ignore invalid selection
             setFormData(prev => ({ ...prev, effective_date: "", expiry_date: "" }));
             return;
           }
         }
+
         // if expiry exists and is not after new effective date, clear expiry
-        setFormData(prev => ({ ...prev, effective_date: value, expiry_date: (prev.expiry_date && prev.expiry_date > value) ? prev.expiry_date : "" }));
+        setFormData(prev => ({
+          ...prev,
+          effective_date: value,
+          expiry_date: (prev.expiry_date && prev.expiry_date > value) ? prev.expiry_date : "",
+        }));
         return;
       }
 
       if (name === "expiry_date") {
-        // ensure expiry is after effective date
-        if (formData.effective_date && !(value > formData.effective_date)) {
-          // ignore invalid expiry
-          return;
-        }
+        // keep simple sanity check: if both dates are set, expiry must be after effective
+        if (formData.effective_date && !(value > formData.effective_date)) return;
         setFormData(prev => ({ ...prev, expiry_date: value }));
         return;
       }
@@ -105,23 +131,30 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
 
   const submit = (e) => {
     e.preventDefault();
-      // Validation: applicable month required for date selection
-      if (!formData.applicable_month) {
-        alert("Vui lòng chọn Tháng áp dụng trước khi chọn ngày hiệu lực/ hạn.");
-        return;
+
+      if (!isEditing) {
+      
+        if (!formData.applicable_month) {
+          alert("Vui lòng chọn Tháng áp dụng trước khi chọn ngày hiệu lực/ hạn.");
+          return;
+        }
+
+        if (!formData.effective_date) {
+          alert("Vui lòng chọn Ngày hiệu lực trong tháng đã chọn.");
+          return;
+        }
+
+        if (formData.expiry_date && !(formData.expiry_date > formData.effective_date)) {
+          alert("Ngày hết hạn phải sau Ngày hiệu lực.");
+          return;
+        }
+      } else {
+        if (formData.effective_date && formData.expiry_date && !(formData.expiry_date > formData.effective_date)) {
+          alert("Ngày hết hạn phải sau Ngày hiệu lực.");
+          return;
+        }
       }
 
-      if (!formData.effective_date) {
-        alert("Vui lòng chọn Ngày hiệu lực trong tháng đã chọn.");
-        return;
-      }
-
-      if (formData.expiry_date && !(formData.expiry_date > formData.effective_date)) {
-        alert("Ngày hết hạn phải sau Ngày hiệu lực.");
-        return;
-      }
-
-      // convert fee_amount to number before submitting
       const payload = { ...formData, fee_amount: formData.fee_amount === "" ? 0 : Number(formData.fee_amount) };
 
       if (!onSubmit) return;
@@ -131,7 +164,6 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
           setLoading(true);
           await Promise.resolve(onSubmit(payload));
         } catch (err) {
-          // swallow here; caller may handle errors
           console.error('AddFeeForm submit error', err);
         } finally {
           setLoading(false);
@@ -145,7 +177,7 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
         <label htmlFor="fee_type_id">Loại phí</label>
         <select id="fee_type_id" name="fee_type_id" value={formData.fee_type_id} onChange={handleChange} disabled={isEditing || loading} required>
           {feeTypes.map(ft => (
-            <option key={ft.id} value={ft.id}>{ft.name}</option>
+            <option key={ft.id} value={ft.id}>{getFeeTypeLabelVi(ft)}</option>
           ))}
         </select>
       </div>
@@ -208,9 +240,9 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
             type="date"
             value={formData.effective_date}
             onChange={handleChange}
-            disabled={!monthRange.start || loading}
-            min={monthRange.start || undefined}
-            max={monthRange.end || undefined}
+            disabled={loading}
+            min={!isEditing ? (monthRange.start || undefined) : undefined}
+            max={!isEditing ? (monthRange.end || undefined) : undefined}
           />
       </div>
 
@@ -222,8 +254,12 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
             type="date"
             value={formData.expiry_date}
             onChange={handleChange}
-            disabled={!monthRange.start || !formData.effective_date || loading}
-            min={formData.effective_date ? formatDate(new Date(new Date(formData.effective_date).getTime() + 24*60*60*1000)) : (monthRange.start || undefined)}
+            disabled={loading}
+            min={!isEditing
+              ? (formData.effective_date
+                ? formatDate(new Date(new Date(formData.effective_date).getTime() + 24*60*60*1000))
+                : (monthRange.start || undefined))
+              : undefined}
           />
       </div>
 

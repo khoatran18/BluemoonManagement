@@ -27,7 +27,13 @@
   font-weight: 600;
 }
 
-.primary-btn:hover {
+.primary-btn:not(:disabled):hover {
   background: #1354D4          
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 

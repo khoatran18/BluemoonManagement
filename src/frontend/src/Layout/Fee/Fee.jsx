@@ -3,9 +3,10 @@ import { useState, useRef } from "react"
 import FilterSection from "./sections/FilterSection"
 import DataTableSection from "./sections/DataTableSection"
 import AddFeeForm from "../../Components/AddFeeForm/AddFeeForm";
+import AddFeeCategoryForm from "../../Components/AddFeeCategoryForm/AddFeeCategoryForm";
 import { Modal } from "../../Components/Modal/Modal";
 import { useToasts } from "../../Components/Toast/ToastContext";
-import { createFee, updateFee, getFeeDetails, getFeeTypes, getFeeCategories } from "../../api/feeApi";
+import { createFee, updateFee, getFeeDetails, getFeeTypes, getFeeCategories, createFeeCategory } from "../../api/feeApi";
 
 export default function Fee(){
     const [activeType, setActiveType] = useState([]);
@@ -17,11 +18,13 @@ export default function Fee(){
     const [filterEffectiveDate, setFilterEffectiveDate] = useState("");
     const [filterExpiryDate, setFilterExpiryDate] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [initialData, setInitialData] = useState({});
     const [feeTypes, setFeeTypes] = useState([]);
     const [feeCategories, setFeeCategories] = useState([]);
+    const [categoryRefreshToken, setCategoryRefreshToken] = useState(0);
 
     const refreshRef = useRef(null);
 
@@ -43,6 +46,16 @@ export default function Fee(){
         }
         setInitialData({});
         setIsModalOpen(true);
+    };
+
+    const openAddCategory = async () => {
+        try {
+            const typesResp = await getFeeTypes();
+            setFeeTypes(typesResp || []);
+        } catch (err) {
+            console.error('Failed to load fee types', err);
+        }
+        setIsCategoryModalOpen(true);
     };
 
     const openEdit = async (feeId) => {
@@ -82,6 +95,26 @@ export default function Fee(){
         }
     };
 
+    const handleCreateCategory = async (form) => {
+        try {
+            await createFeeCategory(form);
+            showToast('Tạo danh mục phí thành công', 'success');
+            setIsCategoryModalOpen(false);
+            setCategoryRefreshToken((v) => v + 1);
+
+            // Keep fee form dropdowns fresh if user opens Add Fee next.
+            try {
+                const catsResp = await getFeeCategories();
+                setFeeCategories(catsResp || []);
+            } catch {
+                // ignore
+            }
+        } catch (err) {
+            console.error('Create fee category error', err);
+            showToast(err?.message || 'Tạo danh mục phí thất bại', 'error');
+        }
+    };
+
     const { addToast } = useToasts();
     const showToast = (message, variant = 'success', duration = 4000) => {
         if (typeof addToast === 'function') addToast({ message, variant, duration });
@@ -106,6 +139,8 @@ export default function Fee(){
                 onChangeEffectiveDate={setFilterEffectiveDate}
                 onChangeExpiryDate={setFilterExpiryDate}
                 onAddFee={openAdd}
+                onAddCategory={openAddCategory}
+                categoryRefreshToken={categoryRefreshToken}
             />
 
             <DataTableSection 
@@ -124,6 +159,14 @@ export default function Fee(){
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? 'Cập nhật phí' : 'Thêm phí mới'}>
                 <AddFeeForm initial={initialData} feeTypes={feeTypes} feeCategories={feeCategories} isEditing={isEditing} onCancel={() => setIsModalOpen(false)} onSubmit={handleSubmit} />
+            </Modal>
+
+            <Modal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} title={'Thêm danh mục phí'}>
+                <AddFeeCategoryForm
+                    feeTypes={feeTypes}
+                    onCancel={() => setIsCategoryModalOpen(false)}
+                    onSubmit={handleCreateCategory}
+                />
             </Modal>
             {/* Toasts rendered by ToastProvider */}
         </div>

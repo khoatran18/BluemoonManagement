@@ -6,7 +6,7 @@ import { EditApartmentModal } from "../../../../Components/EditApartmentModal";
 import { DetailApartmentModal } from "../../../../Components/DetailApartmentModal";
 import { DeleteConfirmModal } from "../../../../Components/DeleteConfirmModal";
 import { deleteApartment, editApartment, getApartments, getApartmentDetail } from "../../../../api/apartmentApi";
-import "../../../Fee/Fee.css";
+import LoadingSpinner from "../../../../Components/LoadingSpinner/LoadingSpinner";
 import { getResidentDetail } from "../../../../api/residentApi";
 import { usePersistentState } from "../../../../hooks/usePersistentState";
 
@@ -208,9 +208,7 @@ export const ApartmentDataTableSection = ({ searchQuery = "", onNotify, refreshK
   return (
     <>
       {loading ? (
-        <div className="fee-spinner">
-          <div></div>
-        </div>
+        <LoadingSpinner />
       ) : (
         <Table
           data={data}

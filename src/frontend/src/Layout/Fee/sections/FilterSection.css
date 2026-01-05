@@ -45,9 +45,11 @@
   opacity: 0.6;
 }
 
-/* Add button alignment */
-.filter-add-btn {
+/* Add buttons alignment */
+.filter-add-actions {
   margin-left: auto;
+  display: inline-flex;
+  gap: 10px;
 }
 
 /* Styles for Add Resident button moved from inline classes */
@@ -64,7 +66,16 @@
   color: #ffffff;
   cursor: pointer;
   transition: background-color 0.15s ease, transform 0.15s ease;
-  width: 192px; /* roughly w-48 */
+  width: auto;
+}
+
+.filter-add-btn-category {
+  background: white;
+  color: #2563eb;
+}
+
+.filter-add-btn-category:hover {
+  background: #f7f9fc;
 }
 
 .filter-add-btn:hover {

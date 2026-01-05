@@ -37,7 +37,6 @@ export default function Toast({ open, message, variant = 'success', duration = 4
 
   if (!visible && !open) return null;
 
-  // Only apply 'toast-enter' on first appearance, not on every re-render
   const cls = `toast ${variant === 'error' ? 'toast-error' : 'toast-success'} ${exiting ? 'toast-exit' : hasAppeared ? 'toast-enter' : ''}`;
 
   return (

@@ -6,7 +6,7 @@ import { ActionMenu } from "../../../../Components/ActionMenu";
 import { DetailResidentModal } from "../../../../Components/DetailResidentModal";
 import { EditResidentModal } from "../../../../Components/EditResidentModal";
 import { DeleteConfirmModal } from "../../../../Components/DeleteConfirmModal";
-import "../../../Fee/Fee.css";
+import LoadingSpinner from "../../../../Components/LoadingSpinner/LoadingSpinner";
 import { usePersistentState } from "../../../../hooks/usePersistentState";
 
 export const DataTableSection = ({
@@ -207,9 +207,7 @@ export const DataTableSection = ({
   return (
     <>
       {loading ? (
-        <div className="fee-spinner">
-          <div></div>
-        </div>
+        <LoadingSpinner />
       ) : (
         <Table
           data={data}

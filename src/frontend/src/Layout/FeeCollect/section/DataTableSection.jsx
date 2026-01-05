@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Table from "../../../Components/Table/Table";
 import Column from "../../../Components/Table/Column";
 import Button from "../../../Components/Button/Button";
+import LoadingSpinner from "../../../Components/LoadingSpinner/LoadingSpinner";
 import { getApartments, getApartmentDetail } from "../../../api/apartmentApi";
-
-import "../../Fee/Fee.css";
 import "../FeeCollect.css";
 
 const FEE_COLLECTION_TABLE_STATE_KEY = "fee-collection-table-state:v1";
@@ -129,9 +128,7 @@ export const FeeCollectDataTableSection = ({ searchQuery = "" }) => {
 	return (
 		<>
 			{loading ? (
-				<div className="fee-spinner">
-					<div></div>
-				</div>
+				<LoadingSpinner />
 			) : (
 				<Table
 					data={data}

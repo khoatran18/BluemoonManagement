@@ -1,0 +1,60 @@
+.add-fee-category-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.add-fee-category-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.add-fee-category-form label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.add-fee-category-form input,
+.add-fee-category-form select,
+.add-fee-category-form textarea {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e6e9ef;
+  font-size: 14px;
+}
+
+.add-fee-category-form textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.add-fee-category-form .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.add-fee-category-form .btn-cancel {
+  background: transparent;
+  border: 1px solid #e6e9ef;
+  color: #334155;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.add-fee-category-form .btn-submit {
+  background: #2563eb;
+  border: none;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.add-fee-category-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
