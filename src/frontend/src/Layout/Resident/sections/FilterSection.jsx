@@ -192,9 +192,11 @@ export default function FilterSection({
         </div>
       )}
 
-      <AddButton className="filter-add-btn" onClick={handleAddResidentClick}>
-        THÊM CƯ DÂN
-      </AddButton>
+      <div className="filter-add-actions">
+        <AddButton className="filter-add-btn" onClick={handleAddResidentClick}>
+          THÊM CƯ DÂN
+        </AddButton>
+      </div>
 
       <Modal isOpen={isModalOpen} onClose={handleModalClose} title="Thêm dân cư mới">
         {errorMessage && (

@@ -11,6 +11,8 @@ export default function MainLayout() {
     if (path.includes('/apartment')) return 'Quản lý căn hộ ';
     if (path.includes('/resident')) return 'Quản lý cư dân';
     if (path.includes('/fee')) return 'Quản lý phí';
+    if (path.includes('/my-apartment')) return 'Thông tin căn hộ';
+    if (path.includes('/my-fee-status')) return 'Tình trạng phí';
     // Thêm các case khác tùy ý
     return 'Tổng quan';
   };

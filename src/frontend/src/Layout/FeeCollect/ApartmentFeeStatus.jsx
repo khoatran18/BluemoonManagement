@@ -5,10 +5,15 @@ import Tag from "../../Components/Tag/Tag";
 import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
 import { getApartmentFeeStatus } from "../../api/feeCollectApi";
 import { PaymentHistoriesModal } from "../../Components/PaymentHistoriesModal/PaymentHistoriesModal";
+import { AdjustmentModal } from "../../Components/AdjustmentModal/AdjustmentModal";
+import { useToasts } from "../../Components/Toast/ToastContext";
+import { createAdjustment } from "../../api/adjustmentApi";
+import {
+  getApartmentSpecificAdjustmentsByApartmentId,
+  updateApartmentSpecificAdjustmentsByApartmentId,
+} from "../../api/apartmentApi";
 import "./FeeCollect.css";
 import "../Apartment/ApartmentManagement.css";
-
-const EMPTY_ARRAY = Object.freeze([]);
 
 function toNumber(value) {
   const num = Number(value);
@@ -84,6 +89,19 @@ export default function ApartmentFeeStatus() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { addToast } = useToasts();
+
+  const notify = useCallback(
+    ({ ok, message }) => {
+      if (typeof addToast !== "function") return;
+      addToast({
+        variant: ok ? "success" : "error",
+        message: message || (ok ? "Thành công." : "Thất bại."),
+        duration: 4000,
+      });
+    },
+    [addToast]
+  );
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -93,6 +111,8 @@ export default function ApartmentFeeStatus() {
   const [useBalance, setUseBalance] = useState(false);
 
   const [isPayHistoriesOpen, setIsPayHistoriesOpen] = useState(false);
+  const [isApartmentSpecificOpen, setIsApartmentSpecificOpen] = useState(false);
+  const [apartmentSpecificSaving, setApartmentSpecificSaving] = useState(false);
 
   const fetchStatus = useCallback(
     async () => {
@@ -115,18 +135,9 @@ export default function ApartmentFeeStatus() {
     fetchStatus();
   }, [id, fetchStatus]);
 
-  const unpaidFees = useMemo(
-    () => (Array.isArray(data?.unpaid_fees) ? data.unpaid_fees : EMPTY_ARRAY),
-    [data]
-  );
-  const adjustments = useMemo(
-    () => (Array.isArray(data?.adjustments) ? data.adjustments : EMPTY_ARRAY),
-    [data]
-  );
-  const extraAdjustments = useMemo(
-    () => (Array.isArray(data?.extra_adjustments) ? data.extra_adjustments : EMPTY_ARRAY),
-    [data]
-  );
+  const unpaidFees = data?.unpaid_fees || [];
+  const adjustments = data?.adjustments || [];
+  const extraAdjustments = data?.extra_adjustments || [];
 
   const paidTotal = data?.total_paid;
   const balance = data?.balance;
@@ -203,11 +214,16 @@ export default function ApartmentFeeStatus() {
     const type = String(adj?.adjustment_type || "").toLowerCase();
     const signLabel = type.includes("decrease") ? "-" : "+";
     const amountVariant = type.includes("decrease") ? "decrease" : type.includes("increase") ? "increase" : "";
+    const isApartmentSpecific = String(adj?.fee_id) === "-1";
 
     return (
-      <div className="fee-status-adjustment" key={`${keyPrefix}-${adj?.adjustment_id ?? Math.random()}`}>
+      <div
+        className={`fee-status-adjustment ${isApartmentSpecific ? "fee-status-adjustment--apartment-specific" : ""}`}
+        key={`${keyPrefix}-${adj?.adjustment_id ?? Math.random()}`}
+      >
         <div className="fee-status-adjustment-main">
           <div className="fee-status-adjustment-title">
+            {isApartmentSpecific ? <span className="fee-status-adjustment-badge">Đặc quyền</span> : null}
             #{adj?.adjustment_id} · {adj?.reason || "(Không có lý do)"}
           </div>
           <div className={`fee-status-adjustment-amount ${amountVariant ? `fee-status-adjustment-amount--${amountVariant}` : ""}`}>
@@ -219,6 +235,35 @@ export default function ApartmentFeeStatus() {
         </div>
       </div>
     );
+  };
+
+  const handleCreateApartmentSpecificAdjustment = async (payload) => {
+    setApartmentSpecificSaving(true);
+    try {
+      const created = await createAdjustment({ ...payload, fee_id: -1 });
+      const createdId = created?.adjustment_id;
+      if (!createdId) {
+        throw new Error("Không tạo được điều chỉnh (thiếu adjustment_id)");
+      }
+
+      const current = await getApartmentSpecificAdjustmentsByApartmentId(id);
+      const currentIds = (current?.apartment_specific_adjustments || [])
+        .map((a) => a?.adjustment_id)
+        .filter((v) => v !== undefined && v !== null);
+
+      const nextIds = Array.from(new Set([...currentIds, createdId]));
+
+      await updateApartmentSpecificAdjustmentsByApartmentId(id, nextIds);
+
+      setIsApartmentSpecificOpen(false);
+      await fetchStatus();
+
+      notify({ ok: true, message: "Tạo điều chỉnh đặc quyền thành công." });
+    } catch (e) {
+      notify({ ok: false, message: String(e?.message || e) });
+    } finally {
+      setApartmentSpecificSaving(false);
+    }
   };
 
   const renderFeeRow = (fee, { overdue = false } = {}) => {
@@ -333,6 +378,36 @@ export default function ApartmentFeeStatus() {
           >
             Lịch sử thanh toán
           </Button>
+
+          <Button
+            className="fee-collect-btn-secondary fee-collect-btn-with-icon"
+            icon={
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 5v14"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M5 12h14"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            }
+            onClick={() => setIsApartmentSpecificOpen(true)}
+          >
+            Điều chỉnh đặc quyền
+          </Button>
           <Button
             className="fee-collect-btn-secondary fee-collect-btn-with-icon"
             icon={
@@ -407,6 +482,16 @@ export default function ApartmentFeeStatus() {
         isOpen={isPayHistoriesOpen}
         onClose={() => setIsPayHistoriesOpen(false)}
         apartmentId={id}
+      />
+
+      <AdjustmentModal
+        isOpen={isApartmentSpecificOpen}
+        onClose={() => {
+          if (!apartmentSpecificSaving) setIsApartmentSpecificOpen(false);
+        }}
+        feeId={-1}
+        onSubmit={handleCreateApartmentSpecificAdjustment}
+        loading={apartmentSpecificSaving}
       />
 
       {loading ? (

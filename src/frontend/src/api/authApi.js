@@ -1,4 +1,5 @@
 import axiosNoAuth from './axiosNoAuth';
+import axiosClient from './axiosClient';
 import { apiCall } from './apiCall';
 
 const AUTH_BASE = '/auth_service';
@@ -33,4 +34,8 @@ export const refreshTokens = async ({ accessToken, refreshToken }) => {
       }),
     { label: 'refreshTokens' }
   );
+};
+
+export const getMe = async () => {
+  return apiCall(() => axiosClient.get(`${AUTH_BASE}/me`), { label: 'getMe' });
 };

@@ -102,9 +102,11 @@ export default function FilterSection({ search = "", onSearchChange, onNotify, o
         </div>
       )}
 
-      <AddButton className="filter-add-btn" onClick={handleAddApartmentClick}>
-        THÊM CĂN HỘ
-      </AddButton>
+      <div className="filter-add-actions">
+        <AddButton className="filter-add-btn" onClick={handleAddApartmentClick}>
+          THÊM CĂN HỘ
+        </AddButton>
+      </div>
 
       <Modal isOpen={isModalOpen} onClose={handleModalClose} title="Thêm căn hộ mới">
         <AddApartmentForm onSubmit={handleAddApartmentSubmit} onCancel={handleModalClose} />

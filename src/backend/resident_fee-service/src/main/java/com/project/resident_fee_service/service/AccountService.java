@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
 @ApplicationScoped
 public class AccountService {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(AccountService.class);
+    private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     @Inject
     AccountRepository accountRepository;
@@ -35,6 +34,32 @@ public class AccountService {
     AccountMapper accountMapper = new AccountMapper();
 
     ////////////////////////////////////////
+    // 0. ME (return MeResponseDTO)
+    ////////////////////////////////////////
+
+    @Transactional
+    public AccountDTO.MeResponseDTO me(Long accountId) {
+        if (accountId == null) {
+            throw new UnauthorizedException("Missing accountId");
+        }
+
+        Account entity = accountRepository.findById(accountId);
+        if (entity == null) {
+            throw new UnauthorizedException("Account not found");
+        }
+
+        // Touch lazy relations inside transaction.
+        if (entity.getResident() != null) {
+            entity.getResident().getResidentId();
+            if (entity.getResident().getApartment() != null) {
+                entity.getResident().getApartment().getApartmentId();
+            }
+        }
+
+        return accountMapper.EntityToMeResponseDTO(entity);
+    }
+
+    ////////////////////////////////////////
     // 1. REGISTER (void)
     ////////////////////////////////////////
 
@@ -43,14 +68,12 @@ public class AccountService {
 
         log.info("[Account] [Service] getPayHistoriesByFilter Start");
         log.info(
-                "Input: RegisterRequestDTO={}", dto
-        );
+                "Input: RegisterRequestDTO={}", dto);
 
         if (accountRepository.existsUsername(dto.Username)) {
             log.error("[Account] [Service] register Error: Username already exists");
             throw new BadRequestException("Username already exists");
         }
-
 
         // Convert DTO -> Entity
         Account newAccount = accountMapper.RegisterRequestDTOToEntity(dto);
@@ -75,7 +98,6 @@ public class AccountService {
             throw new InternalServerException("Error creating account: " + e.getMessage());
         }
     }
-
 
     ////////////////////////////////////////
     // 2. LOGIN (return LoginResponseDTO)
@@ -107,7 +129,6 @@ public class AccountService {
         return accountMapper.EntityToLoginResponseDTO(entity, accessToken, refreshToken);
     }
 
-
     ////////////////////////////////////////
     // 3. CHANGE PASSWORD (void)
     ////////////////////////////////////////
@@ -137,7 +158,6 @@ public class AccountService {
         log.info("[Account] [Service] changePassword End");
         log.info("Output: None");
     }
-
 
     ////////////////////////////////////////
     // 4. REFRESH TOKEN (return RefreshTokenResponseDTO)

@@ -22,8 +22,7 @@ public class AccountMapper {
     public AccountDTO.LoginResponseDTO EntityToLoginResponseDTO(
             Account entity,
             String accessToken,
-            String refreshToken
-    ) {
+            String refreshToken) {
         AccountDTO.LoginResponseDTO dto = new AccountDTO.LoginResponseDTO();
 
         dto.Username = entity.getUsername();
@@ -51,6 +50,32 @@ public class AccountMapper {
             dto.ResidentId = entity.getResident().getResidentId();
         else
             dto.ResidentId = null;
+
+        return dto;
+    }
+
+    ///////////////////////////// ME /////////////////////////////
+
+    public AccountDTO.MeResponseDTO EntityToMeResponseDTO(Account entity) {
+        AccountDTO.MeResponseDTO dto = new AccountDTO.MeResponseDTO();
+
+        dto.AccountId = entity.getAccountId();
+        dto.Username = entity.getUsername();
+        dto.Email = entity.getEmail();
+        dto.IdentityNumber = entity.getIdentityNumber();
+        dto.Role = entity.getRole();
+
+        if (entity.getResident() != null) {
+            dto.ResidentId = entity.getResident().getResidentId();
+            if (entity.getResident().getApartment() != null) {
+                dto.ApartmentId = entity.getResident().getApartment().getApartmentId();
+            } else {
+                dto.ApartmentId = null;
+            }
+        } else {
+            dto.ResidentId = null;
+            dto.ApartmentId = null;
+        }
 
         return dto;
     }

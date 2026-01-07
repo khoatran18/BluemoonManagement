@@ -8,6 +8,7 @@ import sidebarFee from "../../assets/icon/sidebar/sidebar_fee.svg";
 import sidebarOverview from "../../assets/icon/sidebar/sidebar_overview.svg";
 import sidebarPay from "../../assets/icon/sidebar/sidebar_pay.svg";
 import { FiChevronDown } from "react-icons/fi";
+import { getCurrentRole, ROLE } from "../../auth/authInfo";
 
 const SidebarItem = ({ icon, label, to, active, onClick }) => {
   const navigate = useNavigate()
@@ -60,6 +61,10 @@ const SidebarNav = {
     management: "fee",         
     collection: "fee-collection" 
   },
+  citizen: {
+    myApartment: "my-apartment",
+    myFeeStatus: "my-fee-status",
+  },
   announcement: "announcement",
   pay: "pay"
 }
@@ -74,6 +79,11 @@ const Sidebar = () => {
   const activeRouteKey = (location.pathname || "/").split("/")[1] || SidebarNav.overview;
   const isApartmentRoute = Object.values(SidebarNav.apartment).includes(activeRouteKey);
   const isFeeRoute = Object.values(SidebarNav.fee).includes(activeRouteKey);
+
+  const role = getCurrentRole();
+  const isCitizen = role === ROLE.Citizen;
+  const isCollector = role === ROLE.FeeCollector;
+  const isAdmin = role === ROLE.Admin;
 
   return (
     <>
@@ -96,59 +106,93 @@ const Sidebar = () => {
 
         {/* Menu */}
         <nav className="sidebar-nav">
-          <SidebarItem icon={sidebarOverview} label="Tổng quan"
-            to={`/${SidebarNav.overview}`}
-            active={activeRouteKey === SidebarNav.overview}
-            onClick={() => { setSidebarOpen(false) }}
-          />
+          {isCitizen ? (
+            <>
+              <SidebarItem
+                icon={sidebarApartment}
+                label="Thông tin căn hộ"
+                to={`/${SidebarNav.citizen.myApartment}`}
+                active={activeRouteKey === SidebarNav.citizen.myApartment}
+                onClick={() => {
+                  setSidebarOpen(false);
+                }}
+              />
 
-          <SidebarDropdown
-            icon={sidebarApartment}
-            label="Quản lý chung cư"
-            open={openApartmentMenu || isApartmentRoute}
-            onToggle={() => setOpenApartmentMenu(!openApartmentMenu)}>
-            <SidebarItem label="Căn hộ"
-              to={`/${SidebarNav.apartment.apartment}`}
-              active={activeRouteKey === SidebarNav.apartment.apartment}
-              onClick={() => { setSidebarOpen(false) }}
-            />
+              <SidebarItem
+                icon={sidebarFee}
+                label="Tình trạng phí"
+                to={`/${SidebarNav.citizen.myFeeStatus}`}
+                active={activeRouteKey === SidebarNav.citizen.myFeeStatus}
+                onClick={() => {
+                  setSidebarOpen(false);
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <SidebarItem
+                icon={sidebarOverview}
+                label="Tổng quan"
+                to={`/${SidebarNav.overview}`}
+                active={activeRouteKey === SidebarNav.overview}
+                onClick={() => {
+                  setSidebarOpen(false);
+                }}
+              />
 
-            <SidebarItem label="Cư dân"
-              to={`/${SidebarNav.apartment.resident}`}
-              active={activeRouteKey === SidebarNav.apartment.resident}
-              onClick={() => { setSidebarOpen(false) }}
-            />
-          </SidebarDropdown>
+              {isAdmin ? (
+                <SidebarDropdown
+                  icon={sidebarApartment}
+                  label="Quản lý chung cư"
+                  open={openApartmentMenu || isApartmentRoute}
+                  onToggle={() => setOpenApartmentMenu(!openApartmentMenu)}>
+                  <SidebarItem
+                    label="Căn hộ"
+                    to={`/${SidebarNav.apartment.apartment}`}
+                    active={activeRouteKey === SidebarNav.apartment.apartment}
+                    onClick={() => {
+                      setSidebarOpen(false);
+                    }}
+                  />
 
-          <SidebarDropdown
-            icon={sidebarFee}
-            label="Quản lý phí"
-            open={openFeeMenu || isFeeRoute}
-            onToggle={() => setOpenFeeMenu(!openFeeMenu)}>
-            <SidebarItem label="Danh sách phí"
-              to={`/${SidebarNav.fee.management}`}
-              active={activeRouteKey === SidebarNav.fee.management}
-              onClick={() => { setSidebarOpen(false) }}
-            />
+                  <SidebarItem
+                    label="Cư dân"
+                    to={`/${SidebarNav.apartment.resident}`}
+                    active={activeRouteKey === SidebarNav.apartment.resident}
+                    onClick={() => {
+                      setSidebarOpen(false);
+                    }}
+                  />
+                </SidebarDropdown>
+              ) : null}
 
-            <SidebarItem label="Thu phí"
-              to={`/${SidebarNav.fee.collection}`}
-              active={activeRouteKey === SidebarNav.fee.collection}
-              onClick={() => { setSidebarOpen(false) }}
-            />
-          </SidebarDropdown>
+              {(isAdmin || isCollector) ? (
+                <SidebarDropdown
+                  icon={sidebarFee}
+                  label="Quản lý phí"
+                  open={openFeeMenu || isFeeRoute}
+                  onToggle={() => setOpenFeeMenu(!openFeeMenu)}>
+                  <SidebarItem
+                    label="Danh sách phí"
+                    to={`/${SidebarNav.fee.management}`}
+                    active={activeRouteKey === SidebarNav.fee.management}
+                    onClick={() => {
+                      setSidebarOpen(false);
+                    }}
+                  />
 
-          <SidebarItem icon={sidebarAnnouncement} label="Thông báo"
-            to={`/${SidebarNav.announcement}`}
-            active={activeRouteKey === SidebarNav.announcement}
-            onClick={() => { setSidebarOpen(false) }}
-          />
-
-          <SidebarItem icon={sidebarPay} label="Thanh toán"
-            to={`/${SidebarNav.pay}`}
-            active={activeRouteKey === SidebarNav.pay}
-            onClick={() => { setSidebarOpen(false) }}
-          />
+                  <SidebarItem
+                    label="Thu phí"
+                    to={`/${SidebarNav.fee.collection}`}
+                    active={activeRouteKey === SidebarNav.fee.collection}
+                    onClick={() => {
+                      setSidebarOpen(false);
+                    }}
+                  />
+                </SidebarDropdown>
+              ) : null}
+            </>
+          )}
         </nav>
       </div>
     </>

@@ -1,30 +1,41 @@
 .overview-page {
-  padding: 16px;
+  padding: 24px;
+  min-height: 100vh;
+  width: 100%;
+  --text: #111827;
+  --muted: #6b7280;
+  --blue: #2563eb;
+  --blue-2: #0ea5e9;
 }
 
 .overview-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+  min-height: calc(100vh - 48px);
 }
 
 @media (min-width: 960px) {
   .overview-grid {
     grid-template-columns: 1fr 1.2fr;
     align-items: start;
+    align-items: stretch;
   }
 }
 
 .overview-card {
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 16px;
   background: #fff;
-  padding: 16px;
+  padding: 24px;
+  height: 100%;
+  color: var(--text);
 }
 
 .overview-card__title {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--blue);
   margin-bottom: 10px;
 }
 
@@ -36,15 +47,72 @@
 }
 
 .overview-kpi__value {
-  font-size: 42px;
+  font-size: 78px;
   font-weight: 700;
   line-height: 1;
-  color: #111827;
+  color: var(--text);
+}
+
+/* Apartment overview: center + bigger KPI */
+.overview-card--apartment {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.overview-card--apartment .overview-card__title {
+  width: 100%;
+}
+
+.overview-card--apartment .overview-kpi {
+  justify-content: center;
+}
+
+.overview-card--apartment .overview-kpi__value {
+  font-size: 96px;
+}
+
+.overview-card--apartment .overview-card__meta {
+  justify-content: center;
+}
+
+/* Fee overview: center ALL card content */
+.overview-card--fee {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.overview-card--fee .overview-card__title,
+.overview-card--fee .overview-subtitle {
+  width: 100%;
+}
+
+.overview-card--fee .fee-pie {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.overview-card--fee .fee-pie__legend {
+  width: auto;
+}
+
+.overview-card--fee .fee-legend__row {
+  grid-template-columns: 10px auto auto;
+  justify-content: center;
+}
+
+.overview-card--fee .fee-legend__value {
+  text-align: left;
 }
 
 .overview-kpi__label {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--muted);
 }
 
 .overview-card__meta {
@@ -52,16 +120,124 @@
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
-  color: #374151;
-  font-size: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
 }
 
 .overview-card__meta strong {
-  font-weight: 600;
+  font-weight: 900;
+  color: var(--blue);
 }
 
 .overview-subtitle {
   margin-top: 4px;
+  color: var(--muted);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.overview-subtitle strong {
+  font-weight: 900;
+  color: var(--blue);
+}
+
+.fee-pie {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 14px;
+  align-items: center;
+}
+
+@media (max-width: 520px) {
+  .fee-pie {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
+
+.fee-pie__chart {
+  width: 220px;
+  height: 220px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fee-pie__svg {
+  width: 220px;
+  height: 220px;
+  display: block;
+}
+
+.fee-pie__bg {
+  fill: none;
+  stroke: #f3f4f6;
+  stroke-width: 4.6;
+}
+
+.fee-pie__slice {
+  fill: none;
+  stroke-width: 4.6;
+  stroke-linecap: butt;
+  transform: rotate(-90deg);
+  transform-origin: 21px 21px;
+}
+
+.fee-pie__center-value {
+  font-size: 8.6px;
+  font-weight: 900;
+}
+
+.fee-pie__center-label {
+  font-size: 4.4px;
+  font-weight: 800;
+}
+
+.fee-pie__legend {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+}
+
+.fee-legend__row {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.fee-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  filter: saturate(1.15) contrast(1.25);
+}
+
+.fee-legend__label {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.fee-legend__value {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--blue);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.fee-legend__pct {
+  color: var(--blue-2);
+  font-weight: 900;
+}
+
+.fee-pie__empty {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
   color: #6b7280;
   font-size: 13px;
 }

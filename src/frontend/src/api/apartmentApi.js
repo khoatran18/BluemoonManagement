@@ -60,3 +60,28 @@ export const deleteApartment = async (apartmentId) => {
   );
 };
 
+export const getApartmentSpecificAdjustmentsByApartmentId = async (apartmentId) => {
+  if (apartmentId === undefined || apartmentId === null || apartmentId === "") {
+    throw new Error("apartmentId is required");
+  }
+
+  return apiCall(
+    () => axiosClient.get(`/apartments/apartment_specific_adjustments/${apartmentId}`),
+    { label: "getApartmentSpecificAdjustmentsByApartmentId" }
+  );
+};
+
+export const updateApartmentSpecificAdjustmentsByApartmentId = async (apartmentId, adjustmentIds) => {
+  if (apartmentId === undefined || apartmentId === null || apartmentId === "") {
+    throw new Error("apartmentId is required");
+  }
+
+  return apiCall(
+    () =>
+      axiosClient.put(`/apartments/apartment_specific_adjustments/${apartmentId}`, {
+        adjustment_ids: Array.isArray(adjustmentIds) ? adjustmentIds : [],
+      }),
+    { label: "updateApartmentSpecificAdjustmentsByApartmentId" }
+  );
+};
+

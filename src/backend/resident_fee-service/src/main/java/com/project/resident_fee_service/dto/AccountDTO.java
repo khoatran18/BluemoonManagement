@@ -108,4 +108,30 @@ public class AccountDTO {
         public Long ResidentId;
     }
 
+    ///////////////////////////// ME /////////////////////////////
+
+    public static class MeResponseDTO {
+
+        @JsonProperty("account_id")
+        public Long AccountId;
+
+        @JsonProperty("username")
+        public String Username;
+
+        @JsonProperty("email")
+        public String Email;
+
+        @JsonProperty("identity_number")
+        public String IdentityNumber;
+
+        @JsonProperty("role")
+        public Account.RoleEnum Role;
+
+        @JsonProperty("resident_id")
+        public Long ResidentId;
+
+        @JsonProperty("apartment_id")
+        public Long ApartmentId;
+    }
+
 }

@@ -3,10 +3,13 @@ package com.project.resident_fee_service.resource;
 import com.project.resident_fee_service.dto.AccountDTO;
 import com.project.resident_fee_service.service.AccountService;
 import com.project.common_package.exception.ApiResponse;
+import com.project.resident_fee_service.middleware.JwtPayload;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
@@ -17,11 +20,30 @@ import org.slf4j.LoggerFactory;
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResource {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(AccountResource.class);
+    private static final Logger log = LoggerFactory.getLogger(AccountResource.class);
 
     @Inject
     AccountService accountService;
+
+    ////////////////////////////////////////
+    // 0. ME
+    ////////////////////////////////////////
+
+    @GET
+    @Path("/me")
+    public Response me(@Context ContainerRequestContext ctx) {
+        JwtPayload user = (JwtPayload) ctx.getProperty("user");
+        Long accountId = null;
+        try {
+            if (user != null && user.accountId != null)
+                accountId = Long.valueOf(user.accountId);
+        } catch (Exception ignored) {
+            accountId = null;
+        }
+
+        AccountDTO.MeResponseDTO resDTO = accountService.me(accountId);
+        return Response.ok(ApiResponse.ok(resDTO)).build();
+    }
 
     ////////////////////////////////////////
     // 1. LOGIN
