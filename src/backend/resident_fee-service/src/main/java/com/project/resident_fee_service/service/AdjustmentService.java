@@ -221,9 +221,9 @@ public class AdjustmentService {
                 entity.setFee(fee);
             }
 
-            if (fee == null) {
-                throw new NotFoundException("Fee not found with id: " + dto.FeeId);
-            }
+//            if (fee == null) {
+//                throw new NotFoundException("Fee not found with id: " + dto.FeeId);
+//            }
 
             validateAdjustmentPeriod(fee, entity.getStartDate(), entity.getEndDate());
 
