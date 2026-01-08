@@ -12,6 +12,7 @@ import {
   getApartmentSpecificAdjustmentsByApartmentId,
   updateApartmentSpecificAdjustmentsByApartmentId,
 } from "../../api/apartmentApi";
+import { VOLUNTARY_FEE_TYPE_ID } from "../../constants/feeTypeIds";
 import "./FeeCollect.css";
 import "../Apartment/ApartmentManagement.css";
 
@@ -53,7 +54,6 @@ function adjustmentSignedAmount(adj) {
   const type = String(adj?.adjustment_type || "").toLowerCase();
   if (type.includes("decrease")) return -amount;
   if (type.includes("increase")) return amount;
-  // fallback: treat unknown as increase
   return amount;
 }
 
@@ -81,8 +81,8 @@ function groupFeesByCategory(fees) {
 
 const feeTypeMap = {
   1: { key: "obligatory", label: "Định kỳ" },
-  2: { key: "impromptu", label: "Đột xuất" },
-  3: { key: "voluntary", label: "Tự nguyện" },
+  2: { key: "voluntary", label: "Tự nguyện" },
+  3: { key: "impromptu", label: "Đột xuất" },
 };
 
 export default function ApartmentFeeStatus() {
@@ -144,8 +144,14 @@ export default function ApartmentFeeStatus() {
   const balanceCredit = useMemo(() => toNumber(balance), [balance]);
   const canUseBalance = balanceCredit > 0;
 
-  const voluntaryFees = useMemo(() => unpaidFees.filter((f) => String(f?.fee_type_id) === "3"), [unpaidFees]);
-  const nonVoluntaryUnpaidFees = useMemo(() => unpaidFees.filter((f) => String(f?.fee_type_id) !== "3"), [unpaidFees]);
+  const voluntaryFees = useMemo(
+    () => unpaidFees.filter((f) => String(f?.fee_type_id) === VOLUNTARY_FEE_TYPE_ID),
+    [unpaidFees]
+  );
+  const nonVoluntaryUnpaidFees = useMemo(
+    () => unpaidFees.filter((f) => String(f?.fee_type_id) !== VOLUNTARY_FEE_TYPE_ID),
+    [unpaidFees]
+  );
 
   const pastDueFees = useMemo(() => nonVoluntaryUnpaidFees.filter((f) => isPastDue(f?.expiry_date)), [nonVoluntaryUnpaidFees]);
   const currentMonthFees = useMemo(
@@ -178,7 +184,7 @@ export default function ApartmentFeeStatus() {
       if (kind === "decrease") return sum + amt;
       return sum;
     }, 0);
-    const finalAmount = unpaidTotal + adjustmentsTotal;
+    const finalAmount = Math.max(0, unpaidTotal + adjustmentsTotal);
 
     return {
       unpaidTotal,
@@ -205,9 +211,11 @@ export default function ApartmentFeeStatus() {
   }, [useBalance, canUseBalance, totals.finalAmount, balanceCredit]);
 
   const remainingBalanceCredit = useMemo(() => {
-    if (useBalance && canUseBalance) return 0;
-    return balanceCredit;
-  }, [useBalance, canUseBalance, balanceCredit]);
+    if (!useBalance || !canUseBalance) return balanceCredit;
+    const finalAmount = toNumber(totals.finalAmount);
+    const applied = Math.min(balanceCredit, finalAmount);
+    return Math.max(0, balanceCredit - applied);
+  }, [useBalance, canUseBalance, balanceCredit, totals.finalAmount]);
 
   const renderAdjustmentRow = (adj, keyPrefix = "adj") => {
     const signed = adjustmentSignedAmount(adj);

@@ -10,6 +10,7 @@ import { DetailFeeModal } from "../../../Components/DetailFeeModal/DetailFeeModa
 import { DeleteConfirmModal } from "../../../Components/DeleteConfirmModal";
 import { AdjustmentModal } from "../../../Components/AdjustmentModal/AdjustmentModal";
 import { FeeAdjustmentsModal } from "../../../Components/FeeAdjustmentsModal/FeeAdjustmentsModal";
+import { OBLIGATORY_FEE_TYPE_ID, VOLUNTARY_FEE_TYPE_ID, IMPROMPTU_FEE_TYPE_ID } from "../../../constants/feeTypeIds";
 import "../Fee.css";
 
 const typeMap = {
@@ -28,9 +29,9 @@ const statusMap = {
 
 export default function DataTableSection({ activeType, activeStatus, fee_category_id, fee_amount, applicable_month, effective_date, expiry_date, search, onEditRequest, registerRefresh, onNotify }) {
   const typeIdMap = {
-    obligatory: 1,
-    voluntary: 2,
-    impromptu: 3
+    obligatory: Number(OBLIGATORY_FEE_TYPE_ID),
+    voluntary: Number(VOLUNTARY_FEE_TYPE_ID),
+    impromptu: Number(IMPROMPTU_FEE_TYPE_ID)
   };
 
   const [data, setData] = useState([]);

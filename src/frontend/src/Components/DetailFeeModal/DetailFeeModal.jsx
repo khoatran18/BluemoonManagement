@@ -1,11 +1,12 @@
 import React from "react";
 import "./DetailFeeModal.css";
 import Tag from "../Tag/Tag";
+import { OBLIGATORY_FEE_TYPE_ID, VOLUNTARY_FEE_TYPE_ID, IMPROMPTU_FEE_TYPE_ID } from "../../constants/feeTypeIds";
 
 const feeTypeMap = {
-  1: { key: "obligatory", label: "Định kỳ" },
-  2: { key: "voluntary", label: "Tự nguyện" },
-  3: { key: "impromptu", label: "Đột xuất" },
+  [Number(OBLIGATORY_FEE_TYPE_ID)]: { key: "obligatory", label: "Định kỳ" },
+  [Number(VOLUNTARY_FEE_TYPE_ID)]: { key: "voluntary", label: "Tự nguyện" },
+  [Number(IMPROMPTU_FEE_TYPE_ID)]: { key: "impromptu", label: "Đột xuất" },
 };
 
 const statusMap = {

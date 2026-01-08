@@ -8,6 +8,7 @@ import {
   updateApartmentFeeStatus,
 } from "../../api/feeCollectApi";
 import { getApartmentDetail } from "../../api/apartmentApi";
+import { VOLUNTARY_FEE_TYPE_ID } from "../../constants/feeTypeIds";
 
 import "./FeeCollect.css";
 
@@ -100,7 +101,7 @@ export default function CollectFee() {
   }, [id]);
 
   const feeCategoryLabel = (fee) => {
-    if (String(fee?.fee_type_id) === "3") return "Phí tự nguyện";
+    if (String(fee?.fee_type_id) === VOLUNTARY_FEE_TYPE_ID) return "Phí tự nguyện";
     if (fee?.fee_category_name) return fee.fee_category_name;
     if (fee?.fee_category_id !== undefined && fee?.fee_category_id !== null && String(fee?.fee_category_id) !== "") {
       return `Danh mục ${fee.fee_category_id}`;
@@ -111,7 +112,7 @@ export default function CollectFee() {
   const groupFeesByCategory = (fees) => {
     const map = new Map();
     for (const fee of fees || []) {
-      const isVoluntary = String(fee?.fee_type_id) === "3";
+      const isVoluntary = String(fee?.fee_type_id) === VOLUNTARY_FEE_TYPE_ID;
       const categoryId = fee?.fee_category_id;
       const categoryName = fee?.fee_category_name;
 
@@ -150,11 +151,11 @@ export default function CollectFee() {
 
   const unpaidFees = data?.unpaid_fees || [];
   const voluntaryUnpaidFees = useMemo(
-    () => unpaidFees.filter((f) => String(f?.fee_type_id) === "3"),
+    () => unpaidFees.filter((f) => String(f?.fee_type_id) === VOLUNTARY_FEE_TYPE_ID),
     [unpaidFees]
   );
   const nonVoluntaryUnpaidFees = useMemo(
-    () => unpaidFees.filter((f) => String(f?.fee_type_id) !== "3"),
+    () => unpaidFees.filter((f) => String(f?.fee_type_id) !== VOLUNTARY_FEE_TYPE_ID),
     [unpaidFees]
   );
   const balanceCredit = useMemo(() => toNumber(data?.balance), [data?.balance]);
@@ -168,8 +169,7 @@ export default function CollectFee() {
     const cfg = feePayConfig?.[key];
     const fullAmount = toNumber(fee?.fee_amount);
 
-    // Only voluntary fees can be partially paid.
-    if (String(fee?.fee_type_id) !== "3") return fullAmount;
+    if (String(fee?.fee_type_id) !== VOLUNTARY_FEE_TYPE_ID) return fullAmount;
 
     if (!cfg) return fullAmount;
     if (!cfg.useCustom) return fullAmount;
@@ -209,7 +209,7 @@ export default function CollectFee() {
   const toggleFee = (fee) => {
     const key = String(fee?.fee_id);
     const fullAmount = toNumber(fee?.fee_amount);
-    const isVoluntary = String(fee?.fee_type_id) === "3";
+    const isVoluntary = String(fee?.fee_type_id) === VOLUNTARY_FEE_TYPE_ID;
 
     setSelectedFeeIds((prev) => {
       const next = new Set(prev);
@@ -256,7 +256,7 @@ export default function CollectFee() {
   };
 
   const toggleCustomAmount = (fee, checked) => {
-    if (String(fee?.fee_type_id) !== "3") return;
+    if (String(fee?.fee_type_id) !== VOLUNTARY_FEE_TYPE_ID) return;
     const key = String(fee?.fee_id);
     const fullAmount = toNumber(fee?.fee_amount);
     setFeePayConfig((prevCfg) => ({
@@ -269,7 +269,7 @@ export default function CollectFee() {
   };
 
   const updateCustomAmount = (fee, nextRawValue) => {
-    if (String(fee?.fee_type_id) !== "3") return;
+    if (String(fee?.fee_type_id) !== VOLUNTARY_FEE_TYPE_ID) return;
     const key = String(fee?.fee_id);
     const fullAmount = toNumber(fee?.fee_amount);
     const parsed = parseVNDNumberInput(nextRawValue);
