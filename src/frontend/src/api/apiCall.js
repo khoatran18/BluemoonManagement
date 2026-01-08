@@ -9,7 +9,7 @@
 
 export class ApiError extends Error {
   /**
-   * @param {string} message
+   * @param {string} message 
    * @param {object} [options]
    * @param {number} [options.status]
    * @param {string} [options.code]
