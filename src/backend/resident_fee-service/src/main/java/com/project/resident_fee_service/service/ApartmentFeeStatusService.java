@@ -104,11 +104,13 @@ public class ApartmentFeeStatusService {
                 );
 
             // Valid new balance
-            BigDecimal oldBalance = entity.getBalance();
+            BigDecimal oldBalance = (entity.getBalance() != null) ? entity.getBalance() : BigDecimal.ZERO;
             BigDecimal newBalance = dto.balance;
 
             boolean isValidBalance = (
                     (newBalance.signum()==0)
+                    ||
+                    (oldBalance.signum()==0)
                     ||
                     ((oldBalance.signum() == newBalance.signum() && oldBalance.abs().compareTo(newBalance.abs()) >= 0))
             );

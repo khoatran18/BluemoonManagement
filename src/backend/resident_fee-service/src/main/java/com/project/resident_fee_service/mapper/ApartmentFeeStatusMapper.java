@@ -221,16 +221,16 @@ public class ApartmentFeeStatusMapper {
         }
 
         // ========= Unpaid Fees ==========
-        if (dto.unpaidFees != null) {
-            Set<Fee> newUnpaid = new HashSet<>();
-            for (ApartmentFeeStatusDTO.FeeStatusUpdateDTO.FeeRef ref : dto.unpaidFees) {
-                if (ref.feeId != null) {
-                    Fee fee = feeRepository.findById(ref.feeId);
-                    if (fee != null) newUnpaid.add(fee);
-                }
-            }
-            entity.setUnpaidFeeList(newUnpaid);
-        }
+//        if (dto.unpaidFees != null) {
+//            Set<Fee> newUnpaid = new HashSet<>();
+//            for (ApartmentFeeStatusDTO.FeeStatusUpdateDTO.FeeRef ref : dto.unpaidFees) {
+//                if (ref.feeId != null) {
+//                    Fee fee = feeRepository.findById(ref.feeId);
+//                    if (fee != null) newUnpaid.add(fee);
+//                }
+//            }
+//            entity.setUnpaidFeeList(newUnpaid);
+//        }
 
         // ========= Timestamp ==========
         entity.setUpdatedAt(java.time.LocalDateTime.now());
