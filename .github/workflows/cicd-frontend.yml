@@ -34,8 +34,8 @@ jobs:
       - name: Build & push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./client
-          file: ./client/Dockerfile
+          context: ./src/frontend
+          file: ./src/frontend/Dockerfile
           push: true
           build-args: API_BASE_URL=${{ secrets.API_BASE_URL }}
 
