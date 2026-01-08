@@ -39,7 +39,7 @@ jobs:
           push: true
           build-args: API_BASE_URL=${{ secrets.API_BASE_URL }}
 
-          tags: khoa2k4/project-it3180:frontend_bluemoon_1.0
+          tags: khoa2k4/project-it3180-client:frontend_bluemoon_1.0
 
       - name: Redeploy
         run: |
