@@ -83,12 +83,14 @@ public class AccountService {
         newAccount.setPassword(hashed);
 
         try {
-            Resident r = residentRepository.find("email", dto.Email).firstResult();
-            if (r == null) {
-                log.error("[Account] [Service] register Error: Not found email " + dto.Email);
-                throw new NotFoundException("Account delete not found with email: " + dto.Email);
+            if (dto.Email != null) {
+                Resident r = residentRepository.find("email", dto.Email).firstResult();
+                if (r == null) {
+                    log.error("[Account] [Service] register Error: Not found email " + dto.Email);
+                    throw new NotFoundException("Account not found with email: " + dto.Email);
+                }
+                newAccount.setResident(r);
             }
-            newAccount.setResident(r);
             accountRepository.persist(newAccount);
 
             log.info("[Account] [Service] register End");
