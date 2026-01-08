@@ -32,17 +32,16 @@ public class FeeCategoryResource {
 
     @GET
     public Response getFeeCategoriesByFilter(
-            @QueryParam("fee_type_id") Long feeTypeId,
             @QueryParam("page") @DefaultValue("1") int page,
             @QueryParam("limit") @DefaultValue("10") int limit
     ) {
 
         log.info("[Fee] [Resource] getFeeCategoriesByFilter Start");
-        log.info("Input: feeTypeId={}, page={}, limit={}", feeTypeId, page, limit);
+        log.info("Input: page={}, limit={}", page, limit);
 
         FeeCategoryDTO.GetFeeCategoriesResponseDTO resDTO =
                 feeCategoryService.getFeeCategoriesByFilter(
-                        feeTypeId, page, limit
+                        page, limit
                 );
 
         log.info("[Fee] [Resource] getFeeCategoriesByFilter End");

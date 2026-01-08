@@ -26,7 +26,6 @@ public class MockData {
         String[] catNames = {"Phí Quản Lý", "Phí Gửi Xe Máy", "Phí Gửi Ô Tô", "Phí Vệ Sinh", "Phí Bảo Trì", "Tiền Nước", "Internet", "Gym & Pool", "An Ninh", "Tiền rác"};
         for (int i = 0; i < catNames.length; i++) {
             String body = "{" +
-                    "\"fee_type_id\":" + (i < 5 ? 1 : 2) + "," + // 5 cái đầu là bắt buộc, sau là tự nguyện
                     "\"name\":\"" + catNames[i] + "\"," +
                     "\"description\":\"Chi phí hàng tháng cho " + catNames[i] + "\"" +
                     "}";

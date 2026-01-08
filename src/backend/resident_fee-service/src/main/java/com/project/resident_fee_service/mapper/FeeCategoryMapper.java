@@ -30,7 +30,7 @@ public class FeeCategoryMapper {
             dto.FeeCategoryId = entity.getFeeCategoryId();
             dto.Name = entity.getFeeCategoryName();
             dto.Description = entity.getFeeCategoryDescription();
-            dto.FeeTypeName = entity.getFeeType().getFeeTypeName();
+//            dto.FeeTypeName = entity.getFeeType().getFeeTypeName();
 
             dtoList.add(dto);
         }
@@ -52,7 +52,7 @@ public class FeeCategoryMapper {
         dto.FeeCategoryId = entity.getFeeCategoryId();
         dto.Name = entity.getFeeCategoryName();
         dto.Description = entity.getFeeCategoryDescription();
-        dto.FeeTypeName = entity.getFeeType().getFeeTypeName();
+//        dto.FeeTypeName = entity.getFeeType().getFeeTypeName();
 
         // Return result
         return dto;
@@ -71,7 +71,7 @@ public class FeeCategoryMapper {
         dto.FeeCategoryId = entity.getFeeCategoryId();
         dto.Name = entity.getFeeCategoryName();
         dto.Description = entity.getFeeCategoryDescription();
-        dto.FeeTypeName = entity.getFeeType().getFeeTypeName();
+//        dto.FeeTypeName = entity.getFeeType().getFeeTypeName();
 
         // Return result
         return dto;
@@ -89,12 +89,12 @@ public class FeeCategoryMapper {
         FeeCategory entity = new FeeCategory();
 
         // Prepare result
-        FeeType feeType = feeTypeRepository.findById(dto.FeeTypeId);
+//        FeeType feeType = feeTypeRepository.findById(dto.FeeTypeId);
 
         // Create result
         entity.setFeeCategoryName(dto.Name);
         entity.setFeeCategoryDescription(dto.Description);
-        entity.setFeeType(feeType);
+//        entity.setFeeType(feeType);
 
         // Return result
         return entity;
@@ -112,13 +112,13 @@ public class FeeCategoryMapper {
         FeeCategory entity = new FeeCategory();
 
         // Prepare result
-        FeeType feeType = feeTypeRepository.findById(dto.FeeTypeId);
+//        FeeType feeType = feeTypeRepository.findById(dto.FeeTypeId);
 
         // Create result
         entity.setFeeCategoryId(dto.FeeCategoryId);
         entity.setFeeCategoryName(dto.Name);
         entity.setFeeCategoryDescription(dto.Description);
-        entity.setFeeType(feeType);
+//        entity.setFeeType(feeType);
 
         // Return result
         return entity;

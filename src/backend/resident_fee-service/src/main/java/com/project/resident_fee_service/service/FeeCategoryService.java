@@ -32,13 +32,12 @@ public class FeeCategoryService {
     /////////////////////////////
 
     public FeeCategoryDTO.GetFeeCategoriesResponseDTO getFeeCategoriesByFilter(
-            Long feeTypeId,
             int page,
             int limit
     ) {
 
         log.info("[Fee] [Service] getFeeCategoriesByFilter Start");
-        log.info("Input: feeTypeId={}, page={}, limit={}", feeTypeId, page, limit);
+        log.info("Input: page={}, limit={}", page, limit);
 
         try {
             int queryPage = Math.max(page, 1);
@@ -46,11 +45,11 @@ public class FeeCategoryService {
 
             List<FeeCategory> feeCategoryEntityList =
                     feeCategoryRepository.getByFilter(
-                            feeTypeId, queryPage, queryLimit
+                            queryPage, queryLimit
                     );
 
             long count =
-                    feeCategoryRepository.countByFilter(feeTypeId);
+                    feeCategoryRepository.countByFilter();
 
             List<FeeCategoryDTO.GetFeeCategoriesResponseItemDTO> feeCategoriesDto =
                     feeCategoryMapper.GetFeeCategoriesResponseItemsEntityToDTO(

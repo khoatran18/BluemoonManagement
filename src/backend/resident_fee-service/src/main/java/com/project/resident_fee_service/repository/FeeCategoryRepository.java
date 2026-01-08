@@ -24,8 +24,7 @@ public class FeeCategoryRepository implements PanacheRepository<FeeCategory> {
     /**
      * Get FeeCategory records with optional filer and pagination
      */
-    public List<FeeCategory> getByFilter(Long feeTypeId,
-                                         int page,
+    public List<FeeCategory> getByFilter(int page,
                                          int limit) {
 
         // Prepare for query
@@ -33,10 +32,6 @@ public class FeeCategoryRepository implements PanacheRepository<FeeCategory> {
         Map<String, Object> params = new HashMap<>();
 
         // Valid filters
-        if (feeTypeId != null) {
-            clauses.add("feeType.id = :feeTypeId");
-            params.put("feeTypeId", feeTypeId);
-        }
 
         // Build final query
         PanacheQuery<FeeCategory> panacheQuery;
@@ -54,17 +49,17 @@ public class FeeCategoryRepository implements PanacheRepository<FeeCategory> {
     /**
      * Count number of FeeCategory records matching the filters
      */
-    public Long countByFilter(Long feeTypeId) {
+    public Long countByFilter() {
 
         // Prepare for query
         List<String> clauses = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
 
         // Valid filters
-        if (feeTypeId != null) {
-            clauses.add("feeType.id = :feeTypeId");
-            params.put("feeTypeId", feeTypeId);
-        }
+//        if (feeTypeId != null) {
+//            clauses.add("feeType.id = :feeTypeId");
+//            params.put("feeTypeId", feeTypeId);
+//        }
 
         // Get results
         PanacheQuery<FeeCategory> panacheQuery;
@@ -90,7 +85,7 @@ public class FeeCategoryRepository implements PanacheRepository<FeeCategory> {
 
         FeeCategory entity = findById(feeCategory.getFeeCategoryId());
         if (entity != null) {
-            entity.setFeeType(feeCategory.getFeeType());
+//            entity.setFeeType(feeCategory.getFeeType());
             entity.setFeeCategoryDescription(feeCategory.getFeeCategoryDescription());
             entity.setFeeCategoryName(feeCategory.getFeeCategoryName());
         }

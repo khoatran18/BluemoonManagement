@@ -22,16 +22,16 @@ public class FeeCategory {
      * Each FeeCategory belongs to one FeeType.
      * ON DELETE CASCADE ensures categories are deleted if the FeeType is removed.
      */
-    @ManyToOne(optional = false)
-    @JoinColumn(
-            name = "FeeTypeID",
-            nullable = false,
-            foreignKey = @ForeignKey(
-                    name = "fk_feecategory_feetype",
-                    foreignKeyDefinition = "FOREIGN KEY (FeeTypeID) REFERENCES FeeType(FeeTypeID) ON DELETE CASCADE"
-            )
-    )
-    private FeeType feeType;
+//    @ManyToOne(optional = false)
+//    @JoinColumn(
+//            name = "FeeTypeID",
+//            nullable = false,
+//            foreignKey = @ForeignKey(
+//                    name = "fk_feecategory_feetype",
+//                    foreignKeyDefinition = "FOREIGN KEY (FeeTypeID) REFERENCES FeeType(FeeTypeID) ON DELETE CASCADE"
+//            )
+//    )
+//    private FeeType feeType;
 
     @Column(name = "FeeCategoryDescription", length = 100)
     private String feeCategoryDescription;

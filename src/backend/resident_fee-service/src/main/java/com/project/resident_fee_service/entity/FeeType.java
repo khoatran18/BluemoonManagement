@@ -33,8 +33,8 @@ public class FeeType {
      * Cascade persist to keep the association in sync.
      * DB-level ON DELETE CASCADE defined on FeeCategory.FeeTypeID FK.
      */
-    @OneToMany(mappedBy = "feeType", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FeeCategory> feeCategories;
+//    @OneToMany(mappedBy = "feeType", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<FeeCategory> feeCategories;
 
     /**
      * One FeeType directly categorizes many Fees.

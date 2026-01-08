@@ -39,8 +39,8 @@ public class FeeCategoryDTO {
         @JsonProperty("description")
         public String Description;
 
-        @JsonProperty("fee_type_name")
-        public FeeType.FeeTypeName FeeTypeName;
+//        @JsonProperty("fee_type_name")
+//        public FeeType.FeeTypeName FeeTypeName;
     }
 
     /**
@@ -56,8 +56,8 @@ public class FeeCategoryDTO {
         @JsonProperty("description")
         public String Description;
 
-        @JsonProperty("fee_type_name")
-        public FeeType.FeeTypeName FeeTypeName;
+//        @JsonProperty("fee_type_name")
+//        public FeeType.FeeTypeName FeeTypeName;
     }
 
     ///////////////////////////// For Post method /////////////////////////////
@@ -66,8 +66,8 @@ public class FeeCategoryDTO {
      * Request payload for creating a new FeeCategory.
      */
     public static class PostFeeCategoryRequestDTO {
-        @JsonProperty("fee_type_id")
-        public Long FeeTypeId;
+//        @JsonProperty("fee_type_id")
+//        public Long FeeTypeId;
 
         @JsonProperty("name")
         public String Name;
@@ -85,8 +85,8 @@ public class FeeCategoryDTO {
         @JsonProperty("fee_category_id")
         public Long FeeCategoryId;
 
-        @JsonProperty("fee_type_id")
-        public Long FeeTypeId;
+//        @JsonProperty("fee_type_id")
+//        public Long FeeTypeId;
 
         @JsonProperty("name")
         public String Name;
