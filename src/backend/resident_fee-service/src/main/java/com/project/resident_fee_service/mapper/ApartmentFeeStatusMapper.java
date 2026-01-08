@@ -7,6 +7,9 @@ import com.project.resident_fee_service.entity.ApartmentFeeStatus;
 import com.project.resident_fee_service.entity.Fee;
 import com.project.resident_fee_service.repository.ApartmentRepository;
 import com.project.resident_fee_service.repository.FeeRepository;
+import com.project.resident_fee_service.service.ApartmentFeeStatusService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +18,9 @@ public class ApartmentFeeStatusMapper {
 
     private final FeeRepository feeRepository = new FeeRepository();
     private final ApartmentRepository  apartmentRepository = new ApartmentRepository();
+    private static final Logger log =
+            LoggerFactory.getLogger(ApartmentFeeStatusService.class);
+
 
     // ==========================================================
     // =============== 5.1  GET MAPPER ==========================
@@ -191,6 +197,13 @@ public class ApartmentFeeStatusMapper {
         // ========= Paid Fees ==========
         if (dto.paidFees != null) {
 
+            log.info("[Fee] [Service] dto.paidFee not null");
+
+            // Lấy danh sách Unpaid hiện tại để xử lý remove
+            Set<Fee> currentUnpaid = entity.getUnpaidFeeList() != null
+                    ? entity.getUnpaidFeeList()
+                    : new HashSet<>();
+
             Set<Fee> oldPaid = entity.getPaidFeeList() != null
                     ? new HashSet<>(entity.getPaidFeeList())
                     : new HashSet<>();
@@ -199,7 +212,10 @@ public class ApartmentFeeStatusMapper {
             for (ApartmentFeeStatusDTO.FeeStatusUpdateDTO.FeeRef ref : dto.paidFees) {
                 if (ref.feeId != null) {
                     Fee fee = feeRepository.findById(ref.feeId);
-                    if (fee != null) newPaid.add(fee);
+                    if (fee != null) {
+                        newPaid.add(fee);
+                        currentUnpaid.remove(fee);
+                    }
                 }
             }
 
@@ -217,6 +233,7 @@ public class ApartmentFeeStatusMapper {
                 fee.getPaidApartmentList().add(apartment);
             }
 
+            entity.setUnpaidFeeList(currentUnpaid);
             entity.setPaidFeeList(newPaid);
         }
 

@@ -120,7 +120,6 @@ public class ApartmentFeeStatusService {
             }
 
             mapper.applyUpdateDTOToEntity(entity, dto);
-            repository.updateStatus(entity);
 
             Set<Fee> existingPaidFees = entity.getPaidFeeList();
             Set<ApartmentFeeStatusDTO.FeeStatusUpdateDTO.FeeRef> incomingPaidFees =
@@ -137,13 +136,15 @@ public class ApartmentFeeStatusService {
             newFeeIds.removeAll(existingIds);
 
             Apartment apartment = entity.getApartment();
-            for (Long feeId : existingIds) {
+            for (Long feeId : newFeeIds) {
                 Fee fee = feeRepository.findById(feeId);
                 if (fee == null)
                     throw new NotFoundException("Fee id not found: " + feeId);
 
                 fee.getPaidApartmentList().add(apartment);
             }
+
+            repository.updateStatus(entity);
 
             // Update to PayHistory
             for (ApartmentFeeStatusDTO.FeeStatusUpdateDTO.FeeRef paidFee: incomingPaidFees) {
