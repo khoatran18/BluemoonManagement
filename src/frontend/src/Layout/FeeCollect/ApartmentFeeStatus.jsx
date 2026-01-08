@@ -139,7 +139,7 @@ export default function ApartmentFeeStatus() {
   const adjustments = data?.adjustments || [];
   const extraAdjustments = data?.extra_adjustments || [];
 
-  const paidTotal = data?.total_paid;
+  const prepaidCredit = data?.total_paid;
   const balance = data?.balance;
   const balanceCredit = useMemo(() => toNumber(balance), [balance]);
   const canUseBalance = balanceCredit > 0;
@@ -170,6 +170,7 @@ export default function ApartmentFeeStatus() {
     const voluntaryTotal = voluntaryFees.reduce((sum, fee) => sum + toNumber(fee?.fee_amount), 0);
     const allAdjustments = [...adjustments, ...extraAdjustments];
     const adjustmentsTotal = allAdjustments.reduce((sum, adj) => sum + adjustmentSignedAmount(adj), 0);
+    const prepaid = toNumber(prepaidCredit);
 
     const increaseTotal = allAdjustments.reduce((sum, adj) => {
       const kind = adjustmentKind(adj);
@@ -184,7 +185,7 @@ export default function ApartmentFeeStatus() {
       if (kind === "decrease") return sum + amt;
       return sum;
     }, 0);
-    const finalAmount = Math.max(0, unpaidTotal + adjustmentsTotal);
+    const finalAmount = Math.max(0, unpaidTotal + adjustmentsTotal - prepaid);
 
     return {
       unpaidTotal,
@@ -199,7 +200,7 @@ export default function ApartmentFeeStatus() {
       decreaseTotal,
       finalAmount,
     };
-  }, [nonVoluntaryUnpaidFees, voluntaryFees, pastDueFees, currentMonthFees, adjustments, extraAdjustments]);
+  }, [nonVoluntaryUnpaidFees, voluntaryFees, pastDueFees, currentMonthFees, adjustments, extraAdjustments, prepaidCredit]);
 
   useEffect(() => {
     if (!canUseBalance && useBalance) setUseBalance(false);
@@ -523,10 +524,6 @@ export default function ApartmentFeeStatus() {
 
             {accountingVisible ? (
               <div className="fee-status-accounting">
-                <div className="fee-status-card">
-                  <div className="fee-status-card-label">Đã thanh toán</div>
-                  <div className="fee-status-card-value">{formatCurrencyVND(paidTotal)}</div>
-                </div>
                 <div className="fee-status-card">
                   <div className="fee-status-card-label">Số dư</div>
                   <div className="fee-status-card-value">{formatCurrencyVND(balance)}</div>
