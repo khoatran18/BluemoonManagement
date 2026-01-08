@@ -32,7 +32,7 @@ public class Account {
     private String password;
 
     @Pattern(regexp = "^[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,}$", message = "Wrong email format")
-    @Column(name = "Email", nullable = false)
+    @Column(name = "Email", nullable = true)
     private String email;
 
     @Pattern(regexp = "^[0-9]{12}$", message = "Identity Number must be 12 digits")
