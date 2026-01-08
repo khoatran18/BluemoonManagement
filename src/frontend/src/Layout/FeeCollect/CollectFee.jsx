@@ -67,6 +67,9 @@ export default function CollectFee() {
   const [selectedFeeIds, setSelectedFeeIds] = useState(() => new Set());
   const [feePayConfig, setFeePayConfig] = useState(() => ({}));
   const [useBalance, setUseBalance] = useState(false);
+  const [prepaidAmount, setPrepaidAmount] = useState(0);
+  const [prepaidOpen, setPrepaidOpen] = useState(false);
+  const [prepaidDirty, setPrepaidDirty] = useState(false);
 
   const onNotify = ({ ok, message }) => {
     addToast({
@@ -99,6 +102,12 @@ export default function CollectFee() {
       cancelled = true;
     };
   }, [id]);
+
+  useEffect(() => {
+    // total_paid is used as prepaid credit (advance payment).
+    setPrepaidAmount(toNumber(data?.total_paid));
+    setPrepaidDirty(false);
+  }, [data?.total_paid]);
 
   const feeCategoryLabel = (fee) => {
     if (String(fee?.fee_type_id) === VOLUNTARY_FEE_TYPE_ID) return "Phí tự nguyện";
@@ -159,6 +168,7 @@ export default function CollectFee() {
     [unpaidFees]
   );
   const balanceCredit = useMemo(() => toNumber(data?.balance), [data?.balance]);
+  const prepaidCredit = useMemo(() => toNumber(data?.total_paid), [data?.total_paid]);
   const canUseBalance = balanceCredit > 0;
   const hasFees = unpaidFees.length > 0;
   const hasNonVoluntaryFees = nonVoluntaryUnpaidFees.length > 0;
@@ -195,7 +205,20 @@ export default function CollectFee() {
     return Math.min(balanceCredit, selectedTotal);
   }, [useBalance, canUseBalance, balanceCredit, selectedTotal]);
 
-  const payableNow = useMemo(() => Math.max(0, selectedTotal - appliedFromBalance), [selectedTotal, appliedFromBalance]);
+  const appliedFromPrepaid = useMemo(() => {
+    const afterBalance = Math.max(0, selectedTotal - appliedFromBalance);
+    return Math.min(prepaidCredit, afterBalance);
+  }, [prepaidCredit, selectedTotal, appliedFromBalance]);
+
+  const payableNow = useMemo(
+    () => Math.max(0, selectedTotal - appliedFromBalance - appliedFromPrepaid),
+    [selectedTotal, appliedFromBalance, appliedFromPrepaid]
+  );
+
+  const remainingPrepaidAfter = useMemo(
+    () => Math.max(0, prepaidCredit - appliedFromPrepaid),
+    [prepaidCredit, appliedFromPrepaid]
+  );
   const remainingBalanceAfter = useMemo(
     () => (useBalance && canUseBalance ? Math.max(0, balanceCredit - appliedFromBalance) : balanceCredit),
     [useBalance, canUseBalance, balanceCredit, appliedFromBalance]
@@ -292,7 +315,6 @@ export default function CollectFee() {
     setError(null);
 
     try {
-      const existingTotalPaid = toNumber(data?.total_paid);
       const existingBalance = toNumber(data?.balance);
 
       const paid_fees = selectedFees.map((f) => ({
@@ -305,11 +327,15 @@ export default function CollectFee() {
         .map((f) => ({ fee_id: f?.fee_id }));
 
       const payload = {
-        total_paid: existingTotalPaid + selectedTotal,
+        // Persist prepaid amount exactly as entered.
         balance: useBalance ? remainingBalanceAfter : existingBalance,
         paid_fees,
         unpaid_fees,
       };
+
+      if (prepaidDirty) {
+        payload.total_paid = toNumber(prepaidAmount);
+      }
 
       await updateApartmentFeeStatus(id, payload);
 
@@ -319,6 +345,8 @@ export default function CollectFee() {
       setData(refreshed);
       clearSelection();
       setUseBalance(false);
+      setPrepaidOpen(false);
+      setPrepaidDirty(false);
 
       onNotify({ ok: true });
     } catch (e) {
@@ -502,6 +530,50 @@ export default function CollectFee() {
         </div>
       </div>
 
+      <div className="fee-status-top">
+        <details
+          className="fee-status-accounting-toggle"
+          open={prepaidOpen}
+          onToggle={(e) => {
+            const isOpen = Boolean(e?.currentTarget?.open);
+            setPrepaidOpen(isOpen);
+            // Reset input to server value when opening/closing unless user is actively updating.
+            setPrepaidAmount(prepaidCredit);
+            setPrepaidDirty(false);
+          }}
+        >
+          <summary className="fee-status-accounting-toggle-summary">
+            {prepaidOpen ? "Ẩn" : "Số tiền trả trước"}
+          </summary>
+        </details>
+      </div>
+
+      {prepaidOpen ? (
+        <div className="fee-status-summary" style={{ gridTemplateColumns: "1fr", paddingTop: 0 }}>
+          <div className="fee-status-card fee-status-card--prepaid">
+            <div className="fee-prepaid-row">
+              <div className="fee-prepaid-title">Trả trước</div>
+              <div className="fee-pay-amount-input-wrap fee-prepaid-input-wrap">
+                <div className={`fee-input-group ${toNumber(prepaidAmount) > 0 ? "is-active" : ""}`}>
+                  <input
+                    className="fee-pay-amount-input fee-input-group-field fee-prepaid-input-field"
+                    inputMode="numeric"
+                    value={formatVNDNumber(prepaidAmount)}
+                    onChange={(e) => {
+                      setPrepaidAmount(parseVNDNumberInput(e?.target?.value));
+                      setPrepaidDirty(true);
+                    }}
+                    placeholder="0"
+                    aria-label="Số tiền trả trước"
+                  />
+                  <span className="fee-input-group-suffix">VND</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="fee-status-summary" style={{ gridTemplateColumns: "1fr" }}>
         <div className={`fee-status-card fee-status-card--total ${useBalance && canUseBalance ? "is-balance-applied" : ""}`}>
           <div className="fee-status-card-label fee-status-card-label--with-control">
@@ -517,20 +589,21 @@ export default function CollectFee() {
             </label>
           </div>
 
-          {useBalance && canUseBalance ? (
-            <div className="fee-status-total-values">
+          <div className="fee-status-total-values">
+            {appliedFromBalance > 0 || appliedFromPrepaid > 0 ? (
               <div className="fee-status-total-old">{formatCurrencyVND(selectedTotal)}</div>
-              <div className="fee-status-card-value fee-status-card-value--total">{formatCurrencyVND(payableNow)}</div>
-              <div className="fee-status-card-sub">
-                Dùng số dư: {formatCurrencyVND(appliedFromBalance)} · Số dư còn lại: {formatCurrencyVND(remainingBalanceAfter)}
-              </div>
+            ) : null}
+            <div className="fee-status-card-value fee-status-card-value--total">{formatCurrencyVND(payableNow)}</div>
+            <div className="fee-status-card-sub">
+              {selectedFeeIds.size} khoản
+              {appliedFromBalance > 0 && useBalance && canUseBalance
+                ? ` · Dùng số dư: ${formatCurrencyVND(appliedFromBalance)} · Số dư còn lại: ${formatCurrencyVND(remainingBalanceAfter)}`
+                : ""}
+              {appliedFromPrepaid > 0
+                ? ` · Trừ trả trước: ${formatCurrencyVND(appliedFromPrepaid)} · Trả trước còn lại: ${formatCurrencyVND(remainingPrepaidAfter)}`
+                : ""}
             </div>
-          ) : (
-            <>
-              <div className="fee-status-card-value fee-status-card-value--total">{formatCurrencyVND(selectedTotal)}</div>
-              <div className="fee-status-card-sub">{selectedFeeIds.size} khoản</div>
-            </>
-          )}
+          </div>
         </div>
       </div>
 
@@ -697,14 +770,16 @@ export default function CollectFee() {
                         {useCustomAmount ? (
                           <div className="fee-pay-amount-row">
                             <div className="fee-pay-amount-input-wrap">
-                              <input
-                                className={`fee-pay-amount-input ${useCustomAmount ? "is-active" : ""}`}
-                                inputMode="numeric"
-                                placeholder={formatVNDNumber(fullAmount)}
-                                value={formatVNDNumber(cfg?.amount ?? fullAmount)}
-                                onChange={(e) => updateCustomAmount(fee, e?.target?.value)}
-                              />
-                              <div className="fee-pay-amount-suffix">₫</div>
+                              <div className={`fee-input-group ${useCustomAmount ? "is-active" : ""}`}>
+                                <input
+                                  className="fee-pay-amount-input fee-input-group-field"
+                                  inputMode="numeric"
+                                  placeholder={formatVNDNumber(fullAmount)}
+                                  value={formatVNDNumber(cfg?.amount ?? fullAmount)}
+                                  onChange={(e) => updateCustomAmount(fee, e?.target?.value)}
+                                />
+                                <span className="fee-input-group-suffix">₫</span>
+                              </div>
                             </div>
 
                             <div className="fee-pay-amount-hint">Tối đa: {formatCurrencyVND(fullAmount)}</div>
