@@ -7,7 +7,7 @@ import {
   setTokens,
 } from "../auth/tokenStorage";
 
-const API_BASE_URL = 'https://project-it3180-production.up.railway.app';
+const API_BASE_URL = import.meta.env.API_BASE_URL || "https://project-it3180-production.up.railway.app";
 
 const axiosClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
