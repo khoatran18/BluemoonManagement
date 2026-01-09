@@ -170,3 +170,22 @@ export const createFeeCategory = async (params) => {
     }
   );
 };
+
+export const getDeleteFeeHistories = async (params = {}) => {
+  return apiCall(
+    () =>
+      axiosClient.get(`/delete-fee-histories`, {
+        params,
+        paramsSerializer: {
+          indexes: null,
+        },
+      }),
+    { label: 'getDeleteFeeHistories' }
+  );
+};
+
+export const getDeleteFeeHistoryDetail = async (historyId) => {
+  return apiCall(() => axiosClient.get(`/delete-fee-histories/${historyId}`), {
+    label: 'getDeleteFeeHistoryDetail',
+  });
+};

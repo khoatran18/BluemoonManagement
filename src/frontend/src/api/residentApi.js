@@ -60,3 +60,22 @@ export const deleteResident = async (residentId) => {
     }
   );
 };
+
+export const getDeleteResidentHistories = async (params = {}) => {
+  return apiCall(
+    () =>
+      axiosClient.get(`/delete-resident-histories`, {
+        params,
+        paramsSerializer: {
+          indexes: null,
+        },
+      }),
+    { label: 'getDeleteResidentHistories' }
+  );
+};
+
+export const getDeleteResidentHistoryDetail = async (historyId) => {
+  return apiCall(() => axiosClient.get(`/delete-resident-histories/${historyId}`), {
+    label: 'getDeleteResidentHistoryDetail',
+  });
+};

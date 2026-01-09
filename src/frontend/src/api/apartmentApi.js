@@ -67,6 +67,25 @@ export const deleteApartment = async (apartmentId) => {
   );
 };
 
+export const getDeleteApartmentHistories = async (params = {}) => {
+  return apiCall(
+    () =>
+      axiosClient.get(`/delete-apartment-histories`, {
+        params,
+        paramsSerializer: {
+          indexes: null,
+        },
+      }),
+    { label: 'getDeleteApartmentHistories' }
+  );
+};
+
+export const getDeleteApartmentHistoryDetail = async (historyId) => {
+  return apiCall(() => axiosClient.get(`/delete-apartment-histories/${historyId}`), {
+    label: 'getDeleteApartmentHistoryDetail',
+  });
+};
+
 export const getApartmentSpecificAdjustmentsByApartmentId = async (apartmentId) => {
   if (apartmentId === undefined || apartmentId === null || apartmentId === "") {
     throw new Error("apartmentId is required");

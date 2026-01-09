@@ -1,0 +1,65 @@
+.delete-history-state {
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.delete-history-state--error {
+  color: #b91c1c;
+  white-space: pre-line;
+}
+
+.delete-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.delete-history-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
+
+.delete-history-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.delete-history-card__title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+}
+
+.delete-history-card__meta {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  font-size: 13px;
+}
+
+.delete-history-card__meta-row {
+  display: flex;
+  gap: 6px;
+}
+
+.delete-history-card__label {
+  color: #6b7280;
+  min-width: 92px;
+}
+
+.delete-history-card__value {
+  color: #111827;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .delete-history-card__meta {
+    grid-template-columns: 1fr;
+  }
+}

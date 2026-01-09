@@ -3,6 +3,8 @@ import filterIcon from "../../../assets/icon/fee/filter.svg";
 import searchIcon from "../../../assets/icon/fee/search.svg";
 import "./FilterSection.css";
 import AddButton from "../../../Components/Button/AddButton";
+import Button from "../../../Components/Button/Button";
+import { DeleteFeeHistoriesModal } from "../../../Components/DeleteHistoriesModal/DeleteFeeHistoriesModal";
 import { getFeeCategories } from "../../../api/feeApi";
 
 export default function FilterSection({
@@ -29,6 +31,7 @@ export default function FilterSection({
     const [open, setOpen] = useState(false);
     const containerRef = useRef(null);
     const [localSearch, setLocalSearch] = useState(search || '');
+    const [isDeleteHistoryOpen, setIsDeleteHistoryOpen] = useState(false);
 
     useEffect(() => {
         setLocalSearch(search || '');
@@ -152,6 +155,9 @@ export default function FilterSection({
             )}
 
             <div className="filter-add-actions">
+                <Button className="filter-add-btn" onClick={() => setIsDeleteHistoryOpen(true)} icon={null}>
+                    LỊCH SỬ XÓA
+                </Button>
                 <AddButton
                     className="filter-add-btn filter-add-btn-category"
                     onClick={() => {
@@ -165,6 +171,11 @@ export default function FilterSection({
                     THÊM PHÍ
                 </AddButton>
             </div>
+
+            <DeleteFeeHistoriesModal
+                isOpen={isDeleteHistoryOpen}
+                onClose={() => setIsDeleteHistoryOpen(false)}
+            />
         </div>
     );
 }
