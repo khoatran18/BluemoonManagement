@@ -36,6 +36,9 @@ public class FeeService {
     @Inject
     ApartmentRepository apartmentRepository;
 
+    @Inject
+    DeleteFeeHistoryService deleteFeeHistoryService;
+
     FeeMapper feeMapper = new FeeMapper();
 
     /////////////////////////////
@@ -226,6 +229,21 @@ public class FeeService {
             if (checkedEntity == null)
                 throw new NotFoundException("Fee delete not found with id: " + feeId);
 
+            // 0. CREATE DELETE HISTORY
+            deleteFeeHistoryService.createDeleteFeeHistoryLocalBackend(
+                    checkedEntity.getFeeId(),
+                    checkedEntity.getFeeType().getFeeTypeId(),
+                    checkedEntity.getFeeCategory().getFeeCategoryId(),
+                    checkedEntity.getFeeName(),
+                    checkedEntity.getFeeDescription(),
+                    checkedEntity.getApplicableMonth(),
+                    checkedEntity.getAmount(),
+                    checkedEntity.getStartDate(),
+                    checkedEntity.getEndDate(),
+                    checkedEntity.getStatus()
+            );
+
+            // 1. Delete Fee
             repository.delete(checkedEntity);
 
             log.info("[Fee] [Service] deleteFeeById End");

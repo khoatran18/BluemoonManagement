@@ -33,6 +33,9 @@ public class ResidentService {
     @Inject
     ApartmentRepository apartmentRepository;
 
+    @Inject
+    DeleteResidentHistoryService deleteResidentHistoryService;
+
     //////////////////////////////
     // GET LIST
     //////////////////////////////
@@ -182,12 +185,17 @@ public class ResidentService {
             if (entity == null)
                 throw new NotFoundException("Resident not found with id: " + id);
 
-            // Delete account
-//            if (entity.getAccount() != null) {
-//                entity.getAccount().setResident(null);
-//                entity.setAccount(null);
-//            }
+            // 0. CREATE DELETE HISTORY
+            deleteResidentHistoryService.createDeleteResidentHistoryLocalBackend(
+                    entity.getResidentId(),
+                    entity.getApartment() != null ? entity.getApartment().getApartmentId() : null,
+                    entity.getFullName(),
+                    entity.getPhoneNumber(),
+                    entity.getEmail(),
+                    entity.getIsHead()
+            );
 
+            // 1. Delete Resident
             residentRepository.delete(entity);
 
             log.info("[Resident] [Service] deleteResident End");

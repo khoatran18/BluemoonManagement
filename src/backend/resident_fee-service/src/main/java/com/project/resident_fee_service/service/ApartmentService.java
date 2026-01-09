@@ -52,6 +52,9 @@ public class ApartmentService {
     @Inject
     ApartmentFeeStatusRepository apartmentFeeStatusRepository;
 
+    @Inject
+    DeleteApartmentHistoryService deleteApartmentHistoryService;
+
     AdjustmentMapper adjustmentMapper = new AdjustmentMapper();
 
     ////////////////////////////////////////
@@ -357,6 +360,14 @@ public class ApartmentService {
         }
 
         try {
+
+            // 0. Create Delete Apartment History
+            deleteApartmentHistoryService.createDeleteApartmentHistoryLocalBackend(
+                    apartment.getApartmentId(),
+                    apartment.getBuilding(),
+                    apartment.getRoomNumber()
+            );
+
             // 1. Unlink Residents
             if (apartment.getResidents() != null) {
                 for (Resident resident : apartment.getResidents()) {

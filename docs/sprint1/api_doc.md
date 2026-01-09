@@ -855,7 +855,7 @@ GET /api/v1/reports/fee_common
 }
 ```
 
-### 6.3. Thay đổi mật khẩu
+### 11.3. Thay đổi mật khẩu
 * GET /api/v1/auth_service/change-password
 
 * Request
@@ -885,10 +885,172 @@ GET /api/v1/reports/fee_common
         }   
     ```
 
+---
+
+## 12. Lịch sử xóa căn hộ (Delete Apartment History)
+
+### 12.1. Lấy danh sách lịch sử xóa Apartment
+
+**GET** `/api/v1/delete-apartment-histories`
+
+### Query Parameters
+- `page` (optional, default = 1)
+- `limit` (optional, default = 10)
+- `apartment_id` (optional)
+
+### Response
+```json
+{
+  "page": 1,
+  "limit": 10,
+  "total_items": 2,
+  "delete_apartment_histories": [
+    {
+      "history_id": 1,
+      "apartment_id": 51,
+      "building": "A",
+      "room_number": "1203",
+      "deleted_at": "2026-01-02T10:15:30",
+    }
+  ]
+}
+```
+
+### 12.2. Lấy lịch sử xóa Apartment theo HistoryID
+
+**GET** `/api/v1/delete-apartment-histories/{history_id}`
+
+### Response
+```json
+{
+  "history_id": 1,
+  "apartment_id": 51,
+  "building": "A",
+  "room_number": "1203",
+  "deleted_at": "2026-01-02T10:15:30",
+}
+
+```
 
 ---
 
-## 12. Enum & Trạng thái
+## 13. Lịch sử xóa cư dân (Delete Resident History)
+
+### 13.1. Lấy danh sách lịch sử xóa Resident
+
+**GET** `/api/v1/delete-resident-histories`
+
+### Query Parameters
+- `page` (optional, default = 1)
+- `limit` (optional, default = 10)
+- `resident_id` (optional)
+- `apartment_id` (optional)
+
+### Response
+```json
+{
+  "page": 1,
+  "limit": 10,
+  "total_items": 1,
+  "delete_resident_histories": [
+    {
+      "history_id": 5,
+      "resident_id": 21,
+      "apartment_id": 51,
+      "full_name": "Nguyễn Văn A",
+      "phone_number": "0987654321",
+      "email": "vana@example.com",
+      "is_head": false,
+      "deleted_at": "2026-01-04T14:45:00",
+    }
+  ]
+}
+
+```
+
+### 13.2. Lấy lịch sử xóa Resident theo HistoryID
+
+**GET** `/api/v1/delete-resident-histories/{history_id}`
+
+### Response
+```json
+{
+  "history_id": 5,
+  "resident_id": 21,
+  "apartment_id": 51,
+  "full_name": "Nguyễn Văn A",
+  "phone_number": "0987654321",
+  "email": "vana@example.com",
+  "is_head": false,
+  "deleted_at": "2026-01-04T14:45:00",
+}
+```
+
+---
+
+## 14. Lịch sử xóa khoản phí (Delete Fee History)
+
+### 14.1. Lấy danh sách lịch sử xóa Fee
+
+**GET** `/api/v1/delete-fee-histories`
+
+### Query Parameters
+- `page` (optional, default = 1)
+- `limit` (optional, default = 10)
+- `fee_id` (optional)
+- `fee_type_id` (optional)
+
+### Response
+```json
+{
+  "page": 1,
+  "limit": 10,
+  "total_items": 1,
+  "delete_fee_histories": [
+    {
+      "history_id": 3,
+      "fee_id": 12,
+      "fee_type_id": 2,
+      "fee_category_id": 4,
+      "fee_name": "Phí Gửi Xe Máy tháng 2025-06",
+      "fee_description": "Thu phí gửi xe máy",
+      "applicable_month": "2025-06",
+      "amount": 50000.00,
+      "start_date": "2025-06-01",
+      "end_date": "2025-06-30",
+      "status": "ARCHIVED",
+      "deleted_at": "2026-01-05T11:00:00",
+    }
+  ]
+}
+```
+
+### 14.2. Lấy lịch sử xóa Fee theo HistoryID
+
+**GET** `/api/v1/delete-fee-histories/{history_id}`
+
+### Response
+```json
+{
+  "history_id": 3,
+  "fee_id": 12,
+  "fee_type_id": 2,
+  "fee_category_id": 4,
+  "fee_name": "Phí Gửi Xe Máy tháng 2025-06",
+  "fee_description": "Thu phí gửi xe máy",
+  "applicable_month": "2025-06",
+  "amount": 50000.00,
+  "start_date": "2025-06-01",
+  "end_date": "2025-06-30",
+  "status": "ARCHIVED",
+  "deleted_at": "2026-01-05T11:00:00",
+}
+```
+
+
+---
+
+## 15. Enum & Trạng thái
 
 ### FeeStatus
 
