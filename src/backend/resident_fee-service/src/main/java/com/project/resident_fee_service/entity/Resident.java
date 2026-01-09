@@ -64,6 +64,12 @@ public class Resident {
     @Column(name = "Email", length = 40)
     private String email;
 
+    @OneToOne(mappedBy = "resident",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY)
+    private Account account;
+
     /**
      * IsHead (bit)
      */

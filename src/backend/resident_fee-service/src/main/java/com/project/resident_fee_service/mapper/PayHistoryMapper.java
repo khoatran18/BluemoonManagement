@@ -53,9 +53,20 @@ public class PayHistoryMapper {
         // Prepare result
         String payDatetime = LocalDateMapper.LocalDateToString(entity.getPayDateTime());
         Fee fee = feeRepository.findById(entity.getFeeID());
-        String feeName = fee.getFeeName();
-        FeeType.FeeTypeName feeTypeName = fee.getFeeType().getFeeTypeName();
-        String feeCategoryName = fee.getFeeCategory().getFeeCategoryName();
+
+//        String feeName = fee.getFeeName();
+//        FeeType.FeeTypeName feeTypeName = fee.getFeeType().getFeeTypeName();
+//        String feeCategoryName = fee.getFeeCategory().getFeeCategoryName();
+
+        String feeName = (fee != null) ? fee.getFeeName() : "Tên phí mặc định (Phí đã bị xóa)";
+
+        FeeType.FeeTypeName feeTypeName = (fee != null && fee.getFeeType() != null)
+                ? fee.getFeeType().getFeeTypeName()
+                : FeeType.FeeTypeName.IMPROMPTU;
+
+        String feeCategoryName = (fee != null && fee.getFeeCategory() != null)
+                ? fee.getFeeCategory().getFeeCategoryName()
+                : "Danh mục mặc định (Phí đã bị xóa)";
 
 
         // Create result

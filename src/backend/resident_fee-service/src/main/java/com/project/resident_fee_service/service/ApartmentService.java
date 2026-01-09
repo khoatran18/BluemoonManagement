@@ -19,6 +19,7 @@ import com.project.resident_fee_service.repository.ResidentRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
@@ -32,6 +33,9 @@ public class ApartmentService {
 
     private static final Logger log =
             LoggerFactory.getLogger(ApartmentService.class);
+
+    @Inject
+    EntityManager entityManager;
 
     @Inject
     ApartmentRepository apartmentRepository;
@@ -330,7 +334,13 @@ public class ApartmentService {
             // 4. Flush changes so the unlinking happens in DB before the delete
             apartmentRepository.flush();
 
-            // 5. Delete Apartment
+            // 5. Delete in Apartment_PaidFee
+            entityManager.createNativeQuery("""
+                DELETE FROM Apartment_PaidFee Where ApartmentID = :id
+            """).setParameter("id", apartmentId)
+                    .executeUpdate();
+
+            // 6. Delete Apartment
             apartmentRepository.delete(apartment);
 
             log.info("[Apartment] [Service] deleteApartment End");

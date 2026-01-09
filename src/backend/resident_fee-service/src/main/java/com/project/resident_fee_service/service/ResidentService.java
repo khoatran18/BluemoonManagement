@@ -182,6 +182,12 @@ public class ResidentService {
             if (entity == null)
                 throw new NotFoundException("Resident not found with id: " + id);
 
+            // Delete account
+//            if (entity.getAccount() != null) {
+//                entity.getAccount().setResident(null);
+//                entity.setAccount(null);
+//            }
+
             residentRepository.delete(entity);
 
             log.info("[Resident] [Service] deleteResident End");
