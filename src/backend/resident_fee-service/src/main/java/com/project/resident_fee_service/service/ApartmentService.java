@@ -1,7 +1,10 @@
 package com.project.resident_fee_service.service;
 
+import com.project.common_package.exception.BadRequestException;
 import com.project.resident_fee_service.dto.AdjustmentDTO;
+import com.project.resident_fee_service.dto.ApartmentDTO;
 import com.project.resident_fee_service.dto.ApartmentDTO.*;
+import com.project.resident_fee_service.dto.ResidentDTO;
 import com.project.resident_fee_service.entity.Adjustment;
 import com.project.resident_fee_service.entity.Apartment;
 import com.project.resident_fee_service.entity.ApartmentFeeStatus;
@@ -184,6 +187,24 @@ public class ApartmentService {
             }
 
             List<Resident> resolvedResidents = null;
+            if (dto.residents != null && !dto.residents.isEmpty()) {
+
+                if (dto.headResidentId == null) {
+                    throw new BadRequestException(
+                            "Head resident is required when residents list is provided"
+                    );
+                }
+
+                boolean headInResidents = dto.residents.stream()
+                        .anyMatch(r -> r.id.equals(dto.headResidentId));
+
+                if (!headInResidents) {
+                    throw new BadRequestException(
+                            "Head resident must be included in residents list"
+                    );
+                }
+            }
+
             if (dto.residents != null) {
                 resolvedResidents = dto.residents.stream()
                         .map(r -> {
@@ -242,6 +263,27 @@ public class ApartmentService {
             }
 
             List<Resident> resolvedResidents = null;
+            if (dto.residents != null && !dto.residents.isEmpty()) {
+
+                if (dto.headResidentId == null) {
+                    throw new BadRequestException(
+                            "Head resident is required when residents list is provided"
+                    );
+                }
+
+                boolean headInResidents = dto.residents.stream()
+                        .anyMatch(r -> r.id.equals(dto.headResidentId));
+
+                if (!headInResidents) {
+                    throw new BadRequestException(
+                            "Head resident must be included in residents list"
+                    );
+                }
+            }
+
+            validateUpdateHeadRule(entity, dto.headResidentId, dto.residents);
+
+
             if (dto.residents != null) {
                 resolvedResidents = dto.residents.stream()
                         .map(r -> {
@@ -356,4 +398,47 @@ public class ApartmentService {
             throw new InternalServerException(e.getMessage());
         }
     }
+
+
+    private void validateUpdateHeadRule(
+            Apartment entity,
+            Long newHeadId,
+            List<ApartmentUpdateDTO.ResidentInfo> newResidents
+    ) {
+        if (newResidents == null) {
+            return;
+        }
+
+        if (newResidents.isEmpty()) {
+            return;
+        }
+
+        Resident oldHead = entity.getResidents().stream()
+                .filter(Resident::getIsHead)
+                .findFirst()
+                .orElse(null);
+
+        boolean oldHeadStillExists = oldHead != null
+                && newResidents.stream()
+                .anyMatch(r -> r.id.equals(oldHead.getResidentId()));
+
+        if (!oldHeadStillExists) {
+
+            if (newHeadId == null) {
+                throw new BadRequestException(
+                        "Previous head is removed. A new head must be specified or residents list must be empty"
+                );
+            }
+
+            boolean newHeadInList = newResidents.stream()
+                    .anyMatch(r -> r.id.equals(newHeadId));
+
+            if (!newHeadInList) {
+                throw new BadRequestException(
+                        "New head resident must be included in residents list"
+                );
+            }
+        }
+    }
+
 }

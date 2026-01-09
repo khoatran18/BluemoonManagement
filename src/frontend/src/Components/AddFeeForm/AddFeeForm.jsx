@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import "./AddFeeForm.css";
+import { ScrollableList } from "../ScrollableList";
 
 const FEE_TYPE_LABEL_VI = {
   OBLIGATORY: "Định kỳ",
@@ -37,6 +38,10 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
     status: initial.status || "active",
   });
 
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const categoryInputRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
+
   const [monthRange, setMonthRange] = useState({ start: "", end: "" });
   const [loading, setLoading] = useState(false);
 
@@ -67,6 +72,26 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
       status: initial.status || "ACTIVE",
     });
   }, [initial, feeTypes, feeCategories]);
+
+  const selectedCategoryLabel = useMemo(() => {
+    const selectedId = String(formData.fee_category_id ?? "");
+    const current = feeCategories.find((c) => String(c?.fee_category_id) === selectedId);
+    return current?.name || "";
+  }, [feeCategories, formData.fee_category_id]);
+
+  useEffect(() => {
+    if (!isCategoryDropdownOpen) return;
+    const onMouseDown = (e) => {
+      const inputEl = categoryInputRef.current;
+      const dropdownEl = categoryDropdownRef.current;
+      const target = e.target;
+      if (inputEl && inputEl.contains(target)) return;
+      if (dropdownEl && dropdownEl.contains(target)) return;
+      setIsCategoryDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, [isCategoryDropdownOpen]);
 
   useEffect(() => {
     const m = formData.applicable_month; // expected format YYYY-MM
@@ -129,6 +154,11 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
       setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePickCategory = (feeCategoryId) => {
+    setFormData((prev) => ({ ...prev, fee_category_id: feeCategoryId }));
+    setIsCategoryDropdownOpen(false);
+  };
+
   const submit = (e) => {
     e.preventDefault();
 
@@ -184,11 +214,44 @@ export const AddFeeForm = ({ initial = {}, feeTypes = [], feeCategories = [], on
 
       <div className="form-group">
         <label htmlFor="fee_category_id">Danh mục</label>
-        <select id="fee_category_id" name="fee_category_id" value={formData.fee_category_id} onChange={handleChange} disabled={isEditing || loading} required>
-          {feeCategories.map(fc => (
-            <option key={fc.fee_category_id} value={fc.fee_category_id}>{fc.name}</option>
-          ))}
-        </select>
+        <div className="fee-category-picker">
+          <input
+            ref={categoryInputRef}
+            id="fee_category_id"
+            name="fee_category_id"
+            value={selectedCategoryLabel}
+            readOnly
+            placeholder={feeCategories.length ? "Chọn danh mục" : "Chưa có danh mục"}
+            onClick={() => {
+              if (isEditing || loading) return;
+              if (!feeCategories.length) return;
+              setIsCategoryDropdownOpen((v) => !v);
+            }}
+            disabled={isEditing || loading}
+          />
+
+          {isCategoryDropdownOpen && !isEditing && !loading ? (
+            <ScrollableList ref={categoryDropdownRef} className="fee-category-dropdown" role="listbox">
+              {feeCategories.map((fc) => {
+                const id = fc?.fee_category_id;
+                if (id === undefined || id === null) return null;
+                const active = String(formData.fee_category_id) === String(id);
+                return (
+                  <button
+                    key={String(id)}
+                    type="button"
+                    className={`fee-category-dropdown-item ${active ? "is-active" : ""}`}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => handlePickCategory(id)}
+                    title="Chọn danh mục"
+                  >
+                    {fc?.name}
+                  </button>
+                );
+              })}
+            </ScrollableList>
+          ) : null}
+        </div>
       </div>
 
       <div className="form-group">

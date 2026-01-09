@@ -27,6 +27,10 @@ export const createApartment = async (apartmentData) => {
       axiosClient.post('/apartments', {
         building: apartmentData.building,
         room_number: apartmentData.room_number,
+        head_resident_id: apartmentData.head_resident_id ?? null,
+        residents: Array.isArray(apartmentData.residents)
+          ? apartmentData.residents.map((r) => ({ id: r?.id }))
+          : [],
       }),
     {
       label: 'createApartment',
@@ -41,7 +45,10 @@ export const editApartment = async (apartmentId, apartmentData) => {
       axiosClient.put(`/apartments/${apartmentId}`, {
         building: apartmentData.building,
         room_number: apartmentData.room_number,
-        head_resident_id: apartmentData.head_resident_id || null,
+        head_resident_id: apartmentData.head_resident_id ?? null,
+        residents: Array.isArray(apartmentData.residents)
+          ? apartmentData.residents.map((r) => ({ id: r?.id }))
+          : [],
       }),
     {
       label: 'editApartment',

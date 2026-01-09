@@ -199,7 +199,7 @@ function CategorySelector({ active, onChange, refreshToken }) {
     useEffect(() => {
         (async () => {
             try {
-                const resp = await getFeeCategories();
+                const resp = await getFeeCategories({ page: 1, limit: 1000 });
                 setCategories(resp || []);
             } catch (err) {
                 console.error('Failed to fetch categories', err);
