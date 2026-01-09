@@ -3,12 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { register as registerApi } from '../api/authApi';
 import AuthLayout from './AuthLayout';
 
-const ROLE_OPTIONS = [
-  { value: 'Admin', label: 'Quản trị viên' },
-  { value: 'Collector', label: 'Thu ngân' },
-  { value: 'Citizen', label: 'Cư dân' },
-];
-
 export default function RegisterPage() {
   const navigate = useNavigate();
 
@@ -16,7 +10,6 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [identityNumber, setIdentityNumber] = useState('');
-  const [role, setRole] = useState('Citizen');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +23,7 @@ export default function RegisterPage() {
         password,
         email,
         identity_number: identityNumber,
-        role,
+        role: 'Citizen',
       });
       
       navigate('/login', { replace: true });
@@ -89,17 +82,6 @@ export default function RegisterPage() {
             onChange={(e) => setIdentityNumber(e.target.value)}
             required
           />
-        </div>
-
-        <div className="auth-field">
-          <label className="auth-label">Vai trò</label>
-          <select className="auth-select" value={role} onChange={(e) => setRole(e.target.value)}>
-            {ROLE_OPTIONS.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
         </div>
 
         <button type="submit" disabled={loading} className="auth-submit">
