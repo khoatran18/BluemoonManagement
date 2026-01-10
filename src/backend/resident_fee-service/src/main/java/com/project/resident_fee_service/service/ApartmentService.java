@@ -181,7 +181,10 @@ public class ApartmentService {
             apartmentFeeStatus.setApartment(entity);
             apartmentFeeStatusRepository.persist(apartmentFeeStatus);
 
-            // Attach residents to apartment
+            // Init List of residents are head of other apartments
+//            List<Resident> oldHeadResidents = new ArrayList<>();
+
+            // Attach head residents to apartment
             Resident headResident = null;
             if (dto.headResidentId != null) {
                 headResident = residentRepository.findById(dto.headResidentId);
@@ -189,6 +192,7 @@ public class ApartmentService {
                     throw new NotFoundException("Head resident not found: " + dto.headResidentId);
             }
 
+            // Attach residents to apartment
             List<Resident> resolvedResidents = null;
             if (dto.residents != null && !dto.residents.isEmpty()) {
 
@@ -212,6 +216,22 @@ public class ApartmentService {
                 resolvedResidents = dto.residents.stream()
                         .map(r -> {
                             Resident found = residentRepository.findById(r.id);
+                            if (found.getIsHead()) {
+                                // Set new head resident for old apartment
+                                Apartment oldApartment = found.getApartment();
+                                List<Resident> oldResidents = oldApartment.getResidents();
+
+                                Resident newHead = oldResidents.stream()
+                                        .filter(r2 -> !r2.getResidentId().equals(found.getResidentId()))
+                                        .findFirst()
+                                        .orElse(null);
+                                oldApartment.setHeadResident(newHead);
+                                if (newHead != null) {
+                                    newHead.setIsHead(true);
+                                };
+                                // Delete found Resident from oldApartment
+                                oldApartment.getResidents().remove(found);
+                            }
                             if (found == null)
                                 throw new NotFoundException("Resident not found with id: " + r.id);
                             found.setIsHead(false);

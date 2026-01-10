@@ -64,10 +64,10 @@ public class MockData {
             int aptId = (i % 50 == 0) ? 50 : (i % 50);
             boolean isHead = (i <= 50); // 50 người đầu tiên là chủ hộ
 
-//            String residentName = (i <= RESIDENT_NAME.size())
-//                    ? RESIDENT_NAME.get(i - 1)
-//                    : ("Nguyễn Văn " + i);
-            String residentName = "Nguyễn Văn " + i;
+            String residentName = (i <= RESIDENT_NAME.size())
+                    ? RESIDENT_NAME.get(i - 1)
+                    : ("Nguyễn Văn " + i);
+//            String residentName = "Nguyễn Văn " + i;
             String phone = String.format("091%07d", i);  // luôn đủ 10 số
 
             String body = """
