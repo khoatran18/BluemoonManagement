@@ -5,6 +5,7 @@ import com.project.resident_fee_service.entity.Apartment;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.*;
@@ -54,12 +55,13 @@ public class ResidentRepository implements PanacheRepository<Resident> {
         }
 
         PanacheQuery<Resident> query;
+        Sort sort = Sort.by("residentId");
 
         if (clauses.isEmpty()) {
             query = findAll();
         } else {
             String where = String.join(" AND ", clauses);
-            query = find(where, params);
+            query = find(where, sort, params);
         }
 
         return query.page(Page.of(page - 1, limit)).list();

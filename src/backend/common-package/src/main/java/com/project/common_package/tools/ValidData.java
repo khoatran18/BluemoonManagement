@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import java.net.URI;
 import java.net.http.*;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * ValidData - Phiên bản đầy đủ logic tạo/check dữ liệu
@@ -17,7 +19,6 @@ public class ValidData {
     private static final HttpClient CLIENT = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
-
     public static void main(String[] args) throws Exception {
 
         // =========================================================

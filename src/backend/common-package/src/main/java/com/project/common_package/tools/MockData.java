@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.*;
 import java.time.Duration;
+import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,6 +15,19 @@ public class MockData {
     private static final HttpClient CLIENT = HttpClient.newHttpClient();
     private static String ADMIN_TOKEN = "";
     private static final Random RANDOM = new Random();
+
+    private static final List<String> RESIDENT_NAME =
+            List.of("Vũ Khuê",
+                    "Khương Anh Tài",
+                    "Nguyễn Văn Lợi",
+                    "Trần Minh Khoa",
+                    "Võ Hoàng Bảo",
+                    "Võ Hữu Trí Dũng",
+                    "Nguyễn Kiêm Khang",
+                    "Phạm Thị Hoài Thu",
+                    "Trần Văn Phong",
+                    "Nguyễn Đình Vũ"
+            );
 
     public static void main(String[] args) throws Exception {
 
@@ -49,13 +63,28 @@ public class MockData {
         for (int i = 1; i <= 150; i++) {
             int aptId = (i % 50 == 0) ? 50 : (i % 50);
             boolean isHead = (i <= 50); // 50 người đầu tiên là chủ hộ
-            String body = "{" +
-                    "\"apartment_id\":" + aptId + "," +
-                    "\"full_name\":\"Nguyễn Văn " + i + "\"," +
-                    "\"phone_number\":\"0912345" + (100 + i) + "\"," +
-                    "\"email\":\"user" + i + "@gmail.com\"," +
-                    "\"is_head\":" + isHead +
-                    "}";
+
+//            String residentName = (i <= RESIDENT_NAME.size())
+//                    ? RESIDENT_NAME.get(i - 1)
+//                    : ("Nguyễn Văn " + i);
+            String residentName = "Nguyễn Văn " + i;
+            String phone = String.format("091%07d", i);  // luôn đủ 10 số
+
+            String body = """
+                {
+                  "apartment_id": %d,
+                  "full_name": "%s",
+                  "phone_number": "%s",
+                  "email": "user%d@gmail.com",
+                  "is_head": %b
+                }
+                """.formatted(
+                            aptId,
+                            residentName,
+                            phone,
+                            i,
+                            isHead
+                    );
             post("/api/v1/residents", body, i);
             Thread.sleep(50);
         }
