@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./AddResidentForm.css";
 import { getApartments } from "../../api/apartmentApi";
+import { ScrollableList } from "../ScrollableList";
 
 export const AddResidentForm = ({ onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,10 @@ export const AddResidentForm = ({ onSubmit, onCancel }) => {
   const [apartments, setApartments] = useState([]);
   const [apartmentsLoading, setApartmentsLoading] = useState(false);
   const [apartmentsError, setApartmentsError] = useState("");
+
+  const [isApartmentDropdownOpen, setIsApartmentDropdownOpen] = useState(false);
+  const apartmentInputRef = useRef(null);
+  const apartmentDropdownRef = useRef(null);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +58,50 @@ export const AddResidentForm = ({ onSubmit, onCancel }) => {
       mounted = false;
     };
   }, []);
+
+  const filteredApartments = useMemo(() => {
+    const q = String(formData.apartment_id || "").trim().toLowerCase();
+    if (!q) return apartments;
+
+    return apartments.filter((a) => {
+      const building = String(a?.building || "").toLowerCase();
+      const room = String(a?.room_number || "").toLowerCase();
+      const id = String(a?.apartment_id ?? a?.id ?? "").toLowerCase();
+      const label = `${building} - ${room} (#${id})`;
+      return building.includes(q) || room.includes(q) || id.includes(q) || label.includes(q);
+    });
+  }, [apartments, formData.apartment_id]);
+
+  useEffect(() => {
+    if (!isApartmentDropdownOpen) return;
+    const onMouseDown = (e) => {
+      const inputEl = apartmentInputRef.current;
+      const dropdownEl = apartmentDropdownRef.current;
+      const target = e.target;
+
+      if (inputEl && inputEl.contains(target)) return;
+      if (dropdownEl && dropdownEl.contains(target)) return;
+      setIsApartmentDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, [isApartmentDropdownOpen]);
+
+  const handlePickApartment = (apartment) => {
+    const id = apartment?.apartment_id ?? apartment?.id;
+    const building = apartment?.building ?? "";
+    const room = apartment?.room_number ?? "";
+    if (id === undefined || id === null) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      apartment_id: `${building} - ${room} (#${id})`,
+    }));
+    if (errors.apartment_id) {
+      setErrors((prev) => ({ ...prev, apartment_id: "" }));
+    }
+    setIsApartmentDropdownOpen(false);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -164,28 +213,53 @@ export const AddResidentForm = ({ onSubmit, onCancel }) => {
 
       <div className="form-group">
         <label htmlFor="apartment_id">Căn hộ</label>
-        <input
-          type="text"
-          id="apartment_id"
-          name="apartment_id"
-          list="apartment-options"
-          value={formData.apartment_id}
-          onChange={handleChange}
-          placeholder={
-            apartmentsLoading
-              ? "Đang tải danh sách căn hộ..."
-              : "Gõ để tìm (VD: A - 101) hoặc nhập mã (#12)"
-          }
-          disabled={isSubmitting}
-        />
-        <datalist id="apartment-options">
-          {apartments.map((apartment) => (
-            <option
-              key={apartment.apartment_id}
-              value={`${apartment.building} - ${apartment.room_number} (#${apartment.apartment_id})`}
-            />
-          ))}
-        </datalist>
+        <div className="apartment-picker">
+          <input
+            ref={apartmentInputRef}
+            type="text"
+            id="apartment_id"
+            name="apartment_id"
+            value={formData.apartment_id}
+            onChange={(e) => {
+              handleChange(e);
+              setIsApartmentDropdownOpen(true);
+            }}
+            onFocus={() => setIsApartmentDropdownOpen(true)}
+            placeholder={
+              apartmentsLoading
+                ? "Đang tải danh sách căn hộ..."
+                : "Gõ để tìm (VD: A - 101) hoặc nhập mã (#12)"
+            }
+            disabled={isSubmitting}
+            autoComplete="off"
+          />
+
+          {isApartmentDropdownOpen && !apartmentsLoading ? (
+            <ScrollableList ref={apartmentDropdownRef} className="apartment-dropdown" role="listbox">
+              {filteredApartments.length === 0 ? (
+                <div className="apartment-dropdown-empty">Không tìm thấy căn hộ phù hợp.</div>
+              ) : (
+                filteredApartments.slice(0, 80).map((a) => {
+                  const id = a?.apartment_id ?? a?.id;
+                  if (id === undefined || id === null) return null;
+                  const label = `${a?.building ?? ""} - ${a?.room_number ?? ""} (#${id})`;
+                  return (
+                    <button
+                      key={String(id)}
+                      type="button"
+                      className="apartment-dropdown-item"
+                      onMouseDown={(ev) => ev.preventDefault()}
+                      onClick={() => handlePickApartment(a)}
+                      title="Chọn căn hộ"
+                    >
+                      {label}
+                    </button>
+                  );
+                })
+              )}
+            </ScrollableList>
+          ) : null}
+        </div>
         {errors.apartment_id && <span className="error-text">{errors.apartment_id}</span>}
         {!errors.apartment_id && apartmentsError && (
           <span className="error-text">{apartmentsError}</span>

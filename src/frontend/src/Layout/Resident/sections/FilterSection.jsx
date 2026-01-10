@@ -4,9 +4,11 @@ import searchIcon from "../../../assets/icon/fee/search.svg";
 import "../../Fee/sections/FilterSection.css";
 
 import AddButton from "../../../Components/Button/AddButton";
+import Button from "../../../Components/Button/Button";
 import { Modal } from "../../../Components/Modal";
 import { AddResidentForm } from "../../../Components/AddResidentForm";
 import { SuccessModal } from "../../../Components/SuccessModal";
+import { DeleteResidentHistoriesModal } from "../../../Components/DeleteHistoriesModal/DeleteResidentHistoriesModal";
 import { createResident } from "../../../api/residentApi";
 
 export default function FilterSection({
@@ -32,6 +34,7 @@ export default function FilterSection({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isDeleteHistoryOpen, setIsDeleteHistoryOpen] = useState(false);
   const [successData, setSuccessData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -193,10 +196,19 @@ export default function FilterSection({
       )}
 
       <div className="filter-add-actions">
+        <Button className="filter-add-btn" onClick={() => setIsDeleteHistoryOpen(true)} icon={null}>
+          LỊCH SỬ XÓA
+        </Button>
         <AddButton className="filter-add-btn" onClick={handleAddResidentClick}>
           THÊM CƯ DÂN
         </AddButton>
       </div>
+
+      <DeleteResidentHistoriesModal
+        isOpen={isDeleteHistoryOpen}
+        onClose={() => setIsDeleteHistoryOpen(false)}
+        apartmentId={apartmentId}
+      />
 
       <Modal isOpen={isModalOpen} onClose={handleModalClose} title="Thêm dân cư mới">
         {errorMessage && (

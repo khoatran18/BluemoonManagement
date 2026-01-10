@@ -116,8 +116,14 @@ export const getFeeTypes = async () => {
 };
 
 export const getFeeCategories = async (params = {}) => {
+  // Backend now supports/returns paged results (page/limit). Default to fetching a large first page
+  // to keep existing dropdowns working without implementing client-side pagination.
+  const normalizedParams = { ...params };
+  if (normalizedParams.page === undefined) normalizedParams.page = 1;
+  if (normalizedParams.limit === undefined) normalizedParams.limit = 1000;
+
   const raw = await apiCall(
-    () => axiosClient.get(`/fee-categories`, { params }),
+    () => axiosClient.get(`/fee-categories`, { params: normalizedParams }),
     {
       label: 'getFeeCategories',
       requireSuccessFlag: false,
@@ -131,12 +137,22 @@ export const getFeeCategories = async (params = {}) => {
   if (raw.success !== undefined && raw.data !== undefined) {
     const payload = raw.data;
     if (Array.isArray(payload)) return payload;
-    const nested = findNestedArray(payload, 'fee-categories');
-    if (nested) return nested;
+
+    // Support multiple common shapes/keys for paged APIs.
+    const preferredKeys = ['fee_categories', 'feeCategories', 'fee-categories', 'items', 'content', 'results'];
+    for (const key of preferredKeys) {
+      const nested = findNestedArray(payload, key);
+      if (nested) return nested;
+    }
   }
 
-  const direct = findNestedArray(raw, 'fee-categories');
-  if (direct) return direct;
+  {
+    const preferredKeys = ['fee_categories', 'feeCategories', 'fee-categories', 'items', 'content', 'results'];
+    for (const key of preferredKeys) {
+      const direct = findNestedArray(raw, key);
+      if (direct) return direct;
+    }
+  }
 
   return [];
 };
@@ -145,7 +161,6 @@ export const createFeeCategory = async (params) => {
   return apiCall(
     () =>
       axiosClient.post('/fee-categories', {
-        fee_type_id: params.fee_type_id,
         name: params.name,
         description: params.description || '',
       }),
@@ -154,4 +169,23 @@ export const createFeeCategory = async (params) => {
       pick: (res) => res.data,
     }
   );
+};
+
+export const getDeleteFeeHistories = async (params = {}) => {
+  return apiCall(
+    () =>
+      axiosClient.get(`/delete-fee-histories`, {
+        params,
+        paramsSerializer: {
+          indexes: null,
+        },
+      }),
+    { label: 'getDeleteFeeHistories' }
+  );
+};
+
+export const getDeleteFeeHistoryDetail = async (historyId) => {
+  return apiCall(() => axiosClient.get(`/delete-fee-histories/${historyId}`), {
+    label: 'getDeleteFeeHistoryDetail',
+  });
 };

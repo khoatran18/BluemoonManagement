@@ -4,9 +4,11 @@ import searchIcon from "../../../assets/icon/fee/search.svg";
 import "../../Fee/sections/FilterSection.css";
 
 import AddButton from "../../../Components/Button/AddButton";
+import Button from "../../../Components/Button/Button";
 import { Modal } from "../../../Components/Modal";
 import { AddApartmentForm } from "../../../Components/AddApartmentForm";
 import { SuccessModal } from "../../../Components/SuccessModal";
+import { DeleteApartmentHistoriesModal } from "../../../Components/DeleteHistoriesModal/DeleteApartmentHistoriesModal";
 import { createApartment } from "../../../api/apartmentApi";
 
 export default function FilterSection({ search = "", onSearchChange, onNotify, onRefresh }) {
@@ -16,6 +18,7 @@ export default function FilterSection({ search = "", onSearchChange, onNotify, o
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isDeleteHistoryOpen, setIsDeleteHistoryOpen] = useState(false);
   const [successData, setSuccessData] = useState(null);
 
   useEffect(() => setLocalSearch(search || ""), [search]);
@@ -103,10 +106,18 @@ export default function FilterSection({ search = "", onSearchChange, onNotify, o
       )}
 
       <div className="filter-add-actions">
+        <Button className="filter-add-btn" onClick={() => setIsDeleteHistoryOpen(true)} icon={null}>
+          LỊCH SỬ XÓA
+        </Button>
         <AddButton className="filter-add-btn" onClick={handleAddApartmentClick}>
           THÊM CĂN HỘ
         </AddButton>
       </div>
+
+      <DeleteApartmentHistoriesModal
+        isOpen={isDeleteHistoryOpen}
+        onClose={() => setIsDeleteHistoryOpen(false)}
+      />
 
       <Modal isOpen={isModalOpen} onClose={handleModalClose} title="Thêm căn hộ mới">
         <AddApartmentForm onSubmit={handleAddApartmentSubmit} onCancel={handleModalClose} />

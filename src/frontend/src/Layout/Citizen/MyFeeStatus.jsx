@@ -2,9 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import LoadingSpinner from "../../Components/LoadingSpinner/LoadingSpinner";
 import Tag from "../../Components/Tag/Tag";
 import Button from "../../Components/Button/Button";
+import { PaymentHistoriesModal } from "../../Components/PaymentHistoriesModal/PaymentHistoriesModal";
 import { getApartmentFeeStatus } from "../../api/feeCollectApi";
 import { getMe } from "../../api/authApi";
 import { usePersistentState } from "../../hooks/usePersistentState";
+import { VOLUNTARY_FEE_TYPE_ID } from "../../constants/feeTypeIds";
 import "../FeeCollect/FeeCollect.css";
 import "../Apartment/ApartmentManagement.css";
 
@@ -33,6 +35,35 @@ function isPastDue(dateString) {
   return d.getTime() < Date.now();
 }
 
+function isInCurrentMonth(dateString) {
+  if (!dateString) return false;
+  const d = new Date(dateString);
+  if (Number.isNaN(d.getTime())) return false;
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+}
+
+function groupFeesByCategory(fees) {
+  const map = new Map();
+  for (const fee of fees || []) {
+    const categoryId = fee?.fee_category_id;
+    const categoryName = fee?.fee_category_name;
+    const key = String(categoryId ?? categoryName ?? "unknown");
+    const label = categoryName || (categoryId !== undefined && categoryId !== null ? `Danh mục ${categoryId}` : "Danh mục");
+    if (!map.has(key)) {
+      map.set(key, { key, label, fees: [] });
+    }
+    map.get(key).fees.push(fee);
+  }
+  return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label, "vi"));
+}
+
+const feeTypeMap = {
+  1: { key: "obligatory", label: "Định kỳ" },
+  2: { key: "voluntary", label: "Tự nguyện" },
+  3: { key: "impromptu", label: "Đột xuất" },
+};
+
 function toApartmentId(value) {
   const num = Number(String(value || "").trim());
   return Number.isFinite(num) && num > 0 ? num : null;
@@ -50,6 +81,8 @@ export default function MyFeeStatus() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
+  const [isPayHistoriesOpen, setIsPayHistoriesOpen] = useState(false);
+  const [feesVisible, setFeesVisible] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -107,8 +140,78 @@ export default function MyFeeStatus() {
   const hasAutoApartment = !!meApartmentId;
 
   const unpaidFees = data?.unpaid_fees || [];
-  const pastDueCount = unpaidFees.filter((f) => isPastDue(f?.expiry_date)).length;
-  const unpaidTotal = unpaidFees.reduce((sum, f) => sum + toNumber(f?.fee_amount), 0);
+  const voluntaryFees = useMemo(
+    () => unpaidFees.filter((f) => String(f?.fee_type_id) === VOLUNTARY_FEE_TYPE_ID),
+    [unpaidFees]
+  );
+  const nonVoluntaryUnpaidFees = useMemo(
+    () => unpaidFees.filter((f) => String(f?.fee_type_id) !== VOLUNTARY_FEE_TYPE_ID),
+    [unpaidFees]
+  );
+
+  const pastDueFees = useMemo(
+    () => nonVoluntaryUnpaidFees.filter((f) => isPastDue(f?.expiry_date)),
+    [nonVoluntaryUnpaidFees]
+  );
+  const currentMonthFees = useMemo(
+    () => nonVoluntaryUnpaidFees.filter((f) => !isPastDue(f?.expiry_date) && isInCurrentMonth(f?.expiry_date)),
+    [nonVoluntaryUnpaidFees]
+  );
+  const upcomingFees = useMemo(
+    () => nonVoluntaryUnpaidFees.filter((f) => !isPastDue(f?.expiry_date) && !isInCurrentMonth(f?.expiry_date)),
+    [nonVoluntaryUnpaidFees]
+  );
+
+  const pastDueCount = pastDueFees.length;
+  const unpaidTotal = nonVoluntaryUnpaidFees.reduce((sum, f) => sum + toNumber(f?.fee_amount), 0);
+
+  const renderFeeRow = (fee, { overdue = false } = {}) => {
+    const feeType = feeTypeMap[fee?.fee_type_id];
+    return (
+      <div
+        className={`fee-status-fee ${overdue ? "fee-status-fee--overdue" : ""}`}
+        key={fee?.fee_id || `${fee?.fee_name}-${fee?.expiry_date}`}
+      >
+        <div className="fee-status-fee-main">
+          <div className="fee-status-fee-title-wrap">
+            <div className="fee-status-fee-title">{fee?.fee_name || "Khoản phí"}</div>
+            {feeType ? (
+              <Tag variant="Fee" type={feeType.key} className="fee-status-fee-type-tag">
+                {feeType.label}
+              </Tag>
+            ) : (
+              <div className="fee-status-fee-type-fallback">{fee?.fee_type_name || fee?.fee_type_id || ""}</div>
+            )}
+          </div>
+
+          <div className={`fee-status-fee-amount ${overdue ? "fee-status-fee-amount--overdue" : ""}`}>
+            {formatCurrencyVND(fee?.fee_amount)}
+          </div>
+        </div>
+
+        <div className="fee-status-fee-meta">
+          Danh mục: {fee?.fee_category_name || fee?.fee_category_id || "-"} · Hết hạn: {fee?.expiry_date ? String(fee.expiry_date).slice(0, 10) : "-"}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCategoryDropdown = (categoryGroup, { overdue = false } = {}) => {
+    const total = categoryGroup.fees.reduce((sum, fee) => sum + toNumber(fee?.fee_amount), 0);
+    return (
+      <details className="fee-status-category" key={categoryGroup.key}>
+        <summary className="fee-status-category-summary">
+          <span className="fee-status-category-title">{categoryGroup.label}</span>
+          <span className="fee-status-category-meta">
+            {categoryGroup.fees.length} khoản · {formatCurrencyVND(total)}
+          </span>
+        </summary>
+        <div className="fee-status-category-body">
+          {categoryGroup.fees.map((fee) => renderFeeRow(fee, { overdue }))}
+        </div>
+      </details>
+    );
+  };
 
   return (
     <div className="apartment-management-container fee-status-page">
@@ -130,11 +233,24 @@ export default function MyFeeStatus() {
               <Button onClick={onSave}>Lưu</Button>
             </>
           ) : null}
+          <Button
+            className="fee-collect-btn-secondary"
+            onClick={() => setIsPayHistoriesOpen(true)}
+            disabled={!apartmentId}
+          >
+            Lịch sử thanh toán
+          </Button>
           <Button variant="secondary" onClick={fetchStatus} disabled={!apartmentId}>
             Làm mới
           </Button>
         </div>
       </div>
+
+      <PaymentHistoriesModal
+        isOpen={isPayHistoriesOpen}
+        onClose={() => setIsPayHistoriesOpen(false)}
+        apartmentId={apartmentId}
+      />
 
       {me && (me?.resident_id || me?.apartment_id) ? (
         <div style={{ padding: 16, paddingTop: 0, opacity: 0.85 }}>
@@ -166,7 +282,7 @@ export default function MyFeeStatus() {
             <div className="fee-status-card fee-status-card--total">
               <div className="fee-status-card-label">Tổng phí chưa đóng</div>
               <div className="fee-status-card-value fee-status-card-value--total">{formatCurrencyVND(unpaidTotal)}</div>
-              <div className="fee-status-card-sub">{unpaidFees.length} khoản</div>
+              <div className="fee-status-card-sub">{nonVoluntaryUnpaidFees.length} khoản</div>
             </div>
 
             <div className="fee-status-card">
@@ -182,37 +298,56 @@ export default function MyFeeStatus() {
             </div>
           </div>
 
-          <div style={{ padding: 12 }}>
-            <div style={{ fontWeight: 600, marginBottom: 10 }}>Các khoản chưa đóng</div>
-            {unpaidFees.length === 0 ? (
-              <div className="fee-status-empty">Không có khoản phí nào chưa đóng.</div>
+          <div className="fee-status-section">
+            <div className="fee-status-section-title">Phí chưa trả</div>
+
+            <details
+              className="fee-status-list-toggle"
+              open={feesVisible}
+              onToggle={(e) => setFeesVisible(Boolean(e?.currentTarget?.open))}
+            >
+              <summary className="fee-status-list-toggle-summary">
+                {feesVisible ? "Ẩn danh sách phí" : "Hiển thị danh sách phí"}
+              </summary>
+            </details>
+
+            {!feesVisible ? null : unpaidFees.length === 0 ? (
+              <div className="fee-status-empty">Không có phí chưa trả.</div>
             ) : (
-              <div style={{ display: "grid", gap: 10 }}>
-                {unpaidFees.map((fee) => {
-                  const overdue = isPastDue(fee?.expiry_date);
-                  const feeTypeId = String(fee?.fee_type_id || "");
-                  const feeTypeLabel = feeTypeId === "1" ? "Định kỳ" : feeTypeId === "2" ? "Đột xuất" : feeTypeId === "3" ? "Tự nguyện" : "Phí";
-                  return (
-                    <div className={`fee-status-fee ${overdue ? "fee-status-fee--overdue" : ""}`} key={fee?.fee_id || `${fee?.fee_name}-${fee?.expiry_date}`}
-                    >
-                      <div className="fee-status-fee-main">
-                        <div className="fee-status-fee-title-wrap">
-                          <div className="fee-status-fee-title">{fee?.fee_name || "Khoản phí"}</div>
-                          <div className="fee-status-fee-type-fallback">{feeTypeLabel}</div>
-                        </div>
-                        <div className={`fee-status-fee-amount ${overdue ? "fee-status-fee-amount--overdue" : ""}`}>
-                          {formatCurrencyVND(fee?.fee_amount)}
-                        </div>
-                      </div>
-                      <div className="fee-status-fee-meta">
-                        <div>Hạn: {fee?.expiry_date ? String(fee.expiry_date).slice(0, 10) : ""}</div>
-                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                          {overdue ? <Tag variant="Danger" type="overdue">Quá hạn</Tag> : <Tag variant="Success" type="ok">Còn hạn</Tag>}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="fee-status-fee-list">
+                {pastDueFees.length > 0 ? (
+                  <>
+                    <div className="fee-status-subsection-title fee-status-subsection-title--overdue">Phí quá hạn</div>
+                    {groupFeesByCategory(pastDueFees).map((group) => renderCategoryDropdown(group, { overdue: true }))}
+                  </>
+                ) : null}
+
+                <>
+                  <div className="fee-status-subsection-title">Phí cần trả tháng này</div>
+                  {currentMonthFees.length > 0 ? (
+                    groupFeesByCategory(currentMonthFees).map((group) => renderCategoryDropdown(group))
+                  ) : (
+                    <div className="fee-status-empty">Không có phí cần trả trong tháng này.</div>
+                  )}
+                </>
+
+                <>
+                  <div className="fee-status-subsection-title">Phí chưa đến hạn</div>
+                  {upcomingFees.length > 0 ? (
+                    groupFeesByCategory(upcomingFees).map((group) => renderCategoryDropdown(group))
+                  ) : (
+                    <div className="fee-status-empty">Không có phí chưa đến hạn.</div>
+                  )}
+                </>
+
+                <>
+                  <div className="fee-status-subsection-title">Phí tự nguyện</div>
+                  {voluntaryFees.length > 0 ? (
+                    groupFeesByCategory(voluntaryFees).map((group) => renderCategoryDropdown(group))
+                  ) : (
+                    <div className="fee-status-empty">Không có phí tự nguyện.</div>
+                  )}
+                </>
               </div>
             )}
           </div>

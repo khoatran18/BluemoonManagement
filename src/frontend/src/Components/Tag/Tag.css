@@ -20,6 +20,14 @@
     width: 125px;
 }
 
+.danger {
+    width: 125px;
+}
+
+.success {
+    width: 125px;
+}
+
 .parent {
     display: inline-block;
 }

@@ -110,3 +110,38 @@
 }
 
 .btn-submit[disabled] { opacity: 0.7; cursor: not-allowed; }
+
+.fee-category-picker {
+  position: relative;
+}
+
+.fee-category-dropdown {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #ffffff;
+  max-height: 220px;
+}
+
+.fee-category-dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.fee-category-dropdown-item:hover {
+  background-color: #f1f5f9;
+}
+
+.fee-category-dropdown-item.is-active {
+  background-color: #f1f5f9;
+}

@@ -139,3 +139,96 @@
 .btn-submit:active {
   background-color: #0369a1;
 }
+
+.edit-apartment-resident-picker {
+  position: relative;
+}
+
+.edit-apartment-resident-dropdown {
+  z-index: 10001;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #ffffff;
+  max-height: 220px;
+}
+
+.edit-apartment-resident-dropdown-empty {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.edit-apartment-resident-dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.edit-apartment-resident-dropdown-item:hover {
+  background-color: #f1f5f9;
+}
+
+.edit-apartment-resident-dropdown-item:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.edit-apartment-resident-item-main {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.edit-apartment-resident-item-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.edit-apartment-selected-residents {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.edit-apartment-selected-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.edit-apartment-selected-radio {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.edit-apartment-selected-remove {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  background-color: #f1f5f9;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+.edit-apartment-selected-remove:hover {
+  background-color: #e2e8f0;
+}
+
+.edit-apartment-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+}

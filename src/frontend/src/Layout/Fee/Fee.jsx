@@ -38,7 +38,7 @@ export default function Fee(){
         // load types/categories before opening
         try {
             const typesResp = await getFeeTypes();
-            const catsResp = await getFeeCategories();
+            const catsResp = await getFeeCategories({ page: 1, limit: 1000 });
             setFeeTypes(typesResp || []);
             setFeeCategories(catsResp || []);
         } catch (err) {
@@ -49,12 +49,6 @@ export default function Fee(){
     };
 
     const openAddCategory = async () => {
-        try {
-            const typesResp = await getFeeTypes();
-            setFeeTypes(typesResp || []);
-        } catch (err) {
-            console.error('Failed to load fee types', err);
-        }
         setIsCategoryModalOpen(true);
     };
 
@@ -63,7 +57,7 @@ export default function Fee(){
         setEditingId(feeId);
         try {
             const typesResp = await getFeeTypes();
-            const catsResp = await getFeeCategories();
+            const catsResp = await getFeeCategories({ page: 1, limit: 1000 });
             setFeeTypes(typesResp || []);
             setFeeCategories(catsResp || []);
 
@@ -104,7 +98,7 @@ export default function Fee(){
 
             // Keep fee form dropdowns fresh if user opens Add Fee next.
             try {
-                const catsResp = await getFeeCategories();
+                const catsResp = await getFeeCategories({ page: 1, limit: 1000 });
                 setFeeCategories(catsResp || []);
             } catch {
                 // ignore
@@ -163,7 +157,6 @@ export default function Fee(){
 
             <Modal isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} title={'Thêm danh mục phí'}>
                 <AddFeeCategoryForm
-                    feeTypes={feeTypes}
                     onCancel={() => setIsCategoryModalOpen(false)}
                     onSubmit={handleCreateCategory}
                 />

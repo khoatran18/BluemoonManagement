@@ -174,20 +174,11 @@ export const ApartmentDataTableSection = ({ searchQuery = "", onNotify, refreshK
         const apartmentId = formData?.id;
         if (!apartmentId) throw new Error('Thiếu mã căn hộ');
 
-        // Preserve existing head_resident_id to avoid accidentally clearing it.
-        let current = null;
-        try {
-          current = await getApartmentDetail(apartmentId);
-          if (current && current.data) current = current.data;
-          if (current && current.data) current = current.data;
-        } catch (_) {
-          current = null;
-        }
-
         await editApartment(apartmentId, {
           building: formData?.building,
           room_number: formData?.room_number,
-          head_resident_id: current?.head_resident_id ?? undefined,
+          head_resident_id: formData?.head_resident_id ?? null,
+          residents: Array.isArray(formData?.residents) ? formData.residents : [],
         });
 
         if (typeof onNotify === 'function') {
