@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "Apartment")
@@ -72,4 +73,20 @@ public class Apartment {
 
     @Column(name = "UpdatedAt")
     private LocalDateTime updatedAt;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "Apartment_Motor",
+            joinColumns = @JoinColumn(name = "ApartmentID")
+    )
+    @Column(name = "MotorNumbers")
+    private Set<String> motorNumbers;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "Apartment_Car",
+            joinColumns = @JoinColumn(name = "ApartmentID")
+    )
+    @Column(name = "CarNumbers")
+    private Set<String> carNumbers;
 }
