@@ -72,7 +72,28 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
           "id": 3,
           "full_name": "Nguyen Van A",
           "phone": "0901234567"
-        }
+        },
+        "total_motor": 2,
+        "total_car": 3,
+        "motor_numbers": [
+          {
+            "number": "A12-334"
+          },
+          {
+            "number": "B12-332"
+          }        
+        ],
+        "car_numbers": [
+          {
+            "number": "C12-334"
+          },
+          {
+            "number": "D12-332"
+          },
+          {
+            "number": "E12-332"
+          }              
+        ]       
       }
     ]
   }
@@ -94,7 +115,18 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
     "residents": [
       {"resident_id": 3, "full_name": "Nguyen Van A"},
       {"resident_id": 10, "full_name": "Tran Thi B"}
-    ]
+    ],
+    "total_motor": 2,
+    "total_car": 3,
+    "motors": [
+      {"number": "A12-334"},
+      {"number": "B12-332"}        
+    ],
+    "cars": [
+      {"number": "C12-334"},
+      {"number": "D12-332"},
+      {"number": "E12-332"}              
+    ]       
   }
   ```
 
@@ -113,6 +145,13 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
     "residents": [
       {"id": 3},
       {"id": 10}
+    ],
+    "motors": [
+      {"number":  "A12-443"},
+      {"number":  "A33-333"},
+    ],
+    "cars": [
+      {"number":  "D33-222"}
     ]
   }
   ```
@@ -133,6 +172,13 @@ Nếu API chứa query param theo mảng, truyền theo định dạng (ví dụ
     "residents": [
       {"id": 3},
       {"id": 10}
+    ],
+    "motors": [
+      {"number":  "A12-443"},
+      {"number":  "A33-333"},
+    ],
+    "cars": [
+      {"number":  "D33-222"}
     ]
   }
   ```
