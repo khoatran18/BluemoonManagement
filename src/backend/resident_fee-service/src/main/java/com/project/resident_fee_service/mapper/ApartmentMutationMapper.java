@@ -9,9 +9,29 @@ public class ApartmentMutationMapper {
 
     public static Apartment toEntity(ApartmentCreateDTO dto) {
         if (dto == null) return null;
+
         Apartment entity = new Apartment();
         entity.setBuilding(dto.building);
         entity.setRoomNumber(dto.roomNumber);
+
+        // Motors
+        entity.setMotorNumbers(
+                dto.motors == null
+                        ? java.util.Set.of()
+                        : dto.motors.stream()
+                        .map(m -> m.number)
+                        .collect(java.util.stream.Collectors.toSet())
+        );
+
+        // Cars
+        entity.setCarNumbers(
+                dto.cars == null
+                        ? java.util.Set.of()
+                        : dto.cars.stream()
+                        .map(c -> c.number)
+                        .collect(java.util.stream.Collectors.toSet())
+        );
+
         return entity;
     }
 
@@ -36,6 +56,24 @@ public class ApartmentMutationMapper {
             for (Resident r : residents) {
                 r.setApartment(entity);
             }
+        }
+
+        // ===== Motors (PUT = overwrite) =====
+        if (dto.motors != null) {
+            entity.setMotorNumbers(
+                    dto.motors.stream()
+                            .map(m -> m.number)
+                            .collect(java.util.stream.Collectors.toSet())
+            );
+        }
+
+        // ===== Cars (PUT = overwrite) =====
+        if (dto.cars != null) {
+            entity.setCarNumbers(
+                    dto.cars.stream()
+                            .map(c -> c.number)
+                            .collect(java.util.stream.Collectors.toSet())
+            );
         }
     }
 

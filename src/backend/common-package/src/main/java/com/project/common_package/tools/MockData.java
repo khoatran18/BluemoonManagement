@@ -29,6 +29,16 @@ public class MockData {
                     "Nguyễn Đình Vũ"
             );
 
+    private static final String[] PROVINCE_CODES = {
+            "29", "30", "31", "32", "33",   // Hà Nội
+            "50", "51", "52", "53", "54",   // TP.HCM
+            "36",                           // Hoa Thánh
+            "88", "89",                    // Vĩnh Phúc, Hưng Yên
+            "17", "18",                    // Thái Bình, Nam Định
+            "43", "47"                     // Đà Nẵng, Đắk Lắk
+    };
+
+
     public static void main(String[] args) throws Exception {
 
         System.out.println("Checking if admin account existed and get ADMIN TOKEN");
@@ -51,10 +61,26 @@ public class MockData {
             String building = (i <= 25) ? "A" : "B";
             int floor = (i % 5 == 0) ? (i / 5) : (i / 5 + 1);
             String room = building + floor + (i < 10 ? "0" + i : i);
-            String body = "{" +
-                    "\"building\":\"" + building + "\"," +
-                    "\"room_number\":\"" + room + "\"" +
-                    "}";
+            String body = """
+                {
+                  "building": "%s",
+                  "room_number": "%s",
+                  "motors": [
+                    {"number": "%s"},
+                    {"number": "%s"}
+                  ],
+                  "cars": [
+                    {"number": "%s"}
+                  ]
+                }
+                """.formatted(
+                    building,
+                    room,
+                    randomMotor(i, 1),
+                    randomMotor(i, 2),
+                    randomCar(i, 1)
+            );
+
             post("/api/v1/apartments", body, i);
         }
         Thread.sleep(5000);
@@ -100,17 +126,42 @@ public class MockData {
             int floor = (apt % 5 == 0) ? (apt / 5) : (apt / 5 + 1);
             String room = building + floor + (apt < 10 ? "0" + apt : apt);
 
-            String body = "{" +
-                    "\"apartment_id\":" + apt + "," +
-                    "\"building\":\"" + building + "\"," +
-                    "\"room_number\":\"" + room + "\"," +
-                    "\"head_resident_id\":" + headResidentId + "," +
-                    "\"residents\":[" +
-                    "{\"id\":" + headResidentId + "}," +
-                    "{\"id\":" + resident2 + "}," +
-                    "{\"id\":" + resident3 + "}" +
-                    "]" +
-                    "}";
+            String body = """
+                {
+                  "apartment_id": %d,
+                  "building": "%s",
+                  "room_number": "%s",
+                  "head_resident_id": %d,
+                  "residents": [
+                    {"id": %d},
+                    {"id": %d},
+                    {"id": %d}
+                  ],
+                  "motors": [
+                    {"number": "%s"},
+                    {"number": "%s"},
+                    {"number": "%s"}
+                  ],
+                  "cars": [
+                    {"number": "%s"},
+                    {"number": "%s"}
+                  ]
+                }
+                """.formatted(
+                    apt,
+                    building,
+                    room,
+                    headResidentId,
+                    headResidentId,
+                    resident2,
+                    resident3,
+                    randomMotor(apt, 1),
+                    randomMotor(apt, 2),
+                    randomMotor(apt, 3),
+                    randomCar(apt, 1),
+                    randomCar(apt, 2)
+            );
+
             put("/api/v1/apartments/" + apt, body, apt);
             Thread.sleep(50);
         }
@@ -299,4 +350,34 @@ public class MockData {
 
         return CLIENT.send(b.build(), HttpResponse.BodyHandlers.ofString());
     }
+
+    // Random motor and car number
+    private static String randomMotor(int apt, int idx) {
+        String province = PROVINCE_CODES[(apt + idx) % PROVINCE_CODES.length];
+        char letter = (char) ('A' + (apt + idx) % 26);
+        int num1 = 100 + RANDOM.nextInt(900);
+        int num2 = 10 + RANDOM.nextInt(90);
+
+        return String.format("%s-%c1 %03d.%02d",
+                province,
+                letter,
+                num1,
+                num2
+        );
+    }
+
+    private static String randomCar(int apt, int idx) {
+        String province = PROVINCE_CODES[(apt * 3 + idx) % PROVINCE_CODES.length];
+        char letter = (char) ('A' + (apt + idx * 2) % 26);
+        int num1 = 100 + RANDOM.nextInt(900);
+        int num2 = 10 + RANDOM.nextInt(90);
+
+        return String.format("%s%c-%03d.%02d",
+                province,
+                letter,
+                num1,
+                num2
+        );
+    }
+
 }

@@ -30,6 +30,18 @@ public class ApartmentDTO {
         @JsonProperty("room_number")
         public String roomNumber;
 
+        @JsonProperty("total_motor")
+        public Integer totalMotor;
+
+        @JsonProperty("total_car")
+        public Integer totalCar;
+
+        @JsonProperty("motor_numbers")
+        public List<VehicleNumberDTO> motorNumbers;
+
+        @JsonProperty("car_numbers")
+        public List<VehicleNumberDTO> carNumbers;
+
         @JsonProperty("head_resident")
         public HeadResident headResident;
         public static class HeadResident {
@@ -57,6 +69,18 @@ public class ApartmentDTO {
         @JsonProperty("head_resident_id")
         public Long headResidentId;
 
+        @JsonProperty("total_motor")
+        public Integer totalMotor;
+
+        @JsonProperty("total_car")
+        public Integer totalCar;
+
+        @JsonProperty("motor_numbers")
+        public List<VehicleNumberDTO> motorNumbers;
+
+        @JsonProperty("car_numbers")
+        public List<VehicleNumberDTO> carNumbers;
+
         @JsonProperty("residents")
         public List<ResidentInfo> residents;
         public static class ResidentInfo {
@@ -81,6 +105,12 @@ public class ApartmentDTO {
         @JsonProperty("head_resident_id")
         public Long headResidentId;
 
+        @JsonProperty("motors")
+        public List<VehicleNumberDTO> motors;
+
+        @JsonProperty("cars")
+        public List<VehicleNumberDTO> cars;
+
         @JsonProperty("residents")
         public List<ResidentInfo> residents;
         public static class ResidentInfo {
@@ -99,6 +129,12 @@ public class ApartmentDTO {
         @JsonProperty("head_resident_id")
         public Long headResidentId;
 
+        @JsonProperty("motors")
+        public List<VehicleNumberDTO> motors;
+
+        @JsonProperty("cars")
+        public List<VehicleNumberDTO> cars;
+
         @JsonProperty("residents")
         public List<ApartmentUpdateDTO.ResidentInfo> residents;
         public static class ResidentInfo {
@@ -115,5 +151,10 @@ public class ApartmentDTO {
     public static class ApartmentSpecificAdjustmentsResponseDTO {
         @JsonProperty("apartment_specific_adjustments")
         public List<AdjustmentDTO.GetAdjustmentsResponseItemDTO> adjustments;
+    }
+
+    public static class VehicleNumberDTO {
+        @JsonProperty("number")
+        public String number;
     }
 }

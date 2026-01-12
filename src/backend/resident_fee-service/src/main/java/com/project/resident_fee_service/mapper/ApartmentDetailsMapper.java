@@ -23,6 +23,29 @@ public class ApartmentDetailsMapper {
                 .map(ApartmentDetailsMapper::mapResidentInfo)
                 .collect(Collectors.toList());
 
+        // ===== Motors =====
+        dto.totalMotor = entity.getMotorNumbers() == null
+                ? 0
+                : entity.getMotorNumbers().size();
+
+        dto.motorNumbers = entity.getMotorNumbers() == null
+                ? java.util.List.of()
+                : entity.getMotorNumbers().stream()
+                .map(ApartmentDetailsMapper::mapVehicleNumber)
+                .collect(Collectors.toList());
+
+        // ===== Cars =====
+        dto.totalCar = entity.getCarNumbers() == null
+                ? 0
+                : entity.getCarNumbers().size();
+
+        dto.carNumbers = entity.getCarNumbers() == null
+                ? java.util.List.of()
+                : entity.getCarNumbers().stream()
+                .map(ApartmentDetailsMapper::mapVehicleNumber)
+                .collect(Collectors.toList());
+
+
         return dto;
     }
 
@@ -31,5 +54,11 @@ public class ApartmentDetailsMapper {
         info.residentId = r.getResidentId();
         info.fullName = r.getFullName();
         return info;
+    }
+
+    private static VehicleNumberDTO mapVehicleNumber(String number) {
+        VehicleNumberDTO dto = new VehicleNumberDTO();
+        dto.number = number;
+        return dto;
     }
 }

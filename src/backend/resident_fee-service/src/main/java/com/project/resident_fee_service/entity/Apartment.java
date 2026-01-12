@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -80,7 +81,7 @@ public class Apartment {
             joinColumns = @JoinColumn(name = "ApartmentID")
     )
     @Column(name = "MotorNumbers")
-    private Set<String> motorNumbers;
+    private Set<String> motorNumbers = new HashSet<>();
 
     @ElementCollection
     @CollectionTable(
@@ -88,5 +89,5 @@ public class Apartment {
             joinColumns = @JoinColumn(name = "ApartmentID")
     )
     @Column(name = "CarNumbers")
-    private Set<String> carNumbers;
+    private Set<String> carNumbers = new HashSet<>();
 }
