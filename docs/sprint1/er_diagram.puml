@@ -11,6 +11,16 @@ entity "Apartment" as Apartment {
   UpdatedAt: LocalDateTime
 }
 
+entity "Apartment_Motor" as ApartmentMotor {
+  + ApartmentID: Long <<PK, FK>>
+  + MotorNumbers: String <<PK>>
+}
+
+entity "Apartment_Car" as ApartmentCar {
+  + ApartmentID: Long <<PK, FK>>
+  + CarNumbers: String <<PK>>
+}
+
 entity "Resident" as Resident {
   + ResidentID: Long <<PK>>
   --
@@ -55,23 +65,22 @@ entity "Fee" as Fee {
   CreatedAt: LocalDateTime
   UpdatedAt: LocalDateTime
   --
-   <<CHECK>> Status IN ('Draft', 'Active', 'Closed', 'Archived')
+  <<CHECK>> Status IN ('Draft', 'Active', 'Closed', 'Archived')
 }
 
-
-entity "ApartmentFeeStatus" as ApartmentFeeStatus{
-  + AparmentID: Long <<PK, FK>>
+entity "ApartmentFeeStatus" as ApartmentFeeStatus {
+  + ApartmentID: Long <<PK, FK>>
   --
   AmountPaid: DECIMAL(12,2)
   Balance: DECIMAL(12,2)
   UpdatedAt: LocalDateTime
 }
 
-entity "Adjustment" as Adjustment{
+entity "Adjustment" as Adjustment {
   + AdjustmentID: Long <<PK>>
   --
-  FeeID: NULL Long <<FK>>
-  AdjustmentAmount: DECIMAL(12, 2)
+  FeeID: Long <<FK>>
+  AdjustmentAmount: DECIMAL(12,2)
   AdjustmentType: String
   Reason: String
   StartDate: LocalDate
@@ -80,7 +89,7 @@ entity "Adjustment" as Adjustment{
   <<CHECK>> AdjustmentType IN ('increase', 'decrease')
 }
 
-entity "AdjustmentBalance" as AdjustmentBalance{
+entity "AdjustmentBalance" as AdjustmentBalance {
   + AdjustmentBalanceID: Long <<PK>>
   --
   ApartmentID: Long
@@ -91,7 +100,7 @@ entity "AdjustmentBalance" as AdjustmentBalance{
   AdjustmentBalanceNote: String
 }
 
-entity "PayHistory" as PayHistory{
+entity "PayHistory" as PayHistory {
   + PayHistoryID: Long <<PK>>
   --
   ApartmentID: Long
@@ -101,7 +110,7 @@ entity "PayHistory" as PayHistory{
   PayNote: String
 }
 
-entity "Account" as Account{
+entity "Account" as Account {
   + AccountID: Long <<PK>>
   --
   Username: String
@@ -114,15 +123,17 @@ entity "Account" as Account{
   <<CHECK>> Role IN ('Citizen', 'FeeCollector', 'Admin')
 }
 
-
 '--------------------------
-' Relationships + Constraints
+' Relationships
 '--------------------------
 
 Apartment ||--o{ Resident : "has occupants >\nON DELETE SET NULL"
 Resident }o--|| Apartment : "belongs to >"
-Resident |o--o{ Resident: "owner-tenant >\nON DELETE SET NULL"
+Resident |o--o{ Resident : "owner-tenant >\nON DELETE SET NULL"
 Resident ||--|| Apartment : "head resident >\nON DELETE SET NULL"
+
+Apartment ||--o{ ApartmentMotor : "has motor numbers >\nON DELETE CASCADE"
+Apartment ||--o{ ApartmentCar   : "has car numbers >\nON DELETE CASCADE"
 
 FeeType ||--|{ Fee : "categorizes >\nON DELETE CASCADE"
 FeeType ||--|{ FeeCategory : "groups >\nON DELETE CASCADE"
