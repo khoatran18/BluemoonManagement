@@ -1,6 +1,29 @@
 import axiosClient from "./axiosClient";
 import { apiCall } from "./apiCall";
 
+const normalizeVehicleList = (list) => {
+  if (!Array.isArray(list)) return [];
+
+  const numbers = list
+    .map((v) => {
+      if (typeof v === "string") return v;
+      if (v && typeof v === "object") return v.number;
+      return "";
+    })
+    .map((s) => String(s || "").trim())
+    .filter(Boolean);
+
+  const unique = [];
+  const seen = new Set();
+  for (const n of numbers) {
+    const key = n.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push({ number: n });
+  }
+  return unique;
+};
+
 export const getApartments = async (params = {}) => {
         return apiCall(
             () =>
@@ -31,6 +54,8 @@ export const createApartment = async (apartmentData) => {
         residents: Array.isArray(apartmentData.residents)
           ? apartmentData.residents.map((r) => ({ id: r?.id }))
           : [],
+        motors: normalizeVehicleList(apartmentData?.motors),
+        cars: normalizeVehicleList(apartmentData?.cars),
       }),
     {
       label: 'createApartment',
@@ -49,6 +74,8 @@ export const editApartment = async (apartmentId, apartmentData) => {
         residents: Array.isArray(apartmentData.residents)
           ? apartmentData.residents.map((r) => ({ id: r?.id }))
           : [],
+        motors: normalizeVehicleList(apartmentData?.motors),
+        cars: normalizeVehicleList(apartmentData?.cars),
       }),
     {
       label: 'editApartment',

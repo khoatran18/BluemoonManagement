@@ -221,8 +221,27 @@ export const DataTableSection = ({
           }}
         >
           <Column dataIndex="id" title="Mã cư dân" sortable key="id" />
-          <Column dataIndex="full_name" title="Tên cư dân" sortable key="full_name" />
-          <Column dataIndex="email" title="Email" key="email" />
+          <Column
+            dataIndex="full_name"
+            title="Tên cư dân"
+            sortable
+            key="full_name"
+            className="cell-ellipsis-left"
+            render={(value) => {
+              const text = value ?? "";
+              return <span title={text}>{text}</span>;
+            }}
+          />
+          <Column
+            dataIndex="email"
+            title="Email"
+            key="email"
+            className="cell-ellipsis-left"
+            render={(value) => {
+              const text = value ?? "";
+              return <span title={text}>{text}</span>;
+            }}
+          />
           <Column dataIndex="phone_number" title="Số điện thoại" key="phone_number" />
           <Column
             dataIndex="apartment"

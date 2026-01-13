@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import "./EditResidentModal.css";
 
 export const EditResidentModal = ({ isOpen, onClose, resident, onSubmit }) => {
@@ -9,15 +9,16 @@ export const EditResidentModal = ({ isOpen, onClose, resident, onSubmit }) => {
     phone_number: "",
   });
 
-  useEffect(() => {
-    if (resident) {
-      setFormData({
-        id: resident.id || "",
-        full_name: resident.full_name || resident.name || "",
-        email: resident.email || "",
-        phone_number: resident.phone_number || resident.phone || "",
-      });
-    }
+  // Sync form values from current resident before paint, so the modal
+  // doesn't flash empty/previous values when opening.
+  useLayoutEffect(() => {
+    if (!isOpen || !resident) return;
+    setFormData({
+      id: resident.id || "",
+      full_name: resident.full_name || resident.name || "",
+      email: resident.email || "",
+      phone_number: resident.phone_number || resident.phone || "",
+    });
   }, [resident, isOpen]);
 
   const handleChange = (e) => {
@@ -37,6 +38,12 @@ export const EditResidentModal = ({ isOpen, onClose, resident, onSubmit }) => {
   };
 
   if (!isOpen || !resident) return null;
+
+  const apartmentText = resident?.apartment
+    ? `${resident.apartment.building || ""}${resident.apartment.building && resident.apartment.room_number ? " - " : ""}${resident.apartment.room_number || ""}`
+    : `${resident?.building || ""}${resident?.building && resident?.room ? " - " : ""}${resident?.room || ""}`;
+
+  const roleText = resident?.is_head ? "Chủ hộ" : "Cư dân";
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -66,6 +73,32 @@ export const EditResidentModal = ({ isOpen, onClose, resident, onSubmit }) => {
                 required
                 disabled
               />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="resident_apartment">Căn hộ</label>
+                <input
+                  type="text"
+                  id="resident_apartment"
+                  name="resident_apartment"
+                  value={apartmentText || "—"}
+                  readOnly
+                  disabled
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="resident_role">Vai trò</label>
+                <input
+                  type="text"
+                  id="resident_role"
+                  name="resident_role"
+                  value={roleText}
+                  readOnly
+                  disabled
+                />
+              </div>
             </div>
 
             <div className="form-group">

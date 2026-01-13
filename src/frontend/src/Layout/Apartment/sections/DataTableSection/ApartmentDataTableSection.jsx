@@ -44,6 +44,24 @@ export const ApartmentDataTableSection = ({ searchQuery = "", onNotify, refreshK
           room: item.room_number,
           head_resident: item.head_resident,
           resident_count: undefined,
+          total_motor:
+            typeof item.total_motor === "number"
+              ? item.total_motor
+              : Array.isArray(item.motor_numbers)
+                ? item.motor_numbers.length
+                : 0,
+          total_car:
+            typeof item.total_car === "number"
+              ? item.total_car
+              : Array.isArray(item.car_numbers)
+                ? item.car_numbers.length
+                : 0,
+          motor_numbers: Array.isArray(item.motor_numbers)
+            ? item.motor_numbers.map((m) => m?.number).filter(Boolean)
+            : [],
+          car_numbers: Array.isArray(item.car_numbers)
+            ? item.car_numbers.map((c) => c?.number).filter(Boolean)
+            : [],
         }));
 
         setData(rows);
@@ -102,6 +120,33 @@ export const ApartmentDataTableSection = ({ searchQuery = "", onNotify, refreshK
           if (headResidentData && headResidentData.data) headResidentData = headResidentData.data;
         }
 
+        const normalizeVehicleList = (list) => {
+          if (!Array.isArray(list)) return [];
+          return list
+            .map((v) => {
+              if (typeof v === "string") return { number: v };
+              if (v && typeof v === "object") return { number: v.number };
+              return null;
+            })
+            .filter((v) => v && v.number)
+            .map((v) => ({ number: String(v.number).trim() }))
+            .filter((v) => v.number);
+        };
+
+        const motorsFromApi = Array.isArray(payload?.motors)
+          ? payload.motors
+          : Array.isArray(payload?.motor_numbers)
+            ? payload.motor_numbers
+            : [];
+        const carsFromApi = Array.isArray(payload?.cars)
+          ? payload.cars
+          : Array.isArray(payload?.car_numbers)
+            ? payload.car_numbers
+            : [];
+
+        const motorsNormalized = normalizeVehicleList(motorsFromApi);
+        const carsNormalized = normalizeVehicleList(carsFromApi);
+
         setDetailApartment({
           id: payload?.apartment_id ?? payload?.id ?? apartmentId,
           building: payload?.building,
@@ -110,6 +155,18 @@ export const ApartmentDataTableSection = ({ searchQuery = "", onNotify, refreshK
           head_resident_id: payload?.head_resident_id ?? null,
           residents: Array.isArray(payload?.residents) ? payload.residents : [],
           resident_count: Array.isArray(payload?.residents) ? payload.residents.length : undefined,
+          total_motor:
+            typeof payload?.total_motor === "number"
+              ? payload.total_motor
+              : motorsNormalized.length,
+          total_car:
+            typeof payload?.total_car === "number"
+              ? payload.total_car
+              : carsNormalized.length,
+          motors: motorsNormalized,
+          cars: carsNormalized,
+          motor_numbers: motorsNormalized,
+          car_numbers: carsNormalized,
         });
       } catch (err) {
         setDetailApartment(null);
@@ -179,6 +236,8 @@ export const ApartmentDataTableSection = ({ searchQuery = "", onNotify, refreshK
           room_number: formData?.room_number,
           head_resident_id: formData?.head_resident_id ?? null,
           residents: Array.isArray(formData?.residents) ? formData.residents : [],
+          motors: Array.isArray(formData?.motors) ? formData.motors : [],
+          cars: Array.isArray(formData?.cars) ? formData.cars : [],
         });
 
         if (typeof onNotify === 'function') {
@@ -219,6 +278,7 @@ export const ApartmentDataTableSection = ({ searchQuery = "", onNotify, refreshK
             dataIndex="head_resident"
             title="Trưởng cư dân"
             key="head_resident"
+            className="cell-ellipsis-left"
             render={(_, record) => record.head_resident?.full_name || ""}
           />
           <Column
@@ -227,6 +287,38 @@ export const ApartmentDataTableSection = ({ searchQuery = "", onNotify, refreshK
             sortable
             key="resident_count"
             render={(value) => (typeof value === "number" ? value : "")}
+          />
+
+          <Column
+            dataIndex="total_motor"
+            title="Xe máy"
+            sortable
+            key="total_motor"
+            render={(value, record) => {
+              const n = typeof value === "number" ? value : 0;
+              const tooltip = Array.isArray(record.motor_numbers) && record.motor_numbers.length
+                ? record.motor_numbers.join(", ")
+                : "";
+              return (
+                <span title={tooltip}>{n}</span>
+              );
+            }}
+          />
+
+          <Column
+            dataIndex="total_car"
+            title="Ô tô"
+            sortable
+            key="total_car"
+            render={(value, record) => {
+              const n = typeof value === "number" ? value : 0;
+              const tooltip = Array.isArray(record.car_numbers) && record.car_numbers.length
+                ? record.car_numbers.join(", ")
+                : "";
+              return (
+                <span title={tooltip}>{n}</span>
+              );
+            }}
           />
           <Column
             dataIndex="actions"

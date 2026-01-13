@@ -52,6 +52,39 @@ export const DetailApartmentModal = ({ isOpen, onClose, apartment, loading = fal
         ? apartment.residents.length
         : null;
 
+  const normalizeVehicleNumbers = (list) => {
+    if (!Array.isArray(list)) return [];
+    return list
+      .map((v) => {
+        if (typeof v === "string") return v;
+        if (v && typeof v === "object") return v.number;
+        return "";
+      })
+      .map((s) => String(s || "").trim())
+      .filter(Boolean);
+  };
+
+  const motorNumbers = Array.isArray(apartment?.motors)
+    ? normalizeVehicleNumbers(apartment.motors)
+    : Array.isArray(apartment?.motor_numbers)
+      ? normalizeVehicleNumbers(apartment.motor_numbers)
+      : [];
+
+  const carNumbers = Array.isArray(apartment?.cars)
+    ? normalizeVehicleNumbers(apartment.cars)
+    : Array.isArray(apartment?.car_numbers)
+      ? normalizeVehicleNumbers(apartment.car_numbers)
+      : [];
+
+  const totalMotor =
+    typeof apartment?.total_motor === "number"
+      ? apartment.total_motor
+      : motorNumbers.length;
+  const totalCar =
+    typeof apartment?.total_car === "number"
+      ? apartment.total_car
+      : carNumbers.length;
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content detail-modal" onClick={(e) => e.stopPropagation()}>
@@ -116,6 +149,80 @@ export const DetailApartmentModal = ({ isOpen, onClose, apartment, loading = fal
                       <p className="detail-value">
                         {apartment.head_resident?.resident_id ?? apartment.head_resident_id ?? "—"}
                       </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="detail-section">
+                  <h3 className="section-title">Phương tiện</h3>
+
+                  <div className="detail-grid">
+                    <div className="detail-item">
+                      <label>Tổng xe máy</label>
+                      <p className="detail-value">{typeof totalMotor === "number" ? totalMotor : "—"}</p>
+                    </div>
+
+                    <div className="detail-item">
+                      <label>Tổng ô tô</label>
+                      <p className="detail-value">{typeof totalCar === "number" ? totalCar : "—"}</p>
+                    </div>
+                  </div>
+
+                  <div className="detail-grid" style={{ marginTop: 10 }}>
+                    <div className="detail-item" style={{ gridColumn: "1 / -1" }}>
+                      <label>Danh sách biển số</label>
+
+                      <div className="vehicle-dropdowns">
+                        <details className="vehicle-dropdown">
+                          <summary className="vehicle-dropdown-summary">
+                            <div className="vehicle-summary-left">
+                              <span className="vehicle-summary-title">Xe máy</span>
+                            </div>
+                            <div className="vehicle-summary-right">
+                              <span className="vehicle-summary-count">{motorNumbers.length}</span>
+                            </div>
+                          </summary>
+
+                          <div className="vehicle-dropdown-body">
+                            {motorNumbers.length === 0 ? (
+                              <p className="detail-value">—</p>
+                            ) : (
+                              <div className="vehicle-card-list" aria-label="Danh sách biển số xe máy">
+                                {motorNumbers.map((n) => (
+                                  <div key={n} className="vehicle-card" title={n}>
+                                    {n}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </details>
+
+                        <details className="vehicle-dropdown">
+                          <summary className="vehicle-dropdown-summary">
+                            <div className="vehicle-summary-left">
+                              <span className="vehicle-summary-title">Ô tô</span>
+                            </div>
+                            <div className="vehicle-summary-right">
+                              <span className="vehicle-summary-count">{carNumbers.length}</span>
+                            </div>
+                          </summary>
+
+                          <div className="vehicle-dropdown-body">
+                            {carNumbers.length === 0 ? (
+                              <p className="detail-value">—</p>
+                            ) : (
+                              <div className="vehicle-card-list" aria-label="Danh sách biển số ô tô">
+                                {carNumbers.map((n) => (
+                                  <div key={n} className="vehicle-card" title={n}>
+                                    {n}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </details>
+                      </div>
                     </div>
                   </div>
                 </div>

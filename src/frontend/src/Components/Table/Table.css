@@ -56,6 +56,19 @@
   white-space: nowrap;
 }
 
+/* Left-aligned cells with single-line ellipsis (opt-in via Column.className) */
+.base-table thead th.cell-ellipsis-left {
+  text-align: left;
+}
+
+.base-table tbody td > div.cell-ellipsis-left {
+  justify-content: flex-start;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .base-table tbody tr:hover {
   background: #f8fafc;
 }
@@ -85,6 +98,15 @@
     text-overflow: clip;
     text-align: left;
     justify-content: flex-start;
+  }
+
+  /* Keep ellipsis behavior for opted-in columns even on small screens */
+  .base-table tbody td > div.cell-ellipsis-left {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    justify-content: flex-start;
+    text-align: left;
   }
 }
 

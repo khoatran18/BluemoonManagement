@@ -13,6 +13,9 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
     room_number: "",
   });
 
+  const [motorNumbersText, setMotorNumbersText] = useState("");
+  const [carNumbersText, setCarNumbersText] = useState("");
+
   const [residentsLoading, setResidentsLoading] = useState(false);
   const [residentOptions, setResidentOptions] = useState([]);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -26,6 +29,18 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
   const [selectedResidents, setSelectedResidents] = useState([]);
   const [headResidentId, setHeadResidentId] = useState(null);
 
+  const normalizeVehicleNumbers = (list) => {
+    if (!Array.isArray(list)) return [];
+    return list
+      .map((v) => {
+        if (typeof v === "string") return v;
+        if (v && typeof v === "object") return v.number;
+        return "";
+      })
+      .map((s) => String(s || "").trim())
+      .filter(Boolean);
+  };
+
   useEffect(() => {
     if (!isOpen || !apartment) return;
     setFormData({
@@ -33,6 +48,22 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
       building: apartment.building || "",
       room_number: apartment.room_number || apartment.room || "",
     });
+
+    // Prefill vehicle info from whatever we already have (table row), so
+    // the modal shows current data immediately.
+    const motorsFromRow = Array.isArray(apartment?.motors)
+      ? apartment.motors
+      : Array.isArray(apartment?.motor_numbers)
+        ? apartment.motor_numbers
+        : [];
+    const carsFromRow = Array.isArray(apartment?.cars)
+      ? apartment.cars
+      : Array.isArray(apartment?.car_numbers)
+        ? apartment.car_numbers
+        : [];
+
+    setMotorNumbersText(normalizeVehicleNumbers(motorsFromRow).join("\n"));
+    setCarNumbersText(normalizeVehicleNumbers(carsFromRow).join("\n"));
   }, [apartment, isOpen]);
 
   useEffect(() => {
@@ -100,6 +131,20 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
 
           setSelectedResidents(normalizedResidents);
           setHeadResidentId(payload?.head_resident_id ?? null);
+
+          const motorsFromApi = Array.isArray(payload?.motors)
+            ? payload.motors
+            : Array.isArray(payload?.motor_numbers)
+              ? payload.motor_numbers
+              : [];
+          const carsFromApi = Array.isArray(payload?.cars)
+            ? payload.cars
+            : Array.isArray(payload?.car_numbers)
+              ? payload.car_numbers
+              : [];
+
+          setMotorNumbersText(normalizeVehicleNumbers(motorsFromApi).join("\n"));
+          setCarNumbersText(normalizeVehicleNumbers(carsFromApi).join("\n"));
         }
       } catch (_) {
         // keep whatever we have from table row
@@ -225,10 +270,19 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
     if (onSubmit) {
       if (selectedResidents.length > 0 && !headResidentId) return;
 
+      const parseNumbers = (text) => {
+        return String(text || "")
+          .split(/[\n,;]+/g)
+          .map((s) => s.trim())
+          .filter(Boolean);
+      };
+
       onSubmit({
         ...formData,
         head_resident_id: headResidentId,
         residents: selectedResidents.map((r) => ({ id: r?.resident_id ?? r?.id })),
+        motors: parseNumbers(motorNumbersText).map((number) => ({ number })),
+        cars: parseNumbers(carNumbersText).map((number) => ({ number })),
       });
     }
   };
@@ -400,6 +454,34 @@ export const EditApartmentModal = ({ isOpen, onClose, apartment, onSubmit }) => 
               {selectedResidents.length > 0 && !headResidentId ? (
                 <div className="edit-apartment-hint">Vui lòng chọn 1 chủ hộ.</div>
               ) : null}
+            </div>
+
+            <div className="form-row">
+              <div className="form-group" style={{ width: "100%" }}>
+                <label htmlFor="edit_motor_numbers">Xe máy (mỗi dòng hoặc cách nhau bằng dấu phẩy)</label>
+                <textarea
+                  id="edit_motor_numbers"
+                  value={motorNumbersText}
+                  onChange={(e) => setMotorNumbersText(e.target.value)}
+                  placeholder="VD: A12-334\nB12-332"
+                  rows={3}
+                  disabled={detailLoading}
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group" style={{ width: "100%" }}>
+                <label htmlFor="edit_car_numbers">Ô tô (mỗi dòng hoặc cách nhau bằng dấu phẩy)</label>
+                <textarea
+                  id="edit_car_numbers"
+                  value={carNumbersText}
+                  onChange={(e) => setCarNumbersText(e.target.value)}
+                  placeholder="VD: C12-334\nD12-332"
+                  rows={3}
+                  disabled={detailLoading}
+                />
+              </div>
             </div>
           </div>
 

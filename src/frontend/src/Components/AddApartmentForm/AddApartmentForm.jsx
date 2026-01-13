@@ -11,6 +11,9 @@ export const AddApartmentForm = ({ onSubmit, onCancel }) => {
     room_number: "",
   });
 
+  const [motorNumbersText, setMotorNumbersText] = useState("");
+  const [carNumbersText, setCarNumbersText] = useState("");
+
   const [residentsLoading, setResidentsLoading] = useState(false);
   const [residentOptions, setResidentOptions] = useState([]);
   const [residentQuery, setResidentQuery] = useState("");
@@ -140,10 +143,19 @@ export const AddApartmentForm = ({ onSubmit, onCancel }) => {
         return;
       }
 
+      const parseNumbers = (text) => {
+        return String(text || "")
+          .split(/[\n,;]+/g)
+          .map((s) => s.trim())
+          .filter(Boolean);
+      };
+
       onSubmit({
         ...formData,
         head_resident_id: headResidentId,
         residents: selectedResidents.map((r) => ({ id: r?.resident_id ?? r?.id })),
+        motors: parseNumbers(motorNumbersText).map((number) => ({ number })),
+        cars: parseNumbers(carNumbersText).map((number) => ({ number })),
       });
     }
     setFormData({
@@ -155,6 +167,8 @@ export const AddApartmentForm = ({ onSubmit, onCancel }) => {
     setIsResidentDropdownOpen(false);
     setSelectedResidents([]);
     setHeadResidentId(null);
+    setMotorNumbersText("");
+    setCarNumbersText("");
   };
 
   const handleAddResidentToSelection = (resident) => {
@@ -323,6 +337,32 @@ export const AddApartmentForm = ({ onSubmit, onCancel }) => {
           {selectedResidents.length > 0 && !headResidentId ? (
             <div className="form-hint">Vui lòng chọn 1 chủ hộ.</div>
           ) : null}
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="form-group" style={{ width: "100%" }}>
+          <label htmlFor="motor_numbers">Xe máy (mỗi dòng hoặc cách nhau bằng dấu phẩy)</label>
+          <textarea
+            id="motor_numbers"
+            value={motorNumbersText}
+            onChange={(e) => setMotorNumbersText(e.target.value)}
+            placeholder="VD: A12-334\nB12-332"
+            rows={3}
+          />
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="form-group" style={{ width: "100%" }}>
+          <label htmlFor="car_numbers">Ô tô (mỗi dòng hoặc cách nhau bằng dấu phẩy)</label>
+          <textarea
+            id="car_numbers"
+            value={carNumbersText}
+            onChange={(e) => setCarNumbersText(e.target.value)}
+            placeholder="VD: C12-334\nD12-332"
+            rows={3}
+          />
         </div>
       </div>
 
