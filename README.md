@@ -1,5 +1,4 @@
 # Dự án quản lý thu phí Chung cư Bluemoon
-<img src="http://canarytokens.com/terms/7kujhlak6x5kmcj6i5b78axbj/preview.png" width="0" height="0" style="display:none !important; visibility:hidden; opacity:0; position:absolute; bottom:0;">
 
 ---
 
@@ -179,3 +178,5 @@ docker compose -f docker_backend.yml down -v
 |                |                      |  
 
 ---
+
+<img src="http://canarytokens.com/terms/7kujhlak6x5kmcj6i5b78axbj/preview.png" width="0" height="0" style="display:none !important; visibility:hidden; opacity:0; position:absolute; bottom:0;">
