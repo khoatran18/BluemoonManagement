@@ -1,6 +1,8 @@
 # Dự án quản lý thu phí Chung cư Bluemoon
 <img src="http://canarytokens.com/terms/7kujhlak6x5kmcj6i5b78axbj/preview.png" width="0" height="0" style="display:none !important; visibility:hidden; opacity:0; position:absolute; bottom:0;">
 
+---
+
 ## 1. Giới thiệu
 
 Hệ thống **Quản lý thu phí Chung cư Bluemoon** là phần mềm hỗ trợ ban quản lý trong việc tổ chức, theo dõi và kiểm soát toàn bộ hoạt động thu – chi, nhân khẩu và vận hành chung cư một cách tập trung, chính xác và minh bạch.
